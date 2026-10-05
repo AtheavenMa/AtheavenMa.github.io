@@ -23,6 +23,27 @@ function highlightMe(authors) {
   return authors.replaceAll("Haotian Ma", '<span class="me">Haotian Ma</span>');
 }
 
+function renderCvEntry(item, level) {
+  const tag = level > 1 ? "h4" : "h3";
+  const aside = item.aside ? `<p class="cv-aside">${item.aside}</p>` : "";
+  const lines = (item.lines || [])
+    .map((line) => `<p class="cv-line${line.em ? " em" : ""}">${highlightMe(line.text)}</p>`)
+    .join("");
+  const points = (item.points || []).map((point) => `<li>${highlightMe(point)}</li>`).join("");
+  const list = points ? `<ul class="cv-points">${points}</ul>` : "";
+  const nested = item.items?.length
+    ? `<div class="cv-children">${item.items.map((child) => renderCvEntry(child, level + 1)).join("")}</div>`
+    : "";
+  return (
+    `<article class="cv-entry reveal"><div class="cv-entry-top">` +
+    `<${tag} class="cv-title">${item.title}</${tag}>${aside}</div>${lines}${list}${nested}</article>`
+  );
+}
+
+function renderCvModule(targetId, items) {
+  setHTML(targetId, (items || []).map((item) => renderCvEntry(item, 1)).join(""));
+}
+
 function renderContent() {
   renderSocials("heroSocials");
   renderSocials("contactSocials");
@@ -55,13 +76,12 @@ function renderContent() {
     });
   }
 
-  setHTML("timeline", experience.map((e) =>
-    `<div class="timeline-item reveal"><div class="timeline-dot${e.current ? " current" : ""}"></div>` +
-    `<div class="timeline-card"><span class="timeline-date">${e.date}</span><h3>${e.title}</h3>` +
-    `<p class="timeline-org">${e.org}</p><p>${e.desc}</p></div></div>`
-  ).join(""));
+  renderCvModule("researchList", researchExperience);
+  renderCvModule("educationList", education);
+  renderCvModule("workList", workExperience);
 
-  const listItem = (x) => `<li class="reveal"><strong>${x.title}</strong><br><span class="muted">${x.muted}</span></li>`;
+  const listItem = (x) =>
+    `<li class="reveal"><strong>${x.title}</strong>${x.html ? x.html : `<br><span class="muted">${x.muted}</span>`}</li>`;
   setHTML("serviceList", service.map(listItem).join(""));
   setHTML("openToList", openTo.map(listItem).join(""));
 }

@@ -17,16 +17,18 @@ search_exclude: true
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20260827-submitted" />
+  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261005-awards" />
   <style>
     .venue-cvpr { background: rgba(30, 58, 138, 0.14); color: #1e3a8a; }
     .venue-icml { background: rgba(234, 88, 12, 0.14); color: #c2410c; }
+    .venue-aaai { background: rgba(37, 99, 235, 0.14); color: #1d4ed8; }
     .venue-iclr { background: rgba(245, 158, 11, 0.18); color: #92400e; }
     .venue-ismb { background: rgba(13, 148, 136, 0.14); color: #0f766e; }
     .venue-neurips { background: rgba(220, 38, 38, 0.15); color: #991b1b; }
     .venue-submitted { background: rgba(99, 102, 241, 0.14); color: #4338ca; }
     [data-theme="dark"] .venue-cvpr { background: rgba(96, 165, 250, 0.16); color: #93c5fd; }
     [data-theme="dark"] .venue-icml { background: rgba(251, 113, 60, 0.16); color: #fb923c; }
+    [data-theme="dark"] .venue-aaai { background: rgba(96, 165, 250, 0.16); color: #93c5fd; }
     [data-theme="dark"] .venue-iclr { background: rgba(250, 204, 21, 0.18); color: #facc15; }
     [data-theme="dark"] .venue-ismb { background: rgba(45, 212, 191, 0.16); color: #2dd4bf; }
     [data-theme="dark"] .venue-neurips { background: rgba(248, 113, 113, 0.17); color: #fca5a5; }
@@ -46,8 +48,10 @@ search_exclude: true
       <a href="#top" class="nav-brand">Haotian&nbsp;Ma</a>
       <nav class="nav-links" id="navLinks">
         <a href="#news" class="nav-link">News</a>
+        <a href="#research" class="nav-link">Research</a>
         <a href="#publications" class="nav-link">Publications</a>
-        <a href="#experience" class="nav-link">Experience</a>
+        <a href="#education" class="nav-link">Education</a>
+        <a href="#work" class="nav-link">Work</a>
         <a href="#service" class="nav-link">Service</a>
         <a href="#life" class="nav-link">Life</a>
         <a href="#contact" class="nav-link">Contact</a>
@@ -100,7 +104,14 @@ search_exclude: true
       </div>
     </section>
 
-    <section class="section" id="publications">
+    <section class="section" id="research">
+      <div class="container">
+        <h2 class="section-title reveal">Research Experience</h2>
+        <div class="cv-module" id="researchList"></div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="publications">
       <div class="container">
         <h2 class="section-title reveal">Publications</h2>
         <p class="section-note reveal">Selected shows the focused set by default. Switch to All for the complete list.</p>
@@ -114,10 +125,17 @@ search_exclude: true
       </div>
     </section>
 
-    <section class="section section-alt" id="experience">
+    <section class="section" id="education">
       <div class="container">
-        <h2 class="section-title reveal">Experience &amp; Education</h2>
-        <div class="timeline" id="timeline"></div>
+        <h2 class="section-title reveal">Education</h2>
+        <div class="cv-module" id="educationList"></div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="work">
+      <div class="container">
+        <h2 class="section-title reveal">Work Experience</h2>
+        <div class="cv-module" id="workList"></div>
       </div>
     </section>
 
@@ -171,7 +189,7 @@ search_exclude: true
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg class="btt-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
   <div class="toast" id="toast">Copied to clipboard</div>
 
-  <script src="/assets/landing/js/data.js?v=20261004-cv-submissions"></script>
+  <script src="/assets/landing/js/data.js?v=20261005-awards"></script>
   <script>
     (() => {
       const people = [
@@ -180,42 +198,31 @@ search_exclude: true
         ["Frederic Sala", "https://pages.cs.wisc.edu/~fredsala/"],
         ["Aws Albarghouthi", "https://pages.cs.wisc.edu/~aws/"],
         ["Hu Xu", "https://www.sustech.edu.cn/zh/faculties/english-xu-hu.html"],
+        ["Philip Townsend", "https://forestandwildlifeecology.wisc.edu/people/faculty-and-staff/philip-townsend/"],
+        ["Ying Nian Wu", "https://scholar.google.com/citations?user=7k_1QFIAAAAJ&hl=en"],
+        ["Jamison Wendlandt", "https://conduct.students.wisc.edu/staff/wendlandt-jamison/"],
       ];
       const linkPeople = (text) =>
         people.reduce((html, [name, url]) => html.replaceAll(name, `<a href="${url}" target="_blank" rel="noopener">${name}</a>`), text);
-      experience.splice(
-        0,
-        experience.length,
-        {
-          current: true,
-          date: "2021 - 2027",
-          title: "Ph.D. in Computer Science",
-          org: "University of Wisconsin-Madison",
-          desc: "Advisor: Prof. Daifeng Wang. Research on spatial interpretations of transcriptomics data.",
-        },
-        {
-          date: "2021",
-          title: "Research Intern",
-          org: "John Hopcroft Center, Shanghai Jiao Tong University (SJTU)",
-          desc: "Advisor: Prof. Quanshi Zhang. Research on interpretable machine learning.",
-        },
-        {
-          date: "2016 - 2021",
-          title: "B.S. in Physics",
-          org: "Southern University of Science and Technology (SUSTech)",
-          desc: "Supervised by Prof. Hu Xu. Explored on generative models in computational physics study.",
-        },
-      );
+      const linkEntry = (item) => {
+        item.title = linkPeople(item.title);
+        (item.lines || []).forEach((line) => {
+          line.text = linkPeople(line.text);
+        });
+        if (item.points) item.points = item.points.map(linkPeople);
+        (item.items || []).forEach(linkEntry);
+      };
       publications.forEach((p) => {
         p.authors = linkPeople(p.authors);
       });
-      experience.forEach((item) => {
-        item.desc = linkPeople(item.desc);
-      });
+      [researchExperience, education, workExperience].forEach((list) => list.forEach(linkEntry));
       service.splice(
         0,
         service.length,
-        { title: "Awards", muted: "ICML 2026 Silver Reviewer" },
+        {
+          title: "Awards",
+          html: `<ul class="award-list"><li><strong>Silver Reviewer</strong>, ICML, 2026</li><li><strong>Departmental Scholarship</strong>, UW–Madison Computer Sciences, 2026, 2024</li><li><strong>Student and Young Professional Award</strong>, ACM BCB, 2025</li><li><strong>First-Year Departmental Scholarship</strong>, UW–Madison Computer Sciences, 2021</li><li><strong>Second Prize</strong>, ASC Student Supercomputer Challenge, 2018</li><li><strong>Silver Medal</strong>, International Genetically Engineered Machine Competition, 2018</li><li><strong>Outstanding Camper</strong>, 6th of 120, Nankai University National Philosophy Summer Program for High School Students, 2015</li><li><strong>National Second Prize</strong>, 6th National Mathematics, Physics and Chemistry Competition for Secondary School Students, 2014</li></ul>`,
+        },
         { title: "Journal Reviewer", muted: "IEEE Transactions on Neural Networks and Learning Systems (TNNLS), Pattern Recognition (Elsevier)" },
         { title: "Conference Reviewer", muted: "AAAI 2027, NeurIPS 2026, ICML 2026, CVPR 2026, etc." },
         {
@@ -244,6 +251,6 @@ search_exclude: true
       );
     })();
   </script>
-  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20260909-journal-reviewer"></script>
+  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20261005-awards"></script>
 </body>
 </html>
