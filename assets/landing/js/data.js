@@ -371,7 +371,7 @@ const education = [
 
 const workExperience = [
   {
-    title: '<a href="https://www.waisman.wisc.edu/" target="_blank" rel="noopener">Waisman Center</a>, University of Wisconsin–Madison',
+    title: "Waisman Center, University of Wisconsin–Madison",
     aside: "Sep 2023 – Present",
     lines: [
       { text: "Madison, WI" },

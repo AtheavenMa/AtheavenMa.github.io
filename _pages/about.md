@@ -87,7 +87,7 @@ search_exclude: true
         </div>
         <figure class="hero-photo photo-frame reveal">
           <img src="/assets/img/haotian_profile.png" alt="Portrait of Haotian Ma" loading="eager" />
-          <figcaption>Explainable AI &middot; Mechanistic interpretability &middot; SAE &middot; feature combination</figcaption>
+          <figcaption>Explainable AI &middot; Mechanistic Interpretability &middot; SAE &middot; Feature Combination</figcaption>
         </figure>
       </div>
       <a href="#education" class="scroll-hint" aria-label="Scroll down"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></a>
@@ -211,7 +211,7 @@ search_exclude: true
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg class="btt-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
   <div class="toast" id="toast">Copied to clipboard</div>
 
-  <script src="/assets/landing/js/data.js?v=20261007-wc"></script>
+  <script src="/assets/landing/js/data.js?v=20261007-cap"></script>
   <script>
     (() => {
       const people = [
