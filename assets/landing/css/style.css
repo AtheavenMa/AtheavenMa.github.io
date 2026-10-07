@@ -75,7 +75,7 @@ a:hover { text-decoration: underline; }
 }
 .nav.scrolled { border-bottom-color: var(--border); box-shadow: var(--shadow); }
 .nav-inner {
-  max-width: 1060px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 14px 24px;
   display: flex;
@@ -95,9 +95,9 @@ a:hover { text-decoration: underline; }
 .nav-link {
   color: var(--text-soft);
   border-radius: 8px;
-  font-size: 0.92rem;
+  font-size: 0.84rem;
   font-weight: 500;
-  padding: 6px 12px;
+  padding: 6px 8px;
   transition: color 0.2s, background 0.2s;
 }
 .nav-link:hover, .nav-link.active { background: var(--accent-soft); color: var(--accent); text-decoration: none; }
@@ -146,12 +146,11 @@ a:hover { text-decoration: underline; }
 .btn-ghost { background: transparent; color: var(--accent-2); display: block; margin: 18px auto 0; }
 
 .hero {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
-  padding: 120px 0 64px;
+  padding: 108px 0 12px;
   position: relative;
 }
 .hero-inner {
@@ -201,6 +200,7 @@ a:hover { text-decoration: underline; }
 }
 .hl.marked { background-size: 100% 45%; }
 .hero-bio { color: var(--text-soft); margin-bottom: 28px; max-width: 62ch; }
+.hero-bio strong { color: var(--text); font-weight: 800; }
 .hero-cta, .hero-socials { display: flex; flex-wrap: wrap; gap: 14px; }
 .hero-cta { margin-bottom: 28px; }
 .social-link {
@@ -263,7 +263,7 @@ a:hover { text-decoration: underline; }
 }
 .scroll-hint { bottom: 24px; color: var(--muted); left: 50%; position: absolute; transform: translateX(-50%); z-index: 1; }
 
-.section { padding: 92px 0; position: relative; }
+.section { padding: 28px 0; position: relative; }
 .section-alt { background: var(--bg-alt); }
 .section-title {
   color: var(--text);
@@ -272,10 +272,11 @@ a:hover { text-decoration: underline; }
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.15;
-  margin-bottom: 26px;
+  margin-bottom: 14px;
 }
 .section-title.centered, .contact-text { text-align: center; }
-.section-note { color: var(--text-soft); margin: -12px 0 26px; max-width: 68ch; }
+.block-follow { margin-top: 22px; }
+.section-note { color: var(--text-soft); margin: 0 0 16px; max-width: 68ch; }
 .news-list { display: grid; gap: 14px; list-style: none; }
 .news-item {
   align-items: baseline;
@@ -290,6 +291,8 @@ a:hover { text-decoration: underline; }
 }
 .news-date { color: var(--accent); font-family: var(--font-mono); font-size: 0.84rem; font-weight: 700; }
 .news-item p { color: var(--text-soft); }
+.news-list.wide-label .news-item { grid-template-columns: minmax(168px, 280px) 1fr; }
+.news-list.wide-label .news-date { line-height: 1.35; }
 .hidden-news { display: none; }
 .show-all-news .hidden-news { display: grid; }
 
@@ -340,6 +343,7 @@ a:hover { text-decoration: underline; }
 .venue-aaai { background: rgba(37, 99, 235, 0.14); color: #1d4ed8; }
 .venue-iclr { background: rgba(245, 158, 11, 0.18); color: #92400e; }
 .venue-ismb { background: rgba(13, 148, 136, 0.14); color: #0f766e; }
+.venue-naacl { background: rgba(8, 145, 178, 0.14); color: #0e7490; }
 .venue-neurips { background: rgba(220, 38, 38, 0.15); color: #991b1b; }
 .venue-preprint { background: rgba(107, 114, 128, 0.12); color: var(--muted); }
 .venue-submitted { background: rgba(99, 102, 241, 0.14); color: #4338ca; }
@@ -349,6 +353,7 @@ a:hover { text-decoration: underline; }
 [data-theme="dark"] .venue-aaai { background: rgba(96, 165, 250, 0.16); color: #93c5fd; }
 [data-theme="dark"] .venue-iclr { background: rgba(250, 204, 21, 0.18); color: #facc15; }
 [data-theme="dark"] .venue-ismb { background: rgba(45, 212, 191, 0.16); color: #2dd4bf; }
+[data-theme="dark"] .venue-naacl { background: rgba(34, 211, 238, 0.16); color: #67e8f9; }
 [data-theme="dark"] .venue-neurips { background: rgba(248, 113, 113, 0.17); color: #fca5a5; }
 [data-theme="dark"] .venue-submitted { background: rgba(129, 140, 248, 0.16); color: #a5b4fc; }
 .pub-title { font-size: 1.08rem; line-height: 1.35; margin-bottom: 8px; }
@@ -519,7 +524,7 @@ a:hover { text-decoration: underline; }
   .hero-inner, .two-col, .after-hours { grid-template-columns: 1fr; }
   .hero { min-height: auto; }
   .hero-photo { order: -1; }
-  .section { padding: 72px 0; }
+  .section { padding: 22px 0; }
 }
 
 @media (max-width: 620px) {

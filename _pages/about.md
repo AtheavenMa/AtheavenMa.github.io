@@ -17,7 +17,7 @@ search_exclude: true
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261005-awards" />
+  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261007-filters" />
   <style>
     .venue-cvpr { background: rgba(30, 58, 138, 0.14); color: #1e3a8a; }
     .venue-icml { background: rgba(234, 88, 12, 0.14); color: #c2410c; }
@@ -47,12 +47,14 @@ search_exclude: true
     <div class="nav-inner">
       <a href="#top" class="nav-brand">Haotian&nbsp;Ma</a>
       <nav class="nav-links" id="navLinks">
-        <a href="#news" class="nav-link">News</a>
         <a href="#education" class="nav-link">Education</a>
         <a href="#research" class="nav-link">Research</a>
-        <a href="#publications" class="nav-link">Publications</a>
+        <a href="#papers" class="nav-link">Papers</a>
         <a href="#work" class="nav-link">Work</a>
+        <a href="#skills" class="nav-link">Skills</a>
+        <a href="#awards" class="nav-link">Awards</a>
         <a href="#service" class="nav-link">Service</a>
+        <a href="#news" class="nav-link">News</a>
         <a href="#life" class="nav-link">Life</a>
         <a href="#contact" class="nav-link">Contact</a>
       </nav>
@@ -70,38 +72,31 @@ search_exclude: true
     <section class="hero">
       <div class="container hero-inner">
         <div class="hero-text">
-          <p class="hero-kicker reveal">Ph.D. Candidate in Computer Science &middot; <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin-Madison</a></p>
           <h1 class="hero-name">Haotian Ma</h1>
           <p class="hero-lede reveal">Explain AI, from learned features to abstract concepts.</p>
           <p class="hero-bio reveal">
             Hi, I’m Haotian, a final-year Ph.D. candidate in <a href="https://www.cs.wisc.edu/" target="_blank" rel="noopener">Computer Science</a> at the <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin–Madison</a>, advised by Prof. <a href="https://daifengwanglab.org/" target="_blank" rel="noopener">Daifeng Wang</a>. I have also had the pleasure of working with Prof. <a href="https://pages.cs.wisc.edu/~aws/" target="_blank" rel="noopener">Aws Albarghouthi</a> and Prof. <a href="https://pages.cs.wisc.edu/~fredsala/" target="_blank" rel="noopener">Frederic Sala</a>. Previously, I was a research intern at the <a href="https://jhc.sjtu.edu.cn/" target="_blank" rel="noopener">John Hopcroft Center</a>, where I worked with Prof. <a href="http://qszhang.com/" target="_blank" rel="noopener">Quanshi Zhang</a>.
           </p>
           <p class="hero-bio reveal">
-            My goal is to explain AI behavior from the bottom up, starting with learned features and building toward abstract concepts. To pursue this goal, I develop methods to understand how learned representations shape model behavior across interventions, combinations, and changing contexts. My research combines theory, method development, controlled interventions, and large-scale evaluation across mechanistic interpretability, LLM reasoning, AI safety, and AI for scientific discovery.
+            My goal is to explain AI behavior from the bottom up, starting with learned features and building toward abstract concepts. To pursue this goal, I develop methods to understand how learned representations shape model behavior across interventions, combinations, and changing contexts. My research combines theory, method development, controlled interventions, and large-scale evaluation across <strong>mechanistic interpretability</strong>, <strong>LLM reasoning</strong>, <strong>AI safety</strong>, and <strong>AI for scientific discovery</strong>.
           </p>
           <p class="hero-bio reveal">
-            I will keep sharing the latest progress. More work, including blog posts, threads, and open source code, will be coming soon.
+            I am actively seeking Research Scientist positions in mechanistic interpretability, AI safety, and frontier model evaluation!
           </p>
           <div class="hero-cta reveal">
-            <a href="#publications" class="btn btn-primary">View Publications</a>
+            <a href="#research" class="btn btn-primary">Research</a>
+            <a href="#papers" class="btn btn-outline">Papers</a>
+            <a href="/CV.pdf" class="btn btn-outline" target="_blank" rel="noopener">CV</a>
             <a href="mailto:hma232@wisc.edu" class="btn btn-outline">Email Me</a>
           </div>
           <div class="hero-socials reveal" id="heroSocials"></div>
         </div>
         <figure class="hero-photo photo-frame reveal">
           <img src="/assets/img/haotian_profile.png" alt="Portrait of Haotian Ma" loading="eager" />
-          <figcaption>Explain features &middot; Bottom-up methods &middot; Mechanistic interpretability</figcaption>
+          <figcaption>Explainable AI &middot; Mechanistic interpretability &middot; SAE &middot; feature combination</figcaption>
         </figure>
       </div>
-      <a href="#news" class="scroll-hint" aria-label="Scroll down"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></a>
-    </section>
-
-    <section class="section section-alt" id="news">
-      <div class="container">
-        <h2 class="section-title reveal">News</h2>
-        <ul class="news-list" id="newsList"></ul>
-        <button class="btn btn-ghost" id="newsToggle" hidden>Show older news</button>
-      </div>
+      <a href="#education" class="scroll-hint" aria-label="Scroll down"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></a>
     </section>
 
     <section class="section" id="education">
@@ -113,22 +108,26 @@ search_exclude: true
 
     <section class="section section-alt" id="research">
       <div class="container">
-        <h2 class="section-title reveal">Research Experience</h2>
+        <h2 class="section-title reveal">Research</h2>
         <div class="cv-module" id="researchList"></div>
       </div>
     </section>
 
-    <section class="section" id="publications">
+    <section class="section" id="papers">
       <div class="container">
-        <h2 class="section-title reveal">Publications</h2>
-        <p class="section-note reveal">Selected shows the focused set by default. Switch to All for the complete list.</p>
+        <h2 class="section-title reveal">Papers</h2>
+        <p class="section-note reveal">Selected lists the papers in Research. All includes the rest.</p>
         <div class="pub-filters reveal" id="pubFilters">
           <button class="filter-btn active" data-filter="selected">Selected</button>
           <button class="filter-btn" data-filter="all">All</button>
-          <input type="search" id="pubSearch" class="pub-search" placeholder="Search title, venue, author..." aria-label="Search publications" />
+          <button class="filter-btn" data-filter="mech">Mechanistic Interpretability</button>
+          <button class="filter-btn" data-filter="discovery">AI for Scientific Discovery</button>
+          <button class="filter-btn" data-filter="reasoning">LLM Reasoning</button>
+          <button class="filter-btn" data-filter="safety">AI Safety</button>
+          <input type="search" id="pubSearch" class="pub-search" placeholder="Search title, venue, author..." aria-label="Search papers" />
         </div>
         <div class="pub-list" id="pubList"></div>
-        <p class="pub-empty" id="pubEmpty" hidden>No publications match your filter or search.</p>
+        <p class="pub-empty" id="pubEmpty" hidden>No papers match your filter or search.</p>
       </div>
     </section>
 
@@ -139,16 +138,45 @@ search_exclude: true
       </div>
     </section>
 
+    <section class="section" id="skills">
+      <div class="container">
+        <h2 class="section-title reveal">Skills</h2>
+        <ul class="award-list" id="skillsList"></ul>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="awards">
+      <div class="container">
+        <h2 class="section-title reveal">Awards</h2>
+        <ul class="award-list" id="awardsList"></ul>
+      </div>
+    </section>
+
     <section class="section" id="service">
       <div class="container two-col">
         <div>
-          <h2 class="section-title reveal">Service</h2>
+          <h2 class="section-title reveal">Professional Service</h2>
           <ul class="simple-list" id="serviceList"></ul>
         </div>
         <div>
-          <h2 class="section-title reveal">Open To</h2>
-          <ul class="simple-list" id="openToList"></ul>
+          <h2 class="section-title reveal">Teaching</h2>
+          <ul class="simple-list" id="teachingList"></ul>
         </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="news">
+      <div class="container">
+        <h2 class="section-title reveal">News</h2>
+        <ul class="news-list" id="newsList"></ul>
+        <button class="btn btn-ghost" id="newsToggle" hidden>Show older news</button>
+      </div>
+    </section>
+
+    <section class="section" id="open-to">
+      <div class="container">
+        <h2 class="section-title reveal">Open To</h2>
+        <ul class="simple-list" id="openToList"></ul>
       </div>
     </section>
 
@@ -158,7 +186,7 @@ search_exclude: true
           <div class="after-hours-copy">
             <p class="after-hours-kicker">Life</p>
             <h2>Stories, systems, and imagined worlds</h2>
-            <p>Outside of research, I enjoy writing, game design, and watching TV shows. In 2025, I finished my first book: a 300,000-word novel about political intrigue, human nature, and war. After I graduate, I plan to explore ways to share it, perhaps through self-publishing, a visual novel adaptation, or AI-generated video.</p>
+            <p>Outside of research, I enjoy writing, game design, and watching TV shows. In 2025, I finished my first book: a 300,000-word novel about political intrigue, human nature, and war. After I graduate, I plan to explore ways to share it, perhaps through self-publishing or a visual novel adaptation.</p>
           </div>
           <div class="after-hours-card">
             <span class="mono">after hours</span>
@@ -189,7 +217,7 @@ search_exclude: true
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg class="btt-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
   <div class="toast" id="toast">Copied to clipboard</div>
 
-  <script src="/assets/landing/js/data.js?v=20261005-awards"></script>
+  <script src="/assets/landing/js/data.js?v=20261007-cvicon"></script>
   <script>
     (() => {
       const people = [
@@ -216,28 +244,13 @@ search_exclude: true
         p.authors = linkPeople(p.authors);
       });
       [researchExperience, education, workExperience].forEach((list) => list.forEach(linkEntry));
-      service.splice(
-        0,
-        service.length,
-        {
-          title: "Awards",
-          html: `<ul class="award-list"><li><strong>Silver Reviewer</strong>, ICML, 2026</li><li><strong>Departmental Scholarship</strong>, UW–Madison Computer Sciences, 2026, 2024</li><li><strong>Student and Young Professional Award</strong>, ACM BCB, 2025</li><li><strong>First-Year Departmental Scholarship</strong>, UW–Madison Computer Sciences, 2021</li><li><strong>Second Prize</strong>, ASC Student Supercomputer Challenge, 2018</li><li><strong>Silver Medal</strong>, International Genetically Engineered Machine Competition, 2018</li><li><strong>Outstanding Camper</strong>, 6th of 120, Nankai University National Philosophy Summer Program for High School Students, 2015</li><li><strong>National Second Prize</strong>, 6th National Mathematics, Physics and Chemistry Competition for Secondary School Students, 2014</li></ul>`,
-        },
-        { title: "Journal Reviewer", muted: "IEEE Transactions on Neural Networks and Learning Systems (TNNLS), Pattern Recognition (Elsevier)" },
-        { title: "Conference Reviewer", muted: "AAAI 2027, NeurIPS 2026, ICML 2026, CVPR 2026, etc." },
-        {
-          title: "Teaching",
-          muted:
-            "CS 320 (Fall 2021, Spring 2022, Fall 2022, Spring 2023)<br>CS 540 (Fall 2023)<br>CS/BMI 776 (Spring 2024, Spring 2025, Spring 2026)<br>CS 760 (Fall 2024, Fall 2025, Fall 2026)",
-        },
-      );
       openTo.splice(
         0,
         openTo.length,
         {
           title: "Positions",
           muted:
-            "I am actively looking for positions related to LLM safety and interpretability, and in particular, I'm interested in developing faithful measurement tools.",
+            "I am actively seeking Research Scientist positions in mechanistic interpretability, AI safety, and frontier model evaluation!",
         },
         {
           title: "Review invitations",
@@ -246,11 +259,11 @@ search_exclude: true
         {
           title: "Collaborations",
           muted:
-            "I am always excited to collaborate on research in mechanistic interpretability, game-theoretic methods, and broader topics in LLM safety. Please feel free to reach out!",
+            "I am always excited to collaborate on research in mechanistic interpretability, LLM reasoning, and broader topics in AI safety. Feel free to reach out!",
         },
       );
     })();
   </script>
-  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20261005-awards"></script>
+  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20261007-cvicon"></script>
 </body>
 </html>
