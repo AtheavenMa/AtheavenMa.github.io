@@ -17,7 +17,7 @@ search_exclude: true
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261007-filters" />
+  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261007-boxes" />
   <style>
     .venue-cvpr { background: rgba(30, 58, 138, 0.14); color: #1e3a8a; }
     .venue-icml { background: rgba(234, 88, 12, 0.14); color: #c2410c; }
@@ -141,14 +141,14 @@ search_exclude: true
     <section class="section" id="skills">
       <div class="container">
         <h2 class="section-title reveal">Skills</h2>
-        <ul class="award-list" id="skillsList"></ul>
+        <ul class="box-list" id="skillsList"></ul>
       </div>
     </section>
 
     <section class="section section-alt" id="awards">
       <div class="container">
         <h2 class="section-title reveal">Awards</h2>
-        <ul class="award-list" id="awardsList"></ul>
+        <ul class="box-list" id="awardsList"></ul>
       </div>
     </section>
 

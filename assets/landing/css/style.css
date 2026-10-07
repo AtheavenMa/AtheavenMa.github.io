@@ -429,6 +429,16 @@ a:hover { text-decoration: underline; }
 .muted { color: var(--text-soft); }
 .award-list { color: var(--text-soft); display: grid; gap: 8px; list-style: disc; margin: 10px 0 0 1.15em; }
 .award-list strong { color: var(--text); font-weight: 800; }
+.box-list { display: grid; gap: 14px; list-style: none; }
+.box-list li {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  color: var(--text-soft);
+  padding: 18px 20px;
+}
+.box-list strong { color: var(--text); font-weight: 800; }
 .after-hours {
   align-items: center;
   background: var(--surface);
