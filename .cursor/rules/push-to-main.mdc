@@ -1,0 +1,14 @@
+---
+description: After a site update, commit the relevant files and push to main
+alwaysApply: true
+---
+
+# Push site updates to main
+
+After finishing a change to this personal site (landing page, content, CV, or related docs), commit the relevant files and push to `main` in the same turn. Do not wait to be asked, and do not leave the update only on the local machine.
+
+- Commit only files that belong to the update. Leave unrelated dirty files unstaged (binary mode flips, skill symlinks, `CV.docx`, images, archives, caches, preview files).
+- Do not update git config. Set the commit author with `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME`, and `GIT_COMMITTER_EMAIL` (`Haotian Ma` / `hma232@wisc.edu`).
+- Push with `git -c credential.helper='!gh auth git-credential' push origin HEAD`.
+- Pushing to `main` is expected. If auto-review blocks it, retry the same push with user approval.
+- Before saying the live site is updated, confirm the GitHub Pages deploy succeeded and the changed asset is on https://atheavenma.github.io/.

@@ -24,7 +24,7 @@ function highlightMe(authors) {
   return authors.replaceAll("Haotian Ma", '<span class="me">Haotian Ma</span>');
 }
 
-function renderCvEntry(item, level) {
+function renderCvEntry(item, level, collapsible) {
   const tag = level > 1 ? "h4" : "h3";
   const aside = item.aside ? `<p class="cv-aside">${item.aside}</p>` : "";
   const lines = (item.lines || [])
@@ -35,14 +35,33 @@ function renderCvEntry(item, level) {
   const nested = item.items?.length
     ? `<div class="cv-children">${item.items.map((child) => renderCvEntry(child, level + 1)).join("")}</div>`
     : "";
+  const chevron =
+    `<svg class="cv-fold-chevron" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+  if (collapsible && nested) {
+    return (
+      `<article class="cv-entry cv-fold reveal">` +
+      `<button type="button" class="cv-fold-toggle" aria-expanded="false">` +
+      `<span class="cv-fold-main"><div class="cv-entry-top"><${tag} class="cv-title">${item.title}</${tag}></div>${lines}</span>` +
+      `${chevron}</button><div class="cv-fold-panel">${nested}</div></article>`
+    );
+  }
+  if (level > 1 && list) {
+    return (
+      `<article class="cv-entry cv-fold">` +
+      `<button type="button" class="cv-fold-toggle" aria-expanded="false">` +
+      `<span class="cv-fold-main"><div class="cv-entry-top"><${tag} class="cv-title">${item.title}</${tag}>${aside}</div>${lines}</span>` +
+      `${chevron}</button><div class="cv-fold-panel">${list}</div></article>`
+    );
+  }
+  const shown = level > 1 ? "cv-entry" : "cv-entry reveal";
   return (
-    `<article class="cv-entry reveal"><div class="cv-entry-top">` +
+    `<article class="${shown}"><div class="cv-entry-top">` +
     `<${tag} class="cv-title">${item.title}</${tag}>${aside}</div>${lines}${list}${nested}</article>`
   );
 }
 
-function renderCvModule(targetId, items) {
-  setHTML(targetId, (items || []).map((item) => renderCvEntry(item, 1)).join(""));
+function renderCvModule(targetId, items, options = {}) {
+  setHTML(targetId, (items || []).map((item) => renderCvEntry(item, 1, Boolean(options.collapsible))).join(""));
 }
 
 function renderContent() {
@@ -78,7 +97,7 @@ function renderContent() {
     });
   }
 
-  renderCvModule("researchList", researchExperience);
+  renderCvModule("researchList", researchExperience, { collapsible: true });
   renderCvModule("educationList", education);
   renderCvModule("workList", workExperience);
 
@@ -95,6 +114,14 @@ function renderContent() {
   setHTML("serviceList", service.map(listItem).join(""));
   setHTML("teachingList", (typeof teaching === "undefined" ? [] : teaching).map(listItem).join(""));
   setHTML("openToList", openTo.map(listItem).join(""));
+
+  document.querySelectorAll(".cv-fold-toggle").forEach((button) => {
+    button.addEventListener("click", () => {
+      const fold = button.closest(".cv-fold");
+      const open = fold.classList.toggle("is-open");
+      button.setAttribute("aria-expanded", String(open));
+    });
+  });
 }
 
 renderContent();

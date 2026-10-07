@@ -17,7 +17,7 @@ search_exclude: true
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261007-boxes" />
+  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261007-cta" />
   <style>
     .venue-cvpr { background: rgba(30, 58, 138, 0.14); color: #1e3a8a; }
     .venue-icml { background: rgba(234, 88, 12, 0.14); color: #c2410c; }
@@ -83,12 +83,6 @@ search_exclude: true
           <p class="hero-bio reveal">
             I am actively seeking Research Scientist positions in mechanistic interpretability, AI safety, and frontier model evaluation!
           </p>
-          <div class="hero-cta reveal">
-            <a href="#research" class="btn btn-primary">Research</a>
-            <a href="#papers" class="btn btn-outline">Papers</a>
-            <a href="/CV.pdf?v=20261007-ea" class="btn btn-outline" target="_blank" rel="noopener">CV</a>
-            <a href="mailto:hma232@wisc.edu" class="btn btn-outline">Email Me</a>
-          </div>
           <div class="hero-socials reveal" id="heroSocials"></div>
         </div>
         <figure class="hero-photo photo-frame reveal">
@@ -264,6 +258,6 @@ search_exclude: true
       );
     })();
   </script>
-  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20261007-cvicon"></script>
+  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20261007-bullets"></script>
 </body>
 </html>

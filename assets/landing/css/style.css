@@ -201,8 +201,7 @@ a:hover { text-decoration: underline; }
 .hl.marked { background-size: 100% 45%; }
 .hero-bio { color: var(--text-soft); margin-bottom: 28px; max-width: 62ch; }
 .hero-bio strong { color: var(--text); font-weight: 800; }
-.hero-cta, .hero-socials { display: flex; flex-wrap: wrap; gap: 14px; }
-.hero-cta { margin-bottom: 28px; }
+.hero-socials { display: flex; flex-wrap: wrap; gap: 14px; }
 .social-link {
   width: 42px;
   height: 42px;
@@ -401,6 +400,25 @@ a:hover { text-decoration: underline; }
 .cv-points { color: var(--text-soft); margin: 8px 0 0 1.15em; }
 .cv-children { display: grid; gap: 12px; margin-top: 16px; }
 .cv-children .cv-entry { background: var(--bg-alt); box-shadow: none; }
+.cv-fold-toggle {
+  align-items: flex-start;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  gap: 16px;
+  padding: 0;
+  text-align: left;
+  width: 100%;
+}
+.cv-fold-main { flex: 1; min-width: 0; }
+.cv-fold-chevron { color: var(--accent); flex: none; margin-top: 4px; transition: transform 0.2s ease; }
+.cv-fold.is-open > .cv-fold-toggle .cv-fold-chevron { transform: rotate(180deg); }
+.cv-fold-panel { display: none; }
+.cv-fold.is-open > .cv-fold-panel { display: block; }
+.cv-fold-toggle:hover .cv-title { color: var(--accent); }
 
 .timeline { position: relative; }
 .timeline::before { background: var(--border); bottom: 0; content: ""; left: 10px; position: absolute; top: 0; width: 2px; }
