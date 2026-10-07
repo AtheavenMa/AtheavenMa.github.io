@@ -3,7 +3,7 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/HunterMa97", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261007-ea", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261007-wc", icon: "cv" },
 ];
 
 const news = [
@@ -371,7 +371,7 @@ const education = [
 
 const workExperience = [
   {
-    title: "University of Wisconsin–Madison",
+    title: '<a href="https://www.waisman.wisc.edu/" target="_blank" rel="noopener">Waisman Center</a>, University of Wisconsin–Madison',
     aside: "Sep 2023 – Present",
     lines: [
       { text: "Madison, WI" },
@@ -380,7 +380,7 @@ const workExperience = [
     points: ["Advisor: Prof. Daifeng Wang"],
   },
   {
-    title: "University of Wisconsin–Madison",
+    title: "Department of Computer Sciences, University of Wisconsin–Madison",
     aside: "Sep 2021 – Jun 2022",
     lines: [
       { text: "Madison, WI" },
