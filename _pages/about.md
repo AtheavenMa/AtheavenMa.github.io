@@ -10,9 +10,9 @@ search_exclude: true
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Haotian Ma</title>
-  <meta name="description" content="Haotian Ma is a Ph.D. student in Computer Science at the University of Wisconsin-Madison working on explainable AI, spatial transcriptomics, and LLM interpretability." />
+  <meta name="description" content="Haotian Ma is a final-year Ph.D. candidate in Computer Science at the University of Wisconsin-Madison. He works on explainable AI, mechanistic interpretability, LLM reasoning and safety, spatial transcriptomics, and scientific discovery." />
   <meta property="og:title" content="Haotian Ma" />
-  <meta property="og:description" content="Explainable AI in the real world, spatial transcriptomics, and LLM interpretability." />
+  <meta property="og:description" content="Explainable AI through faithful representations, across mechanistic interpretability, LLM reasoning and safety, spatial transcriptomics, and scientific discovery." />
   <meta property="og:image" content="/assets/img/haotian_profile.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -48,9 +48,9 @@ search_exclude: true
       <a href="#top" class="nav-brand">Haotian&nbsp;Ma</a>
       <nav class="nav-links" id="navLinks">
         <a href="#news" class="nav-link">News</a>
+        <a href="#education" class="nav-link">Education</a>
         <a href="#research" class="nav-link">Research</a>
         <a href="#publications" class="nav-link">Publications</a>
-        <a href="#education" class="nav-link">Education</a>
         <a href="#work" class="nav-link">Work</a>
         <a href="#service" class="nav-link">Service</a>
         <a href="#life" class="nav-link">Life</a>
@@ -70,14 +70,14 @@ search_exclude: true
     <section class="hero">
       <div class="container hero-inner">
         <div class="hero-text">
-          <p class="hero-kicker reveal">Ph.D. Student in Computer Science &middot; <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin-Madison</a></p>
+          <p class="hero-kicker reveal">Ph.D. Candidate in Computer Science &middot; <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin-Madison</a></p>
           <h1 class="hero-name">Haotian Ma</h1>
           <p class="hero-lede reveal">Explain features through faithful representations and build abstract concepts from the bottom up.</p>
           <p class="hero-bio reveal">
-            Hi, I’m Haotian, a final-year Ph.D. student in <a href="https://www.cs.wisc.edu/" target="_blank" rel="noopener">Computer Science</a> at the <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin–Madison</a>, advised by Prof. <a href="https://daifengwanglab.org/" target="_blank" rel="noopener">Daifeng Wang</a>. I have also had the pleasure of working with Prof. <a href="https://pages.cs.wisc.edu/~aws/" target="_blank" rel="noopener">Aws Albarghouthi</a> and Prof. <a href="https://pages.cs.wisc.edu/~fredsala/" target="_blank" rel="noopener">Frederic Sala</a>. Previously, I was a research intern at the <a href="https://jhc.sjtu.edu.cn/" target="_blank" rel="noopener">John Hopcroft Center</a>, where I worked with Prof. <a href="http://qszhang.com/" target="_blank" rel="noopener">Quanshi Zhang</a>.
+            Hi, I’m Haotian, a final-year Ph.D. candidate in <a href="https://www.cs.wisc.edu/" target="_blank" rel="noopener">Computer Science</a> at the <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin–Madison</a>, advised by Prof. <a href="https://daifengwanglab.org/" target="_blank" rel="noopener">Daifeng Wang</a>. I have also had the pleasure of working with Prof. <a href="https://pages.cs.wisc.edu/~aws/" target="_blank" rel="noopener">Aws Albarghouthi</a> and Prof. <a href="https://pages.cs.wisc.edu/~fredsala/" target="_blank" rel="noopener">Frederic Sala</a>. Previously, I was a research intern at the <a href="https://jhc.sjtu.edu.cn/" target="_blank" rel="noopener">John Hopcroft Center</a>, where I worked with Prof. <a href="http://qszhang.com/" target="_blank" rel="noopener">Quanshi Zhang</a>.
           </p>
           <p class="hero-bio reveal">
-            My goal is to explain AI in terms of features, particularly from the bottom up. I'm focusing on theoretical tools that can build faithful representations from deep neural networks. Based on that, I aim to identify and prioritize abstract concepts, with applications to structural reasoning, computational biology, and broad scientific discovery.
+            My goal is to explain AI in terms of features, particularly from the bottom up. My work combines theory, method development, controlled interventions, and large-scale evaluation across mechanistic interpretability, LLM reasoning, AI safety, and AI for scientific discovery.
           </p>
           <p class="hero-bio reveal">
             I will keep sharing the latest progress. More work, including blog posts, threads, and open source code, will be coming soon.
@@ -104,14 +104,21 @@ search_exclude: true
       </div>
     </section>
 
-    <section class="section" id="research">
+    <section class="section" id="education">
+      <div class="container">
+        <h2 class="section-title reveal">Education</h2>
+        <div class="cv-module" id="educationList"></div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="research">
       <div class="container">
         <h2 class="section-title reveal">Research Experience</h2>
         <div class="cv-module" id="researchList"></div>
       </div>
     </section>
 
-    <section class="section section-alt" id="publications">
+    <section class="section" id="publications">
       <div class="container">
         <h2 class="section-title reveal">Publications</h2>
         <p class="section-note reveal">Selected shows the focused set by default. Switch to All for the complete list.</p>
@@ -122,13 +129,6 @@ search_exclude: true
         </div>
         <div class="pub-list" id="pubList"></div>
         <p class="pub-empty" id="pubEmpty" hidden>No publications match your filter or search.</p>
-      </div>
-    </section>
-
-    <section class="section" id="education">
-      <div class="container">
-        <h2 class="section-title reveal">Education</h2>
-        <div class="cv-module" id="educationList"></div>
       </div>
     </section>
 

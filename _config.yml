@@ -9,7 +9,7 @@ last_name: Ma
 contact_note: >
   The best way to reach me is by email.
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
-  Personal academic website of Haotian Ma, a Ph.D. student in Computer Science at the University of Wisconsin-Madison.
+  Personal academic website of Haotian Ma, a Ph.D. candidate in Computer Science at the University of Wisconsin-Madison.
 footer_text: >
   Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
   Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>.
