@@ -429,9 +429,10 @@ const service = [
 ];
 
 const teaching = [
-  { title: "Teaching Assistant", muted: "UW–Madison: Machine Learning (CS 760)" },
-  { title: "Teaching Assistant", muted: "UW–Madison: Introduction to Artificial Intelligence (CS 540)" },
-  { title: "Teaching Assistant", muted: "UW–Madison: Data Science Programming II (CS 320)" },
+  {
+    title: "Teaching Assistant",
+    muted: "UW–Madison: Machine Learning (CS 760)<br>UW–Madison: Introduction to Artificial Intelligence (CS 540)<br>UW–Madison: Data Science Programming II (CS 320)",
+  },
   { title: "Education Assistant", muted: "UW–Madison ALP Precollege: Introduction to Neuroscience" },
 ];
 
