@@ -3,7 +3,7 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/HunterMa97", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261007-ea", icon: "cv" },
 ];
 
 const news = [
@@ -432,6 +432,7 @@ const teaching = [
   { title: "Teaching Assistant", muted: "UW–Madison: Machine Learning (CS 760)" },
   { title: "Teaching Assistant", muted: "UW–Madison: Introduction to Artificial Intelligence (CS 540)" },
   { title: "Teaching Assistant", muted: "UW–Madison: Data Science Programming II (CS 320)" },
+  { title: "Education Assistant", muted: "UW–Madison ALP Precollege: Introduction to Neuroscience" },
 ];
 
 const openTo = [
