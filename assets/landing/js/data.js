@@ -25,6 +25,7 @@ const skills = [
 ];
 
 const awards = [
+  { html: "<strong>Top Reviewer</strong>, NeurIPS, 2026" },
   { html: "<strong>Silver Reviewer</strong>, ICML, 2026" },
   { html: "<strong>Student and Young Professional Award</strong>, ACM BCB, 2025" },
   { html: "<strong>UW–Madison Computer Sciences Scholarship</strong>, 2024" },
