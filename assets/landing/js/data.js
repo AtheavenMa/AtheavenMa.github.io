@@ -1,7 +1,7 @@
 const socials = [
   { label: "Email", tip: "Email", href: "mailto:hma232@wisc.edu", icon: "email" },
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
-  { label: "GitHub", tip: "GitHub", href: "https://github.com/HunterMa97", icon: "github" },
+  { label: "GitHub", tip: "GitHub", href: "https://github.com/AtheavenMa", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
   { label: "CV", tip: "CV", href: "/CV.pdf?v=20261007-wc", icon: "cv" },
 ];
