@@ -3,7 +3,7 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/AtheavenMa", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261013-eq", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261013-faith", icon: "cv" },
 ];
 
 const news = [
@@ -192,7 +192,7 @@ const researchExperience = [
     title: "Faithful Representations and Mechanistic Interpretability",
     lines: [
       {
-        text: "Develop methods to determine what neural networks represent and whether those representations support faithful explanations and interventions.",
+        text: "Understand what neural networks represent and how those representations support faithful explanations and interventions.",
         em: true,
       },
     ],
