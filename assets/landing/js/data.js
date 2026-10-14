@@ -7,6 +7,7 @@ const socials = [
 ];
 
 const news = [
+  { date: "Oct 14, 2026", html: "I was honored as <strong>Top Reviewer</strong> in NeurIPS 2026." },
   { date: "Sep 24, 2026", html: "<strong>Spectral-Spatial Interpretation</strong> is accepted by NeurIPS 2026!" },
   {
     date: "Jul 22, 2026",
