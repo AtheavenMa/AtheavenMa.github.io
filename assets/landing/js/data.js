@@ -3,7 +3,7 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/AtheavenMa", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261013-faith", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261013-dirs", icon: "cv" },
 ];
 
 const news = [
@@ -192,7 +192,7 @@ const researchExperience = [
     title: "Faithful Representations and Mechanistic Interpretability",
     lines: [
       {
-        text: "Understand what neural networks represent and how those representations support faithful explanations and interventions.",
+        text: "Understand feature representations and how those representations support faithful explanations and interventions.",
         em: true,
       },
     ],
@@ -238,7 +238,7 @@ const researchExperience = [
     title: "Interpretable AI for Scientific Discovery",
     lines: [
       {
-        text: "Develop interpretable AI methods that connect model decisions to scientifically meaningful spatial, spectral, and molecular structure.",
+        text: "Develop interpretable methods that connect model decisions to scientifically meaningful spatial, spectral, and molecular structure.",
         em: true,
       },
     ],
@@ -319,7 +319,7 @@ const researchExperience = [
     title: "Reliable LLMs and AI Safety",
     lines: [
       {
-        text: "Study how AI systems remain reliable under uncertain preferences, underspecified user identities, and risks of private information leakage.",
+        text: "Characterize how AI systems remain reliable under uncertain preferences, underspecified user identities, and risks of private information leakage.",
         em: true,
       },
     ],
