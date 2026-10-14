@@ -1,0 +1,14 @@
+---
+description: Keep CV.docx, CV.pdf, and the webpage in sync
+alwaysApply: true
+---
+
+# CV changes stay in sync
+
+A change to résumé content updates all three in the same turn. Do not stop after only one of them.
+
+1. Edit `CV.docx`. Match the existing bold pattern: the award or role name is bold, and the venue, year, and following comma stay plain.
+2. Export that file to `CV.pdf` with LibreOffice (`soffice --headless --convert-to pdf`). Replace the site's `CV.pdf` with the export.
+3. Update the webpage to the same wording. Awards, experience, and other résumé copy live in `assets/landing/js/data.js`. Bump the `CV.pdf` query string and the `data.js` cache-buster in `_pages/about.md`.
+
+Then commit `CV.pdf` and the page files and push to `main`, as in the site push rule. Leave `CV.docx` itself unstaged. Before saying the site is updated, confirm the live PDF at https://atheavenma.github.io/ contains the new text.
