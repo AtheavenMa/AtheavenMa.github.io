@@ -73,7 +73,7 @@ search_exclude: true
       <div class="container hero-inner">
         <div class="hero-text">
           <h1 class="hero-name">Haotian Ma</h1>
-          <p class="hero-lede reveal">Explain AI, from learned features to abstract concepts.</p>
+          <p class="hero-lede reveal">Explaining AI from learned features to abstract concepts.</p>
           <p class="hero-bio reveal">
             Hi, I’m Haotian, a final-year Ph.D. candidate in <a href="https://www.cs.wisc.edu/" target="_blank" rel="noopener">Computer Science</a> at the <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin–Madison</a>, advised by Prof. <a href="https://daifengwanglab.org/" target="_blank" rel="noopener">Daifeng Wang</a>. I have also had the pleasure of working with Prof. <a href="https://pages.cs.wisc.edu/~aws/" target="_blank" rel="noopener">Aws Albarghouthi</a> and Prof. <a href="https://pages.cs.wisc.edu/~fredsala/" target="_blank" rel="noopener">Frederic Sala</a>. Previously, I was a research intern at the <a href="https://jhc.sjtu.edu.cn/" target="_blank" rel="noopener">John Hopcroft Center</a>, where I worked with Prof. <a href="http://qszhang.com/" target="_blank" rel="noopener">Quanshi Zhang</a>.
           </p>
