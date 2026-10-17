@@ -1,0 +1,33 @@
+name: Source snapshot for website refresh
+on:
+  push:
+    branches: [prep/website-refresh-source-snapshot]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Package existing website source for offline review
+        shell: bash
+        run: |
+          mkdir -p source-snapshot
+          for path in _pages/about.md _pages/cv.md _pages/blog.md _pages/news.md \
+               assets/landing/js/data.js assets/landing/js/main-20260813-landing-4.js \
+               assets/landing/js/main.js assets/landing/css/style.css \
+               _bibliography/papers.bib _data/cv.yml _data/socials.yml _data/repositories.yml \
+               assets/json/resume.json _config.yml README.md .github/workflows/deploy.yml \
+               .github/workflows/render-cv.yml Gemfile package.json; do
+            if test -f "$path"; then mkdir -p "source-snapshot/$(dirname "$path")"; cp "$path" "source-snapshot/$path"; fi
+          done
+          git rev-parse HEAD > source-snapshot/SNAPSHOT_COMMIT
+          find source-snapshot -type f | sort
+      - uses: actions/upload-artifact@v4
+        with:
+          name: website-source-snapshot
+          path: source-snapshot/
+          retention-days: 2
