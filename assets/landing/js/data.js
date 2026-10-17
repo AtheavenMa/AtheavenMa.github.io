@@ -407,7 +407,7 @@ const workExperience = [
     ],
   },
   {
-    title: "Waisman Center, University of Wisconsin–Madison",
+    title: '<a href="https://www.waisman.wisc.edu/" target="_blank" rel="noopener noreferrer">Waisman Center</a>, University of Wisconsin–Madison',
     aside: "Sep 2023 – Present",
     lines: [
       { text: "Madison, WI" },
@@ -416,7 +416,7 @@ const workExperience = [
     points: ["Advisor: Prof. Daifeng Wang"],
   },
   {
-    title: "Department of Computer Sciences, University of Wisconsin–Madison",
+    title: '<a href="https://www.cs.wisc.edu/" target="_blank" rel="noopener noreferrer">Department of Computer Sciences</a>, University of Wisconsin–Madison',
     aside: "Sep 2021 – Jun 2022",
     lines: [
       { text: "Madison, WI" },
@@ -425,7 +425,7 @@ const workExperience = [
     points: ["Advisors: Prof. Aws Albarghouthi and Prof. Frederic Sala"],
   },
   {
-    title: "Center for Vision, Cognition, Learning, and Autonomy (VCLA), UCLA",
+    title: '<a href="https://vcla.stat.ucla.edu/" target="_blank" rel="noopener noreferrer">Center for Vision, Cognition, Learning, and Autonomy (VCLA)</a>, UCLA',
     aside: "Jul 2020 – Oct 2020",
     lines: [
       { text: "Los Angeles, CA" },
@@ -434,7 +434,7 @@ const workExperience = [
     points: ["Advisor: Prof. Ying Nian Wu"],
   },
   {
-    title: "Department of Physics, Southern University of Science and Technology",
+    title: '<a href="https://phy.sustech.edu.cn/" target="_blank" rel="noopener noreferrer">Department of Physics</a>, Southern University of Science and Technology',
     aside: "Sep 2019 – Jun 2020",
     lines: [
       { text: "Shenzhen, China" },
@@ -443,7 +443,7 @@ const workExperience = [
     points: ["Advisor: Prof. Hu Xu"],
   },
   {
-    title: "John Hopcroft Center, Shanghai Jiao Tong University",
+    title: '<a href="https://jhc.sjtu.edu.cn/" target="_blank" rel="noopener noreferrer">John Hopcroft Center</a>, Shanghai Jiao Tong University',
     aside: "Jul 2018 – Jul 2019",
     lines: [
       { text: "Shanghai, China" },

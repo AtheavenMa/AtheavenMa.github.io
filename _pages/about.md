@@ -78,16 +78,13 @@ search_exclude: true
           <h1 class="hero-name">Haotian Ma</h1>
           <p class="hero-lede reveal">Explaining AI from learned features to abstract concepts.</p>
           <p class="hero-bio reveal">
-            Hi, I’m Haotian, a final-year Ph.D. candidate in <a href="https://www.cs.wisc.edu/" target="_blank" rel="noopener">Computer Science</a> at the <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin–Madison</a>, advised by Prof. <a href="https://daifengwanglab.org/" target="_blank" rel="noopener">Daifeng Wang</a>. I have also had the pleasure of working with Prof. <a href="https://pages.cs.wisc.edu/~aws/" target="_blank" rel="noopener">Aws Albarghouthi</a> and Prof. <a href="https://pages.cs.wisc.edu/~fredsala/" target="_blank" rel="noopener">Frederic Sala</a>. Previously, I was a research intern at the <a href="https://jhc.sjtu.edu.cn/" target="_blank" rel="noopener">John Hopcroft Center</a>, where I worked with Prof. <a href="http://qszhang.com/" target="_blank" rel="noopener">Quanshi Zhang</a>.
+            Hi, I’m Haotian, a Ph.D. candidate in <a href="https://www.cs.wisc.edu/" target="_blank" rel="noopener">Computer Science</a> at the <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin–Madison</a>, advised by Prof. <a href="https://daifengwanglab.org/" target="_blank" rel="noopener">Daifeng Wang</a>. I have also had the pleasure of working with Prof. <a href="https://pages.cs.wisc.edu/~aws/" target="_blank" rel="noopener">Aws Albarghouthi</a> and Prof. <a href="https://pages.cs.wisc.edu/~fredsala/" target="_blank" rel="noopener">Frederic Sala</a>. Previously, I was a research intern at the <a href="https://jhc.sjtu.edu.cn/" target="_blank" rel="noopener">John Hopcroft Center</a>, where I worked with Prof. <a href="http://qszhang.com/" target="_blank" rel="noopener">Quanshi Zhang</a>.
           </p>
           <p class="hero-bio reveal">
             My goal is to explain AI behavior from the bottom up, starting with learned features and building toward abstract concepts. To pursue this goal, I develop methods to understand how learned representations shape model behavior across interventions, combinations, and changing contexts. My research combines theory, method development, controlled interventions, open-source research infrastructure, and large-scale evaluation across <strong>mechanistic interpretability</strong>, <strong>LLM reasoning</strong>, <strong>AI safety</strong>, and <strong>AI for scientific discovery</strong>.
           </p>
           <p class="hero-bio reveal">
-            Recently, I founded <a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer">OpenSAE</a> to build broad research infrastructure for LLM evaluation.
-          </p>
-          <p class="hero-bio reveal">
-            I am seeking Research Scientist and postdoctoral research opportunities in mechanistic interpretability, AI safety, and frontier model evaluation.
+            Recently, I founded <a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer">OpenSAE</a> to build broad research infrastructure for LLM evaluation. I am seeking Research Scientist and postdoctoral research opportunities in mechanistic interpretability, AI safety, and frontier model evaluation.
           </p>
           <div class="hero-socials reveal" id="heroSocials"></div>
         </div>
@@ -216,7 +213,7 @@ search_exclude: true
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg class="btt-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
   <div class="toast" id="toast">Copied to clipboard</div>
 
-  <script src="/assets/landing/js/data.js?v=20261017-research"></script>
+  <script src="/assets/landing/js/data.js?v=20261017-units"></script>
   <script>
     (() => {
       const people = [
