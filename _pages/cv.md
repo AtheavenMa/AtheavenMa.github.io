@@ -1,13 +1,17 @@
 ---
-layout: cv
+layout: page
+title: Curriculum Vitae
 permalink: /cv/
-title: CV
 nav: false
-search_exclude: true
-nav_order: 5
-cv_pdf: /assets/pdf/example_pdf.pdf # you can also use external links here
-cv_format: rendercv # options: rendercv, jsonresume
-description: This is a description of the page. You can modify it in '_pages/cv.md'. You can also change or remove the top pdf download button.
-toc:
-  sidebar: left
+search_exclude: false
+description: Current academic curriculum vitae of Haotian Ma.
 ---
+
+# Curriculum Vitae
+
+My current two-page academic CV includes research in mechanistic interpretability,
+AI safety, LLM reasoning, scientific discovery, and open-source research infrastructure.
+
+[Download my CV (PDF)](/CV.pdf){: .btn .btn-primary }
+
+[Research and publications](/#papers) · [Experience](/#work) · [OpenSAE](https://github.com/OpenSAE)

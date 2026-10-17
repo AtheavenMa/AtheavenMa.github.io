@@ -1,14 +1,15 @@
+# Research projects and infrastructure maintained by Haotian Ma and OpenSAE.
 github_users:
-  - torvalds
-  - alshedivat
+  - AtheavenMa
 
 repo_description_lines_max: 2
 
 github_repos:
-  - alshedivat/al-folio
-  - jekyll/jekyll
-  - twbs/bootstrap
-  - jquery/jquery
-  - FortAwesome/Font-Awesome
-  - mathjax/MathJax
-  - jpswalsh/academicons
+  - OpenSAE/SAEBase
+  - OpenSAE/SAE-Behavioral-Compositionality
+  - OpenSAE/Redistribution-Sensitivity-Score
+  - OpenSAE/SAE-Input-Localization
+  - AtheavenMa/Spectral-Spatial-Interpretation
+  - AtheavenMa/SymSelect
+  - AtheavenMa/The-Horizon-of-Reward-Guidance
+  - AtheavenMa/DeepInfo

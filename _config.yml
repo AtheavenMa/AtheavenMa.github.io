@@ -9,11 +9,11 @@ last_name: Ma
 contact_note: >
   The best way to reach me is by email.
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
-  Personal academic website of Haotian Ma, a Ph.D. candidate in Computer Science at the University of Wisconsin-Madison.
+  Academic website of Haotian Ma, a Ph.D. candidate at UW–Madison researching mechanistic interpretability, AI safety, LLM reasoning, and founder of OpenSAE.
 footer_text: >
   Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
   Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>.
-keywords: explainable ai, interpretable machine learning, deep learning, computer science, academic website # add your own keywords or leave empty
+keywords: mechanistic interpretability, sparse autoencoders, OpenSAE, SAEBase, AI safety, LLM evaluation, representation analysis, research scientist, Haotian Ma
 lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
 icon: north-star-favicon.png # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
 

@@ -3,10 +3,18 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/AtheavenMa", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261013-dirs", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261017-opensae", icon: "cv" },
 ];
 
 const news = [
+  {
+    date: "Oct 16, 2026",
+    html: 'Founded <a href="https://github.com/OpenSAE" target="_blank" rel="noopener">OpenSAE</a> and released <a href="https://github.com/OpenSAE/SAEBase/releases/tag/v0.3.0" target="_blank" rel="noopener">SAEBase v0.3.0</a>, open infrastructure for evaluating SAE interventions and reproducibility.',
+  },
+  {
+    date: "Oct 15, 2026",
+    html: 'Released <a href="https://arxiv.org/abs/2610.21261" target="_blank" rel="noopener">SAR</a> and <a href="https://arxiv.org/abs/2610.21240" target="_blank" rel="noopener">RSS</a> preprints with accompanying open-source implementations.',
+  },
   { date: "Oct 14, 2026", html: "I was honored as <strong>Top Reviewer</strong> in NeurIPS 2026." },
   { date: "Sep 24, 2026", html: "<strong>Spectral-Spatial Interpretation</strong> is accepted by NeurIPS 2026!" },
   {
@@ -47,6 +55,7 @@ const publications = [
     title: "SymSelect: Learning Which Transformations to Trust for Systematic Reasoning",
     authors: "Haotian Ma, Ruqi Yang",
     venueFull: "NAACL 2027 Submission",
+    code: "https://github.com/AtheavenMa/SymSelect",
   },
   {
     year: 2027,
@@ -55,8 +64,9 @@ const publications = [
     tags: ["selected"],
     category: "mech",
     title: "Sparse Autoencoders Do Not Guarantee Local Features",
-    authors: "Haotian Ma, Ruqi Yang",
+    authors: "Haotian Ma",
     venueFull: "ICLR 2027 Submission",
+    code: "https://github.com/OpenSAE/SAE-Input-Localization",
   },
   {
     year: 2027,
@@ -65,7 +75,7 @@ const publications = [
     tags: ["selected"],
     category: "reasoning",
     title: "Certifying Reuse for LLM Components from Local Interventions",
-    authors: "Haotian Ma",
+    authors: "Haotian Ma, Ruqi Yang",
     venueFull: "ICLR 2027 Submission",
   },
   {
@@ -77,6 +87,9 @@ const publications = [
     title: "Behavioral Compositionality of Sparse Autoencoder Representations",
     authors: "Haotian Ma, Ziye Mei, Frederic Sala",
     venueFull: "ICLR 2027 Submission",
+    pdf: "https://arxiv.org/pdf/2610.21261",
+    code: "https://github.com/OpenSAE/SAE-Behavioral-Compositionality",
+    demo: "https://huggingface.co/spaces/OpenSAE/sar-tutorial",
   },
   {
     year: 2027,
@@ -87,6 +100,7 @@ const publications = [
     title: "The Horizon of Reward Guidance",
     authors: "Haotian Ma",
     venueFull: "ICLR 2027 Submission",
+    code: "https://github.com/AtheavenMa/The-Horizon-of-Reward-Guidance",
   },
   {
     year: 2027,
@@ -97,6 +111,9 @@ const publications = [
     title: "Representation Redistribution in Sparse Autoencoders",
     authors: "Ziye Mei, Haotian Ma",
     venueFull: "AAAI 2027 Submission",
+    pdf: "https://arxiv.org/pdf/2610.21240",
+    code: "https://github.com/OpenSAE/Redistribution-Sensitivity-Score",
+    demo: "https://opensae.github.io/Redistribution-Sensitivity-Score/",
   },
   {
     year: 2027,
@@ -117,6 +134,8 @@ const publications = [
     title: "Spectral-Spatial Interpretation",
     authors: "Haotian Ma, Ruqi Yang, Philip Townsend",
     venueFull: "NeurIPS 2026",
+    pdf: "https://arxiv.org/pdf/2610.21114",
+    code: "https://github.com/AtheavenMa/Spectral-Spatial-Interpretation",
   },
   {
     year: 2026,
@@ -125,8 +144,9 @@ const publications = [
     tags: ["poster", "selected"],
     category: "discovery",
     title: "Spatial Phenotyping Linking Single Cell Genomics to Disease Pathology through Joint Deep Representation Learning",
-    authors: "Chenfeng He*, Haotian Ma*, Pubudu Kumarage, Xuerou Li, Kalpana Hanthanan Arachchilage, Shuang Liu, Daifeng Wang",
+    authors: "Chenfeng He, Haotian Ma, Pubudu Kumarage, Xuerou Li, Kalpana Hanthanan Arachchilage, Shuang Liu, Daifeng Wang",
     venueFull: "ISMB 2026 Poster",
+    paper: "https://www.researchgate.net/publication/410657317_Spatial_phenotyping_linking_single_cell_genomics_to_disease_pathology_through_joint_deep_representation_learning_phenoSPA_phenotypic_SPatial_Association_of_single_cells_Data",
   },
   {
     year: 2026,
@@ -137,6 +157,8 @@ const publications = [
     title: "SegJointGene: Joint Cell Segmentation and Spatial Gene Prioritization by Information Entropy Guided CNNs",
     authors: "Haotian Ma, Daifeng Wang",
     venueFull: "Bioinformatics 2026",
+    pdf: "https://www.biorxiv.org/content/10.64898/2026.01.08.698474v1.full.pdf",
+    code: "https://github.com/daifengwanglab/segjointgene",
   },
   {
     year: 2022,
@@ -156,6 +178,8 @@ const publications = [
     title: "Quantification and Analysis of Layer-wise and Pixel-wise Information Discarding",
     authors: "Haotian Ma*, Hao Zhang*, Fan Zhou, Yinqing Zhang, Quanshi Zhang",
     venueFull: "ICML 2022 Spotlight",
+    pdf: "https://proceedings.mlr.press/v162/ma22b/ma22b.pdf",
+    code: "https://github.com/haotianSustc/deepinfo",
   },
   {
     year: 2020,
@@ -166,6 +190,7 @@ const publications = [
     title: "Interpretable Complex-Valued Neural Networks for Privacy Protection",
     authors: "Liyao Xiang, Hao Zhang, Haotian Ma, Yifan Zhang, Jie Ren, Quanshi Zhang",
     venueFull: "ICLR 2020",
+    pdf: "https://openreview.net/pdf?id=S1xFl64tDr",
   },
   {
     year: 2019,
@@ -176,6 +201,7 @@ const publications = [
     title: "Interpreting CNNs via Decision Trees",
     authors: "Quanshi Zhang, Yu Yang, Haotian Ma, Ying Nian Wu",
     venueFull: "CVPR 2019",
+    pdf: "https://openaccess.thecvf.com/content_CVPR_2019/papers/Zhang_Interpreting_CNNs_via_Decision_Trees_CVPR_2019_paper.pdf",
   },
   {
     year: 2019,
@@ -201,7 +227,7 @@ const researchExperience = [
       {
         title: "Sparse Autoencoders Do Not Guarantee Local Features",
         aside: "ICLR 2027 Submission",
-        lines: [{ text: "Haotian Ma, Ruqi Yang", em: true }],
+        lines: [{ text: "Haotian Ma", em: true }],
         points: [
           "Demonstrated that accurate sparse autoencoder (SAE) reconstruction does not guarantee localized, interpretable features.",
           "Proved the same SAE can exhibit different input dependencies despite identical representation samples, and validated this across 5 trained SAEs.",
@@ -267,7 +293,7 @@ const researchExperience = [
         aside: "ISMB 2026 Poster",
         lines: [
           {
-            text: "Chenfeng He*, Haotian Ma*, Pubudu Kumarage, Xuerou Li, Kalpana Hanthanan Arachchilage, Shuang Liu, Daifeng Wang",
+            text: "Chenfeng He, Haotian Ma, Pubudu Kumarage, Xuerou Li, Kalpana Hanthanan Arachchilage, Shuang Liu, Daifeng Wang",
             em: true,
           },
         ],
@@ -299,7 +325,7 @@ const researchExperience = [
       {
         title: "Certifying Reuse for LLM Components from Local Interventions",
         aside: "ICLR 2027 Submission",
-        lines: [{ text: "Haotian Ma", em: true }],
+        lines: [{ text: "Haotian Ma, Ruqi Yang", em: true }],
         points: [
           "Formulated a framework to certify when locally tested LLM components can be reused in combinations never evaluated directly.",
           "Proved a few targeted tests can certify component reuse in untested combinations without evaluating every combination.",
@@ -373,6 +399,14 @@ const education = [
 
 const workExperience = [
   {
+    title: '<a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer">OpenSAE</a>',
+    aside: "Oct 2026 – Present",
+    lines: [
+      { text: "Madison, WI" },
+      { text: "Founder &amp; Maintainer. Built SAEBase for large-scale LLM evaluation, SAE interventions, and benchmarking." },
+    ],
+  },
+  {
     title: "Waisman Center, University of Wisconsin–Madison",
     aside: "Sep 2023 – Present",
     lines: [
@@ -441,7 +475,7 @@ const teaching = [
 const openTo = [
   {
     title: "Positions",
-    muted: "I am actively seeking Research Scientist positions in mechanistic interpretability, AI safety, and frontier model evaluation!",
+    muted: "I am seeking Research Scientist and postdoctoral research opportunities in mechanistic interpretability, AI safety, and frontier model evaluation.",
   },
   {
     title: "Review invitations",

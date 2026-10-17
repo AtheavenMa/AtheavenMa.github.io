@@ -86,8 +86,19 @@ function renderContent() {
       article.dataset.tags = (p.tags || []).join(" ");
       article.dataset.category = p.category || "";
       article.dataset.search = deburr([p.title, p.authors, p.venueFull, p.venueBadge, p.year].join(" "));
-      const title = p.url ? `<a href="${p.url}" target="_blank" rel="noopener">${p.title}</a>` : p.title;
-      const links = p.url ? `<div class="pub-links"><a href="${p.url}" class="pub-link" target="_blank" rel="noopener">Paper</a></div>` : "";
+      const paperUrl = p.pdf || p.paper || p.url || "";
+      const title = paperUrl ? `<a href="${paperUrl}" target="_blank" rel="noopener noreferrer">${p.title}</a>` : p.title;
+      const availableLinks = [
+        ["PDF", p.pdf],
+        ["Paper", p.paper || p.url],
+        ["Code", p.code],
+        ["Demo", p.demo],
+      ].filter(([, url]) => Boolean(url));
+      const links = availableLinks.length
+        ? `<div class="pub-links">${availableLinks.map(([label, url]) =>
+            `<a href="${url}" class="pub-link" target="_blank" rel="noopener noreferrer" aria-label="${label}: ${p.title}">${label}</a>`
+          ).join("")}</div>`
+        : "";
       article.innerHTML =
         `<div class="pub-venue-badge venue-${p.badge}">${p.venueBadge}</div>` +
         `<div class="pub-body"><h3 class="pub-title">${title}</h3>` +

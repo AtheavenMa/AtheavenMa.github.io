@@ -10,14 +10,17 @@ search_exclude: true
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Haotian Ma</title>
-  <meta name="description" content="Haotian Ma is a final-year Ph.D. candidate in Computer Science at the University of Wisconsin-Madison. He works on explainable AI, mechanistic interpretability, LLM reasoning and safety, spatial transcriptomics, and scientific discovery." />
+  <meta name="description" content="Haotian Ma is a Computer Science Ph.D. candidate at UW–Madison researching mechanistic interpretability, AI safety, LLM reasoning, and reliable model evaluation. Founder of OpenSAE and creator of SAEBase." />
   <meta property="og:title" content="Haotian Ma" />
-  <meta property="og:description" content="Explainable AI through faithful representations, across mechanistic interpretability, LLM reasoning and safety, spatial transcriptomics, and scientific discovery." />
-  <meta property="og:image" content="/assets/img/haotian_profile.png" />
+  <meta property="og:description" content="Mechanistic interpretability, AI safety, and reliable model evaluation. Founder of OpenSAE and developer of SAEBase research infrastructure." />
+  <meta property="og:image" content="https://atheavenma.github.io/assets/img/haotian_profile.png" />
+  <meta property="og:url" content="https://atheavenma.github.io/" />
+  <meta name="keywords" content="Haotian Ma, mechanistic interpretability, AI safety, sparse autoencoders, SAEBase, OpenSAE, LLM evaluation, representation analysis" />
+  <link rel="canonical" href="https://atheavenma.github.io/" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261013-tip" />
+  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261017-research" />
   <style>
     .venue-cvpr { background: rgba(30, 58, 138, 0.14); color: #1e3a8a; }
     .venue-icml { background: rgba(234, 88, 12, 0.14); color: #c2410c; }
@@ -50,7 +53,7 @@ search_exclude: true
         <a href="#education" class="nav-link">Education</a>
         <a href="#research" class="nav-link">Research</a>
         <a href="#papers" class="nav-link">Papers</a>
-        <a href="#work" class="nav-link">Work</a>
+        <a href="#work" class="nav-link">Experience</a>
         <a href="#skills" class="nav-link">Skills</a>
         <a href="#awards" class="nav-link">Awards</a>
         <a href="#service" class="nav-link">Service</a>
@@ -78,11 +81,20 @@ search_exclude: true
             Hi, I’m Haotian, a final-year Ph.D. candidate in <a href="https://www.cs.wisc.edu/" target="_blank" rel="noopener">Computer Science</a> at the <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin–Madison</a>, advised by Prof. <a href="https://daifengwanglab.org/" target="_blank" rel="noopener">Daifeng Wang</a>. I have also had the pleasure of working with Prof. <a href="https://pages.cs.wisc.edu/~aws/" target="_blank" rel="noopener">Aws Albarghouthi</a> and Prof. <a href="https://pages.cs.wisc.edu/~fredsala/" target="_blank" rel="noopener">Frederic Sala</a>. Previously, I was a research intern at the <a href="https://jhc.sjtu.edu.cn/" target="_blank" rel="noopener">John Hopcroft Center</a>, where I worked with Prof. <a href="http://qszhang.com/" target="_blank" rel="noopener">Quanshi Zhang</a>.
           </p>
           <p class="hero-bio reveal">
-            My goal is to explain AI behavior from the bottom up, starting with learned features and building toward abstract concepts. To pursue this goal, I develop methods to understand how learned representations shape model behavior across interventions, combinations, and changing contexts. My research combines theory, method development, controlled interventions, and large-scale evaluation across <strong>mechanistic interpretability</strong>, <strong>LLM reasoning</strong>, <strong>AI safety</strong>, and <strong>AI for scientific discovery</strong>.
+            My goal is to explain AI behavior from the bottom up, starting with learned features and building toward abstract concepts. To pursue this goal, I develop methods to understand how learned representations shape model behavior across interventions, combinations, and changing contexts. My research combines theory, method development, controlled interventions, open-source research infrastructure, and large-scale evaluation across <strong>mechanistic interpretability</strong>, <strong>LLM reasoning</strong>, <strong>AI safety</strong>, and <strong>AI for scientific discovery</strong>.
           </p>
           <p class="hero-bio reveal">
-            I am actively seeking Research Scientist positions in mechanistic interpretability, AI safety, and frontier model evaluation!
+            I am seeking Research Scientist and postdoctoral research opportunities in mechanistic interpretability, AI safety, and frontier model evaluation.
           </p>
+          <div class="hero-founder reveal">
+            <span class="hero-founder-label">Open-Source Research</span>
+            <span><strong>Founder &amp; Maintainer, <a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer">OpenSAE</a></strong>
+              <span class="hero-founder-sep" aria-hidden="true">·</span>
+              <a href="https://github.com/OpenSAE/SAEBase" target="_blank" rel="noopener noreferrer">SAEBase</a>
+              <span class="hero-founder-sep" aria-hidden="true">·</span>
+              <a href="https://huggingface.co/spaces/OpenSAE/SAEBase" target="_blank" rel="noopener noreferrer">Interactive Lab</a>
+            </span>
+          </div>
           <div class="hero-socials reveal" id="heroSocials"></div>
         </div>
         <figure class="hero-photo photo-frame reveal">
@@ -126,7 +138,7 @@ search_exclude: true
 
     <section class="section section-alt" id="work">
       <div class="container">
-        <h2 class="section-title reveal">Work Experience</h2>
+        <h2 class="section-title reveal">Experience</h2>
         <div class="cv-module" id="workList"></div>
       </div>
     </section>
@@ -210,7 +222,7 @@ search_exclude: true
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg class="btt-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
   <div class="toast" id="toast">Copied to clipboard</div>
 
-  <script src="/assets/landing/js/data.js?v=20261014-news"></script>
+  <script src="/assets/landing/js/data.js?v=20261017-research"></script>
   <script>
     (() => {
       const people = [
@@ -243,7 +255,7 @@ search_exclude: true
         {
           title: "Positions",
           muted:
-            "I am actively seeking Research Scientist positions in mechanistic interpretability, AI safety, and frontier model evaluation!",
+            "I am seeking Research Scientist and postdoctoral research opportunities in mechanistic interpretability, AI safety, and frontier model evaluation.",
         },
         {
           title: "Review invitations",
@@ -257,6 +269,6 @@ search_exclude: true
       );
     })();
   </script>
-  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20261007-bullets"></script>
+  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20261017-paper-links"></script>
 </body>
 </html>
