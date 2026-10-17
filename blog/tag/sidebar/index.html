@@ -1,4 +1,4 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> sidebar | Haotian Ma </title> <meta name="author" content="Haotian Ma"> <meta name="description" content="Personal academic website of Haotian Ma, a Ph.D. candidate in Computer Science at the University of Wisconsin-Madison. "> <meta name="keywords" content="explainable ai, interpretable machine learning, deep learning, computer science, academic website"> <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;"> <style>
+<!DOCTYPE html> <html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> sidebar | Haotian Ma </title> <meta name="author" content="Haotian Ma"> <meta name="description" content="Academic website of Haotian Ma, a Ph.D. candidate at UW–Madison researching mechanistic interpretability, AI safety, LLM reasoning, and founder of OpenSAE. "> <meta name="keywords" content="mechanistic interpretability, sparse autoencoders, OpenSAE, SAEBase, AI safety, LLM evaluation, representation analysis, research scientist, Haotian Ma"> <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;"> <style>
   :root {
     --max-content-width: 930px;
   }
@@ -38,7 +38,22 @@ ninja.data = [{
           section: "News",},{id: "news-waisman-center-featured-segjointgene-a-new-ai-tool-for-cell-segmentation-with-gene-expression-data",
           title: 'Waisman Center featured SegJointGene, a new AI tool for cell segmentation with gene...',
           description: "",
-          section: "News",},{
+          section: "News",},{id: "news-neurips-2026-top-reviewer",
+          title: 'NeurIPS 2026 Top Reviewer',
+          description: "",
+          section: "News",handler: () => {
+              window.location.href = "/news/2026-10-14-neurips-top-reviewer/";
+            },},{id: "news-sar-and-rss-research-preprints",
+          title: 'SAR and RSS research preprints',
+          description: "",
+          section: "News",handler: () => {
+              window.location.href = "/news/2026-10-15-sar-rss/";
+            },},{id: "news-opensae-and-saebase-v0-3-0",
+          title: 'OpenSAE and SAEBase v0.3.0',
+          description: "",
+          section: "News",handler: () => {
+              window.location.href = "/news/2026-10-16-opensae-saebase/";
+            },},{
       id: 'light-theme',
       title: 'Change theme to light',
       description: 'Change the theme of the site to Light',
