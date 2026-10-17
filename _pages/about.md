@@ -37,11 +37,11 @@ search_exclude: true
     [data-theme="dark"] .venue-neurips { background: rgba(248, 113, 113, 0.17); color: #fca5a5; }
     [data-theme="dark"] .venue-submitted { background: rgba(129, 140, 248, 0.16); color: #a5b4fc; }
   </style>
-  <link rel="icon" href="/favicon.ico?v=20260824-northstar2" sizes="any" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20260824-northstar2" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png?v=20260824-northstar2" />
-  <link rel="shortcut icon" href="/favicon.ico?v=20260824-northstar2" />
-  <link rel="apple-touch-icon" href="/assets/img/favicon-180.png?v=20260824-northstar2" />
+  <link rel="icon" href="/favicon.ico?v=20261017-opensae" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32.png?v=20261017-opensae" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16.png?v=20261017-opensae" />
+  <link rel="shortcut icon" href="/favicon.ico?v=20261017-opensae" />
+  <link rel="apple-touch-icon" href="/assets/img/favicon-180.png?v=20261017-opensae" />
 </head>
 <body>
   <div class="progress-bar" id="progressBar"></div>
