@@ -202,33 +202,11 @@ a:hover { text-decoration: underline; }
 .hl.marked { background-size: 100% 45%; }
 .hero-bio { color: var(--text-soft); margin-bottom: 28px; max-width: 62ch; }
 .hero-bio strong { color: var(--text); font-weight: 800; }
-.hero-founder {
-  align-items: baseline;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text-soft);
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 0.84rem;
-  gap: 7px 12px;
-  line-height: 1.6;
-  margin: -10px 0 22px;
-  max-width: 62ch;
-  padding: 9px 12px;
+#work .cv-title a,
+#work .cv-title a:hover {
+  color: inherit;
 }
-.hero-founder strong { color: var(--text); }
-.hero-founder-label {
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-.hero-founder-sep { color: var(--muted); margin: 0 5px; }
-.hero-founder a { color: var(--accent-2); text-decoration: none; }
-.hero-founder a:hover { text-decoration: underline; }
-.hero-founder a:focus-visible, .pub-link:focus-visible {
+.pub-link:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }

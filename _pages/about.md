@@ -20,7 +20,7 @@ search_exclude: true
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261017-research" />
+  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261017-hero" />
   <style>
     .venue-cvpr { background: rgba(30, 58, 138, 0.14); color: #1e3a8a; }
     .venue-icml { background: rgba(234, 88, 12, 0.14); color: #c2410c; }
@@ -84,17 +84,11 @@ search_exclude: true
             My goal is to explain AI behavior from the bottom up, starting with learned features and building toward abstract concepts. To pursue this goal, I develop methods to understand how learned representations shape model behavior across interventions, combinations, and changing contexts. My research combines theory, method development, controlled interventions, open-source research infrastructure, and large-scale evaluation across <strong>mechanistic interpretability</strong>, <strong>LLM reasoning</strong>, <strong>AI safety</strong>, and <strong>AI for scientific discovery</strong>.
           </p>
           <p class="hero-bio reveal">
+            Recently, I founded <a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer">OpenSAE</a> to build broad research infrastructure for LLM evaluation.
+          </p>
+          <p class="hero-bio reveal">
             I am seeking Research Scientist and postdoctoral research opportunities in mechanistic interpretability, AI safety, and frontier model evaluation.
           </p>
-          <div class="hero-founder reveal">
-            <span class="hero-founder-label">Open-Source Research</span>
-            <span><strong>Founder &amp; Maintainer, <a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer">OpenSAE</a></strong>
-              <span class="hero-founder-sep" aria-hidden="true">·</span>
-              <a href="https://github.com/OpenSAE/SAEBase" target="_blank" rel="noopener noreferrer">SAEBase</a>
-              <span class="hero-founder-sep" aria-hidden="true">·</span>
-              <a href="https://huggingface.co/spaces/OpenSAE/SAEBase" target="_blank" rel="noopener noreferrer">Interactive Lab</a>
-            </span>
-          </div>
           <div class="hero-socials reveal" id="heroSocials"></div>
         </div>
         <figure class="hero-photo photo-frame reveal">
