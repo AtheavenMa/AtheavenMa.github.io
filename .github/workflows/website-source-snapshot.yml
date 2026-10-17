@@ -21,7 +21,8 @@ jobs:
                assets/landing/js/main.js assets/landing/css/style.css \
                _bibliography/papers.bib _data/cv.yml _data/socials.yml _data/repositories.yml \
                assets/json/resume.json _config.yml README.md .github/workflows/deploy.yml \
-               .github/workflows/render-cv.yml Gemfile package.json; do
+               .github/workflows/render-cv.yml .github/workflows/deploy.yml \\
+               assets/img/haotian_profile.png Gemfile package.json; do
             if test -f "$path"; then mkdir -p "source-snapshot/$(dirname "$path")"; cp "$path" "source-snapshot/$path"; fi
           done
           git rev-parse HEAD > source-snapshot/SNAPSHOT_COMMIT
@@ -31,3 +32,4 @@ jobs:
           name: website-source-snapshot
           path: source-snapshot/
           retention-days: 2
+          include-hidden-files: true
