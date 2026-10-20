@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - "assets/**"
+      - "ssi-playground/**"
       - "favicon.ico"
       - "favicon.svg"
       - "apple-touch-icon.png"
@@ -37,6 +38,7 @@ on:
       - main
     paths:
       - "assets/**"
+      - "ssi-playground/**"
       - "favicon.ico"
       - "favicon.svg"
       - "apple-touch-icon.png"
