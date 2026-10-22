@@ -100,7 +100,6 @@ const publications = [
     venueFull: "ICLR 2027 Submission",
     pdf: "https://arxiv.org/pdf/2610.21261",
     code: "https://github.com/OpenSAE/SAE-Behavioral-Compositionality",
-    demo: "https://huggingface.co/spaces/OpenSAE/sar-tutorial",
   },
   {
     year: 2027,
@@ -113,7 +112,6 @@ const publications = [
     venueFull: "AAAI 2027 Submission",
     pdf: "https://arxiv.org/pdf/2610.21240",
     code: "https://github.com/OpenSAE/Redistribution-Sensitivity-Score",
-    demo: "https://opensae.github.io/Redistribution-Sensitivity-Score/",
   },
   {
     year: 2027,
