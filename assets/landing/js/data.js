@@ -93,14 +93,14 @@ const publications = [
   },
   {
     year: 2027,
-    badge: "iclr",
-    venueBadge: "ICLR Submission",
+    badge: "submitted",
+    venueBadge: "COLING Submission",
     tags: ["selected"],
     category: "safety",
-    title: "The Horizon of Reward Guidance",
+    title: "The Limits of Reward Guidance under Finite Adaptation",
     authors: "Haotian Ma",
-    venueFull: "ICLR 2027 Submission",
-    code: "https://github.com/AtheavenMa/The-Horizon-of-Reward-Guidance",
+    venueFull: "COLING 2027 Submission",
+    code: "https://github.com/AtheavenMa/The-Limits-of-Reward-Guidance-under-Finite-Adaptation",
   },
   {
     year: 2027,
@@ -157,7 +157,7 @@ const publications = [
     title: "SegJointGene: Joint Cell Segmentation and Spatial Gene Prioritization by Information Entropy Guided CNNs",
     authors: "Haotian Ma, Daifeng Wang",
     venueFull: "Bioinformatics 2026",
-    pdf: "https://www.biorxiv.org/content/10.64898/2026.01.08.698474v1.full.pdf",
+    pdf: "https://academic.oup.com/bioinformatics/article/42/7/btag447/8716246",
     code: "https://github.com/daifengwanglab/segjointgene",
   },
   {
@@ -352,12 +352,12 @@ const researchExperience = [
     ],
     items: [
       {
-        title: "The Horizon of Reward Guidance",
-        aside: "ICLR 2027 Submission",
+        title: "The Limits of Reward Guidance under Finite Adaptation",
+        aside: "COLING 2027 Submission",
         lines: [{ text: "Haotian Ma", em: true }],
         points: [
-          "Defined the support horizon to measure how long existing preference feedback can continue guiding a changing policy.",
-          "Proved this horizon can expire under ordinary policy gradient and showed targeted preference data can extend it.",
+          "Derived an exact scalar support horizon for how long preference data can certify improvement under finite reward adaptation.",
+          "Proved certification can fail under policy gradient despite pointwise feasible rewards; bounded labels needed to extend the horizon.",
         ],
       },
       {
@@ -403,7 +403,7 @@ const workExperience = [
     aside: "Oct 2026 – Present",
     lines: [
       { text: "Madison, WI" },
-      { text: "Founder &amp; Maintainer. Built SAEBase for large-scale LLM evaluation, SAE interventions, and benchmarking." },
+      { text: "Founder &amp; Maintainer. Built research infrastructure for large-scale LLM evaluation, SAE interventions, and benchmarking." },
     ],
   },
   {
