@@ -355,6 +355,7 @@ a:hover { text-decoration: underline; }
 .venue-neurips { background: rgba(220, 38, 38, 0.15); color: #991b1b; }
 .venue-preprint { background: rgba(107, 114, 128, 0.12); color: var(--muted); }
 .venue-submitted { background: rgba(99, 102, 241, 0.14); color: #4338ca; }
+.pub-venue-badge.venue-submitted { font-size: 0.73rem; padding-left: 7px; padding-right: 7px; white-space: nowrap; }
 [data-theme="dark"] .venue-bioinformatics { color: #6ee7b7; }
 [data-theme="dark"] .venue-cvpr { background: rgba(96, 165, 250, 0.16); color: #93c5fd; }
 [data-theme="dark"] .venue-icml { background: rgba(251, 113, 60, 0.16); color: #fb923c; }
