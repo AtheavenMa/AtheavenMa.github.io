@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - "assets/**"
+      - "CV.pdf"
       - "ssi-playground/**"
       - "favicon.ico"
       - "favicon.svg"
@@ -38,6 +39,7 @@ on:
       - main
     paths:
       - "assets/**"
+      - "CV.pdf"
       - "ssi-playground/**"
       - "favicon.ico"
       - "favicon.svg"
