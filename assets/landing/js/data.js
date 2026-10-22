@@ -3,7 +3,7 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/AtheavenMa", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261017-opensae", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261022-latest", icon: "cv" },
 ];
 
 const news = [
@@ -59,6 +59,17 @@ const publications = [
   },
   {
     year: 2027,
+    badge: "submitted",
+    venueBadge: "COLING Submission",
+    tags: ["selected"],
+    category: "safety",
+    title: "The Limits of Reward Guidance under Finite Adaptation",
+    authors: "Haotian Ma",
+    venueFull: "COLING 2027 Submission",
+    code: "https://github.com/AtheavenMa/The-Limits-of-Reward-Guidance-under-Finite-Adaptation",
+  },
+  {
+    year: 2027,
     badge: "iclr",
     venueBadge: "ICLR Submission",
     tags: ["selected"],
@@ -90,17 +101,6 @@ const publications = [
     pdf: "https://arxiv.org/pdf/2610.21261",
     code: "https://github.com/OpenSAE/SAE-Behavioral-Compositionality",
     demo: "https://huggingface.co/spaces/OpenSAE/sar-tutorial",
-  },
-  {
-    year: 2027,
-    badge: "submitted",
-    venueBadge: "COLING Submission",
-    tags: ["selected"],
-    category: "safety",
-    title: "The Limits of Reward Guidance under Finite Adaptation",
-    authors: "Haotian Ma",
-    venueFull: "COLING 2027 Submission",
-    code: "https://github.com/AtheavenMa/The-Limits-of-Reward-Guidance-under-Finite-Adaptation",
   },
   {
     year: 2027,
