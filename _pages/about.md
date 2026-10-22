@@ -20,7 +20,7 @@ search_exclude: true
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261017-hero" />
+  <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261022-coling-single-line" />
   <style>
     .venue-cvpr { background: rgba(30, 58, 138, 0.14); color: #1e3a8a; }
     .venue-icml { background: rgba(234, 88, 12, 0.14); color: #c2410c; }
@@ -213,7 +213,7 @@ search_exclude: true
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg class="btt-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
   <div class="toast" id="toast">Copied to clipboard</div>
 
-  <script src="/assets/landing/js/data.js?v=20261021-cv-sync"></script>
+  <script src="/assets/landing/js/data.js?v=20261022-coling-order-cv"></script>
   <script>
     (() => {
       const people = [
