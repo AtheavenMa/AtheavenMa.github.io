@@ -21,6 +21,7 @@ search_exclude: true
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/assets/landing/css/style.css?v=20261022-coling-single-line" />
+  <link rel="stylesheet" href="/assets/landing/css/editorial.css?v=20261021-academic-editorial-1" />
   <style>
     .venue-cvpr { background: rgba(30, 58, 138, 0.14); color: #1e3a8a; }
     .venue-icml { background: rgba(234, 88, 12, 0.14); color: #c2410c; }
@@ -50,13 +51,13 @@ search_exclude: true
     <div class="nav-inner">
       <a href="#top" class="nav-brand">Haotian&nbsp;Ma</a>
       <nav class="nav-links" id="navLinks">
-        <a href="#education" class="nav-link">Education</a>
         <a href="#research" class="nav-link">Research</a>
         <a href="#papers" class="nav-link">Papers</a>
         <a href="#work" class="nav-link">Experience</a>
-        <a href="#skills" class="nav-link">Skills</a>
+        <a href="#education" class="nav-link">Education</a>
         <a href="#awards" class="nav-link">Awards</a>
         <a href="#service" class="nav-link">Service</a>
+        <a href="#skills" class="nav-link">Skills</a>
         <a href="#news" class="nav-link">News</a>
         <a href="#life" class="nav-link">Life</a>
         <a href="#contact" class="nav-link">Contact</a>
@@ -75,6 +76,7 @@ search_exclude: true
     <section class="hero">
       <div class="container hero-inner">
         <div class="hero-text">
+          <p class="editorial-eyebrow reveal">Ph.D. Candidate <span aria-hidden="true">·</span> UW–Madison</p>
           <h1 class="hero-name">Haotian Ma</h1>
           <p class="hero-lede reveal">Explaining AI from learned features to abstract concepts.</p>
           <p class="hero-bio reveal">
@@ -95,21 +97,14 @@ search_exclude: true
       </div>
     </section>
 
-    <section class="section" id="education">
-      <div class="container">
-        <h2 class="section-title reveal">Education</h2>
-        <div class="cv-module" id="educationList"></div>
-      </div>
-    </section>
-
-    <section class="section section-alt" id="research">
+    <section class="section" id="research">
       <div class="container">
         <h2 class="section-title reveal">Research</h2>
         <div class="cv-module" id="researchList"></div>
       </div>
     </section>
 
-    <section class="section" id="papers">
+    <section class="section section-alt" id="papers">
       <div class="container">
         <h2 class="section-title reveal">Papers</h2>
         <p class="section-note reveal">Selected lists the papers in Research. All includes the rest.</p>
@@ -127,28 +122,28 @@ search_exclude: true
       </div>
     </section>
 
-    <section class="section section-alt" id="work">
+    <section class="section" id="work">
       <div class="container">
         <h2 class="section-title reveal">Experience</h2>
         <div class="cv-module" id="workList"></div>
       </div>
     </section>
 
-    <section class="section" id="skills">
+    <section class="section section-alt" id="education">
       <div class="container">
-        <h2 class="section-title reveal">Skills</h2>
-        <ul class="box-list" id="skillsList"></ul>
+        <h2 class="section-title reveal">Education</h2>
+        <div class="cv-module" id="educationList"></div>
       </div>
     </section>
 
-    <section class="section section-alt" id="awards">
+    <section class="section" id="awards">
       <div class="container">
         <h2 class="section-title reveal">Awards</h2>
         <ul class="box-list" id="awardsList"></ul>
       </div>
     </section>
 
-    <section class="section" id="service">
+    <section class="section section-alt" id="service">
       <div class="container two-col">
         <div>
           <h2 class="section-title reveal">Professional Service</h2>
@@ -158,6 +153,13 @@ search_exclude: true
           <h2 class="section-title reveal">Teaching</h2>
           <ul class="simple-list" id="teachingList"></ul>
         </div>
+      </div>
+    </section>
+
+    <section class="section" id="skills">
+      <div class="container">
+        <h2 class="section-title reveal">Skills</h2>
+        <ul class="box-list" id="skillsList"></ul>
       </div>
     </section>
 
