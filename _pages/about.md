@@ -213,7 +213,7 @@ search_exclude: true
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg class="btt-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
   <div class="toast" id="toast">Copied to clipboard</div>
 
-  <script src="/assets/landing/js/data.js?v=20261017-units"></script>
+  <script src="/assets/landing/js/data.js?v=20261021-cv-sync"></script>
   <script>
     (() => {
       const people = [
@@ -260,6 +260,6 @@ search_exclude: true
       );
     })();
   </script>
-  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20261017-paper-links"></script>
+  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20261021-paper-links"></script>
 </body>
 </html>
