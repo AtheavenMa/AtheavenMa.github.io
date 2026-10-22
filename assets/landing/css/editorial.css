@@ -54,7 +54,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 /* The first screen is a compact academic introduction. */
 .hero {
   background: var(--bg);
-  padding: 122px 0 62px;
+  padding: 122px 0 0;
 }
 .hero-inner {
   grid-template-columns: minmax(0,1.43fr) minmax(240px,.77fr);
@@ -130,6 +130,8 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 
 /* Reading rhythm, typographic hierarchy and generous section spacing. */
 .section { padding: 60px 0; }
+/* One fluid transition from the introduction to Research; no stacked section padding. */
+#research { padding-block-start: clamp(1.5rem, 2.8vw, 3rem); }
 .section-alt { background: var(--bg-alt); }
 .section-title {
   font-family: var(--font-serif);
@@ -427,7 +429,7 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 }
 @media (max-width: 860px) {
   .nav-links { max-height: calc(100vh - 85px); overflow-y: auto; }
-  .hero { padding: 105px 0 43px; }
+  .hero { padding: 105px 0 0; }
   .hero-inner { grid-template-columns: minmax(0,1fr); gap: 32px; }
   .hero-photo { justify-self: start; order: 0; width: min(270px,75vw); }
   .section { padding: 47px 0; }
