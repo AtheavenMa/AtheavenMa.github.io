@@ -1,0 +1,472 @@
+/*
+ * Academic Editorial / 2026
+ * Reversible typographic presentation layer.
+ * Original interaction, academic facts and URLs remain unchanged.
+ */
+:root {
+  --bg: #fdfdfc;
+  --bg-alt: #f7f8f9;
+  --text: #1c2230;
+  --text-soft: #4b5565;
+  --muted: #667085;
+  --accent: #b31b1b;
+  --accent-2: #215b83;
+  --border: #e5e8ee;
+  --editorial-rule: #dadee5;
+  --editorial-badge: #f0f2f5;
+  --editorial-badge-text: #435065;
+  --nav-bg: rgba(253,253,252,.95);
+}
+[data-theme="dark"] {
+  --bg: #0f1420;
+  --bg-alt: #141b2a;
+  --text: #e8ecf4;
+  --text-soft: #bfc8d8;
+  --muted: #a4afc2;
+  --accent-2: #9bd0fa;
+  --border: #2a3447;
+  --editorial-rule: #334155;
+  --editorial-badge: #242e40;
+  --editorial-badge-text: #d1d9e7;
+  --nav-bg: rgba(15,20,32,.94);
+}
+body {
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.65;
+}
+a { text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+.container { max-width: 1060px; }
+.nav { border-bottom: 1px solid var(--border); box-shadow: none; }
+.nav-inner { max-width: 1150px; }
+.nav-brand { font-size: 1.2rem; letter-spacing: -.02em; }
+.nav-links { gap: 1px; }
+.nav-link {
+  border-radius: 4px;
+  font-size: .81rem;
+  padding: 7px 7px;
+}
+
+/* The first screen is a compact academic introduction. */
+.hero {
+  background: var(--bg);
+  padding: 122px 0 62px;
+}
+.hero-inner {
+  grid-template-columns: minmax(0,1.43fr) minmax(240px,.77fr);
+  align-items: center;
+  gap: clamp(32px,5vw,70px);
+}
+.editorial-eyebrow {
+  color: var(--accent);
+  font-family: var(--font-sans);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  line-height: 1.5;
+  margin-bottom: 11px;
+  text-transform: uppercase;
+}
+.editorial-eyebrow span { margin: 0 .35rem; }
+.hero-name {
+  font-size: clamp(3.25rem,5.7vw,4.5rem);
+  line-height: 1.07;
+  letter-spacing: -.035em;
+  margin-bottom: 16px;
+}
+.hero-lede {
+  border: 0;
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: clamp(1.15rem,1.7vw,1.38rem);
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.45;
+  margin-bottom: 23px;
+  max-width: 52ch;
+  padding: 0;
+}
+.hero-bio {
+  color: var(--text-soft);
+  font-size: .96rem;
+  line-height: 1.67;
+  margin-bottom: 15px;
+  max-width: 68ch;
+}
+.hero-bio:last-of-type { margin-bottom: 23px; }
+.hero-bio strong { font-weight: 700; }
+.hero-socials { gap: 10px; }
+.social-link {
+  background: transparent;
+  border-color: var(--border);
+  border-radius: 8px;
+  height: 40px;
+  width: 40px;
+}
+.social-link:hover { box-shadow: none; transform: translateY(-1px); }
+.photo-frame {
+  justify-self: end;
+  perspective: none;
+  width: min(310px,100%);
+}
+.photo-frame::before { display: none; }
+.photo-frame img {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 14px 32px rgba(28,34,48,.11);
+}
+.photo-frame figcaption {
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: .72rem;
+  line-height: 1.5;
+  margin-top: 14px;
+  text-align: left;
+}
+
+/* Reading rhythm, typographic hierarchy and generous section spacing. */
+.section { padding: 60px 0; }
+.section-alt { background: var(--bg-alt); }
+.section-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem,3.3vw,2.25rem);
+  font-weight: 600;
+  letter-spacing: -.025em;
+  line-height: 1.2;
+  margin-bottom: 22px;
+}
+.section-note {
+  color: var(--text-soft);
+  font-size: .93rem;
+  line-height: 1.6;
+  max-width: 70ch;
+  margin-bottom: 23px;
+}
+
+/* Research is four restrained chapters. Existing accordions still work. */
+#research .cv-module {
+  border-top: 1px solid var(--editorial-rule);
+  gap: 0;
+}
+#research .cv-module > .cv-entry {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--editorial-rule);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 28px 0;
+}
+#research .cv-module > .cv-entry > .cv-fold-toggle {
+  align-items: center;
+  gap: 24px;
+}
+#research .cv-module > .cv-entry > .cv-fold-toggle .cv-title {
+  font-family: var(--font-serif);
+  font-size: clamp(1.19rem,2vw,1.5rem);
+  font-weight: 600;
+  letter-spacing: -.01em;
+  line-height: 1.3;
+}
+#research .cv-module > .cv-entry > .cv-fold-toggle .cv-line {
+  font-size: .94rem;
+  font-style: normal;
+  line-height: 1.6;
+  margin-top: 8px;
+  max-width: 74ch;
+}
+#research .cv-module > .cv-entry > .cv-fold-toggle .cv-fold-chevron {
+  border: 1px solid var(--editorial-rule);
+  border-radius: 50%;
+  color: var(--text-soft);
+  height: 36px;
+  margin-top: 0;
+  padding: 8px;
+  width: 36px;
+}
+#research .cv-module > .cv-entry > .cv-fold-toggle:hover .cv-title {
+  color: var(--accent);
+}
+#research .cv-children {
+  border-left: 2px solid var(--editorial-rule);
+  gap: 0;
+  margin: 24px 0 0 2px;
+  padding-left: 22px;
+}
+#research .cv-children .cv-entry {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--editorial-rule);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 17px 0 17px 12px;
+}
+#research .cv-children .cv-entry:last-child { border-bottom: 0; }
+#research .cv-children .cv-title {
+  font-family: var(--font-sans);
+  font-size: 1.04rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+#research .cv-children .cv-aside {
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: .79rem;
+  font-weight: 600;
+  max-width: 46%;
+}
+#research .cv-children .cv-line.em {
+  font-size: .88rem;
+  font-style: normal;
+  margin-top: 5px;
+}
+#research .cv-children .cv-points {
+  color: var(--text-soft);
+  font-size: .91rem;
+  line-height: 1.58;
+  margin-top: 12px;
+}
+#research .cv-children .cv-fold-chevron {
+  color: var(--muted);
+  height: 18px;
+  width: 18px;
+}
+
+/* Publications: lean journal-style rows rather than cards. */
+#papers .pub-list {
+  border-top: 1px solid var(--editorial-rule);
+  gap: 0;
+}
+#papers .pub-card {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--editorial-rule);
+  border-radius: 0;
+  box-shadow: none;
+  gap: 27px;
+  grid-template-columns: 148px minmax(0,1fr);
+  padding: 25px 0;
+  transform: none;
+}
+#papers .pub-card:hover {
+  background: transparent;
+  border-color: var(--editorial-rule);
+  box-shadow: none;
+  transform: none;
+}
+#papers .pub-venue-badge {
+  background: var(--editorial-badge);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--editorial-badge-text);
+  font-family: var(--font-sans);
+  font-size: .74rem;
+  font-weight: 650;
+  justify-self: start;
+  letter-spacing: .005em;
+  line-height: 1.35;
+  padding: 5px 8px;
+  white-space: nowrap;
+}
+#papers .pub-title {
+  font-size: 1.11rem;
+  font-weight: 650;
+  letter-spacing: -.008em;
+  line-height: 1.42;
+  margin-bottom: 7px;
+}
+#papers .pub-title a { color: var(--text); }
+#papers .pub-title a:hover {
+  color: var(--accent-2);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+#papers .pub-authors {
+  color: var(--text-soft);
+  font-size: .88rem;
+  line-height: 1.5;
+}
+#papers .pub-venue {
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1.5;
+  margin-top: 3px;
+}
+#papers .pub-links { gap: 19px; margin-top: 11px; }
+#papers .pub-link {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: var(--accent-2);
+  font-size: .85rem;
+  font-weight: 650;
+  padding: 0;
+}
+#papers .pub-link:hover {
+  color: var(--accent-2);
+  text-decoration: underline;
+}
+#papers .filter-btn, #papers .pub-search {
+  background: var(--surface);
+  border-color: var(--border);
+  border-radius: 6px;
+  font-size: .82rem;
+  padding: 8px 12px;
+}
+#papers .filter-btn.active, #papers .filter-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+#papers .pub-filters { gap: 8px; margin-bottom: 28px; }
+#papers .pub-search { min-width: 210px; }
+#papers .pub-search:focus {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* Education and experience read like an elegant CV. */
+#work .cv-module, #education .cv-module {
+  border-top: 1px solid var(--editorial-rule);
+  gap: 0;
+}
+#work .cv-entry, #education .cv-entry {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--editorial-rule);
+  border-radius: 0;
+  box-shadow: none;
+  padding: 17px 0;
+}
+#work .cv-title, #education .cv-title {
+  font-size: 1.04rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+#work .cv-line, #education .cv-line {
+  font-size: .93rem;
+  line-height: 1.55;
+  margin-top: 4px;
+}
+#work .cv-aside, #education .cv-aside {
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: .82rem;
+  font-weight: 550;
+}
+
+/* Secondary detail retains content but no longer fights for attention. */
+#awards .box-list, #skills .box-list,
+#open-to .simple-list, #service .simple-list {
+  border-top: 1px solid var(--editorial-rule);
+  gap: 0;
+}
+#awards .box-list li, #skills .box-list li,
+#open-to .simple-list li, #service .simple-list li {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--editorial-rule);
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--text-soft);
+  line-height: 1.55;
+  padding: 12px 0;
+}
+#skills .box-list li { padding: 14px 0; }
+#awards .box-list strong, #skills .box-list strong { font-weight: 650; }
+#service .two-col { gap: 54px; }
+
+#news .news-list {
+  border-top: 1px solid var(--editorial-rule);
+  gap: 0;
+}
+#news .news-item {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--editorial-rule);
+  border-radius: 0;
+  box-shadow: none;
+  gap: 22px;
+  grid-template-columns: 127px minmax(0,1fr);
+  padding: 15px 0;
+}
+#news .news-date {
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: .83rem;
+  font-weight: 600;
+}
+#news .news-item p { font-size: .92rem; }
+
+#life .after-hours {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  gap: 48px;
+  padding: 0;
+}
+#life .after-hours::before { display: none; }
+#life .after-hours-card {
+  background: var(--surface);
+  border-color: var(--editorial-rule);
+  border-radius: 8px;
+  padding: 23px;
+}
+#contact { padding-top: 70px; padding-bottom: 78px; }
+#contact .btn-primary, #contact .btn-primary:hover { box-shadow: none; }
+.footer { color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal, .reveal.visible { opacity: 1; transform: none; transition: none; }
+  .pub-card, .btn, .social-link { transition: none; }
+}
+@media (max-width: 860px) {
+  .nav-links { max-height: calc(100vh - 85px); overflow-y: auto; }
+  .hero { padding: 105px 0 43px; }
+  .hero-inner { grid-template-columns: minmax(0,1fr); gap: 32px; }
+  .hero-photo { justify-self: start; order: 0; width: min(270px,75vw); }
+  .section { padding: 47px 0; }
+  #service .two-col { gap: 32px; }
+}
+@media (max-width: 620px) {
+  .hero { padding-top: 104px; }
+  .hero-name { font-size: clamp(2.8rem,12vw,3.5rem); }
+  .hero-lede { font-size: 1.18rem; }
+  .hero-bio { font-size: .95rem; }
+  .section { padding: 40px 0; }
+  .section-title { font-size: 1.9rem; }
+  #research .cv-module > .cv-entry { padding: 24px 0; }
+  #research .cv-module > .cv-entry > .cv-fold-toggle { gap: 12px; }
+  #research .cv-module > .cv-entry > .cv-fold-toggle .cv-title { font-size: 1.22rem; }
+  #research .cv-children { margin-top: 18px; padding-left: 13px; }
+  #research .cv-children .cv-entry { padding-left: 4px; }
+  #research .cv-children .cv-entry-top {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+  #research .cv-children .cv-aside {
+    max-width: none;
+    text-align: left;
+    white-space: normal;
+  }
+  #papers .pub-card { gap: 9px; grid-template-columns: minmax(0,1fr); padding: 21px 0; }
+  #papers .pub-venue-badge { justify-self: start; }
+  #papers .pub-search { min-width: min(100%,220px); }
+  #work .cv-entry-top, #education .cv-entry-top {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+  #work .cv-aside, #education .cv-aside {
+    max-width: none;
+    text-align: left;
+  }
+  #news .news-item { gap: 5px; grid-template-columns: minmax(0,1fr); }
+  #life .after-hours { gap: 22px; }
+}
