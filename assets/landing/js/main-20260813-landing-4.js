@@ -89,7 +89,7 @@ function renderContent() {
       const paperUrl = p.pdf || p.paper || p.url || "";
       const title = paperUrl ? `<a href="${paperUrl}" target="_blank" rel="noopener noreferrer">${p.title}</a>` : p.title;
       const availableLinks = [
-        ["PDF", p.pdf],
+        ["Paper", p.pdf],
         ["Paper", p.paper || p.url],
         ["Code", p.code],
         ["Demo", p.demo],
