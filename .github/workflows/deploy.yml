@@ -68,6 +68,11 @@ on:
 permissions:
   contents: write
 
+# New commits supersede any older build for this branch.
+concurrency:
+  group: deploy-site-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     # available images: https://github.com/actions/runner-images#available-images
