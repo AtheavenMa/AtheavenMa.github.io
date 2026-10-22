@@ -76,7 +76,6 @@ search_exclude: true
     <section class="hero">
       <div class="container hero-inner">
         <div class="hero-text">
-          <p class="editorial-eyebrow reveal">Ph.D. Candidate <span aria-hidden="true">·</span> UW–Madison</p>
           <h1 class="hero-name">Haotian Ma</h1>
           <p class="hero-lede reveal">Explaining AI from learned features to abstract concepts.</p>
           <p class="hero-bio reveal">
@@ -92,7 +91,6 @@ search_exclude: true
         </div>
         <figure class="hero-photo photo-frame reveal">
           <img src="/assets/img/haotian_profile.png" alt="Portrait of Haotian Ma" loading="eager" />
-          <figcaption>Explainable AI &middot; Mechanistic Interpretability &middot; SAE &middot; Feature Combination</figcaption>
         </figure>
       </div>
     </section>
