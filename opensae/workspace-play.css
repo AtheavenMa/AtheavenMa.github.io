@@ -93,3 +93,6 @@
 .circuit-tooltip{position:absolute;z-index:8;pointer-events:none;max-width:260px;display:flex;flex-direction:column;gap:5px;background:#fff;border:1px solid #aabfcf;box-shadow:0 5px 18px rgba(12,45,65,.13);padding:12px 14px;color:#203347;font-size:14px;line-height:1.4}
 .circuit-tooltip strong{font-size:16px;font-weight:600}.circuit-tooltip span{color:#516276}
 .circuit-tooltip[hidden]{display:none!important}
+
+/* Responsive linked model, SAE, layer and metric selection. */
+.evaluate-form label{flex:1 1 210px}.evaluate-form #benchmark-sae{font-size:16px}.evaluate-form #benchmark-model,.evaluate-form #benchmark-layer{font-size:17px}
