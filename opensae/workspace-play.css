@@ -54,3 +54,7 @@
 .playground textarea[readonly]{background:#f0f1f3!important;border-color:#d9dce1!important;color:#828791!important;-webkit-text-fill-color:#828791;cursor:not-allowed;resize:none}
 .playground .api-pending-note{margin:0 0 25px;font-size:17px;color:#535c68}
 .playground .live-compute[hidden],#api-disclosure[hidden],#public-api-note[hidden]{display:none!important}
+
+/* Keep API availability text aligned under the locked Prompt input. */
+.playground .play-form .api-pending-note{flex:0 0 100%;width:100%;margin:-13px 0 0;padding:0;font-size:16px;line-height:1.45;color:#626b75}
+@media(max-width:700px){.playground .play-form .api-pending-note{margin:-8px 0 0}}
