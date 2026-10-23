@@ -7,7 +7,14 @@
   const message = (id, text, error = false) => { const node = clear(id); node.append(el('p', text, error ? 'api-error' : 'api-message')); };
   const item = (root, label, value) => { const p = el('div', '', 'api-pair'); p.append(el('span', label), el('strong', value ?? '—')); root.append(p); return p; };
   const num = n => typeof n === 'number' && Number.isFinite(n) ? Number(n.toFixed(4)).toString() : '—';
-  const requireAPI = () => { if (!endpoint) throw Error('Enter an API address and select Connect.'); return endpoint; };
+  const requireAPI = () => { if (!endpoint) throw Error('Connect a GPU service to run this operation.'); return endpoint; };
+  const STATIC_PATH = 'data/wp15/';
+  async function staticRecord(name) {
+    if (!['benchmark','training','generation','circuit','explanation'].includes(name)) throw Error('Unknown result.');
+    const response = await fetch(STATIC_PATH + name + '.json', {cache:'no-store'});
+    if (!response.ok) throw Error('Could not load published measurements.');
+    return response.json();
+  }
   async function request(path, { method = 'GET', body, privateAuth = false } = {}) {
     const base = requireAPI();
     const headers = { 'Accept': 'application/json' };
@@ -20,7 +27,8 @@
     return payload;
   }
   const act = (id, task) => { $(id)?.addEventListener('click', async e => { e.preventDefault(); try { await task(); } catch (err) { message(id.includes('circuit') ? 'circuit-results' : id.includes('edit') ? 'edit-results' : 'explore-results', err.message, true); } }); };
-  function connected() { $('api-status').textContent = endpoint ? 'Connected' : 'Not connected'; }
+  function connected() { $('api-status').textContent = endpoint ? 'Connected' : 'Local results'; $('edit-form').querySelector('button[type=submit]').disabled = !endpoint; }
+  connected();
   $('api-connect').addEventListener('click', async () => {
     const field = $('api-base');
     try {
@@ -31,8 +39,8 @@
       $('api-status').textContent = 'Connecting';
       const r = await request('/api/health');
       connected();
-      message('explore-results', 'API connected. Browse prompts or search features.');
-    } catch (err) { endpoint = ''; $('api-status').textContent = err.message.includes('fetch') ? 'Cannot reach API or CORS is disabled' : err.message; }
+      message('explore-results', 'Connected.');
+    } catch (err) { endpoint = ''; connected(); $('api-status').textContent = err.message.includes('fetch') ? 'Cannot reach service' : err.message; }
   });
   async function sites() {
     const data = await request('/api/sites?limit=60'); const root = clear('explore-results');
@@ -49,7 +57,10 @@
     }
   }
   async function loadTrace(id) {
-    const trace = await request('/api/explore/traces/' + encodeURIComponent(id)); lastTrace = trace;
+    const trace = await request('/api/explore/traces/' + encodeURIComponent(id));
+    loadTraceRow(trace);
+  }
+  function loadTraceRow(trace) { lastTrace = trace;
     const root = clear('token-inspector'); root.append(el('h2', 'Tokens'));
     const tokens = el('div', '', 'api-tokens'); root.append(tokens);
     for (const token of (trace.tokens || [])) {
@@ -67,12 +78,35 @@
     }
     if (!trace.tokens?.length) root.append(el('p', 'No tokens found.'));
   }
-  $('load-sites').addEventListener('click', () => sites().catch(e => message('explore-results', e.message, true)));
-  $('load-traces').addEventListener('click', () => traces().catch(e => message('explore-results', e.message, true)));
+  $('load-sites').addEventListener('click', () => {if (!endpoint) return message('explore-results','Connect a compute service to browse models.'); sites().catch(e => message('explore-results', e.message, true));});
+  $('load-traces').addEventListener('click', () => {if (!endpoint) return message('explore-results','Open a trace JSON file or connect a compute service.'); traces().catch(e => message('explore-results', e.message, true));});
+  $('trace-file').addEventListener('change',async ev=>{
+    const file=ev.target.files?.[0]; if(!file)return;
+    try {
+      if(file.size>8*1024*1024) throw Error('Trace exceeds 8 MB.');
+      const row=JSON.parse(await file.text());
+      if(!row||!Array.isArray(row.tokens)||row.tokens.length>128||typeof row.site_id!=='string')throw Error('Not a SAEBase trace.');
+      for(const t of row.tokens)if(!Array.isArray(t.features)||t.features.length>256||!Number.isInteger(t.token_id))throw Error('Invalid token or feature row.');
+      loadTraceRow(row); message('explore-results', 'Loaded '+(row.sample_id||'trace')+' from your computer.');
+    } catch(err){message('explore-results',err.message,true)}
+  });
   $('explore-search').addEventListener('submit', async event => {
     event.preventDefault();
     try {
       const q = $('feature-query').value.trim(); if (!q) throw Error('Enter a feature or explanation.');
+      if (!endpoint) {
+        if (!lastTrace) throw Error('Open a trace JSON file to search its features.');
+        const featureId = Number(q);
+        if (!Number.isInteger(featureId) || featureId < 0) throw Error('Enter a feature ID.');
+        const out=clear('feature-results'); let matches=0;
+        for (const t of lastTrace.tokens || []) {
+          const f=(t.features||[]).find(f=>f.feature_id===featureId); if (!f) continue; matches++;
+          const b=el('button', `${t.text || '#' + t.token_id} · Feature ${featureId} · ${num(f.activation)}`, 'api-list-button');
+          b.addEventListener('click',()=>{$('edit-feature').value=featureId;$('edit-site').value=lastTrace.site_id;$('edit-prompt').value=lastTrace.prompt_text||'';document.querySelector('[data-module=intervene]')?.click();});out.append(b);
+        }
+        if (!matches) out.append(el('p','No matching tokens.'));
+        return;
+      }
       const data = await request('/api/features?q=' + encodeURIComponent(q) + '&limit=20');
       const root = clear('feature-results'), rows = data.items || [];
       if (!rows.length) root.append(el('p', 'No matching features.'));
@@ -81,7 +115,7 @@
   });
   const editBody = () => ({ site_id: $('edit-site').value.trim(), text: $('edit-prompt').value, operation: $('edit-operation').value, feature_ids: [Number($('edit-feature').value)], strength: Number($('edit-strength').value), max_new_tokens: 0 });
   $('edit-check').addEventListener('click', async () => {
-    try { const r = await request('/api/jobs/preflight', {method:'POST', body:editBody()}); const root = clear('edit-results'); item(root, 'Validation', r.status || 'Accepted'); if (r.site_id) item(root, 'Site', r.site_id); root.append(el('p','Validation does not execute an intervention.')); } catch(e){message('edit-results',e.message,true)}
+    try { if (!endpoint) throw Error('Connect a compute service to validate a model edit.'); const r = await request('/api/jobs/preflight', {method:'POST', body:editBody()}); const root = clear('edit-results'); item(root, 'Validation', r.status || 'Accepted'); if (r.site_id) item(root, 'Site', r.site_id); root.append(el('p','Validation does not execute an intervention.')); } catch(e){message('edit-results',e.message,true)}
   });
   $('edit-form').addEventListener('submit', async event => {
     event.preventDefault();
@@ -97,7 +131,7 @@
     if (!currentJob) return;
     try { const status=await request('/api/private/jobs/'+encodeURIComponent(currentJob),{privateAuth:true}); const root=clear('edit-results'); item(root,'Job',status.status||'Unknown'); if(status.status==='succeeded'){const result=await request('/api/private/jobs/'+encodeURIComponent(currentJob)+'/result',{privateAuth:true}); for(const key of ['logit_delta_l2','max_abs_logit_delta','baseline_argmax_token_id','edited_argmax_token_id'])if(result[key]!==undefined)item(root,key.replaceAll('_',' '),num(result[key]));} }catch(e){message('edit-results',e.message,true)}
   });
-  const records = async(name,id,show) => {try{const r=await request('/api/wp15/'+name);show(clear(id),r);}catch(e){message(id,e.message,true)}};
+  const records = async(name,id,show) => {try{const r=endpoint ? await request('/api/wp15/'+name) : await staticRecord(name);show(clear(id),r);}catch(e){message(id,e.message,true)}};
   $('load-generation').addEventListener('click', () => records('generation','generation-results',(root,r)=>{
     (r.samples||[]).forEach(s => {const box=el('div','','api-measure');box.append(el('h2','Feature '+s.feature_id));
       for(const c of s.conditions||[]) {const row=el('div','','api-pair');item(row,c.name, c.argmax_changed ? 'Token changed' : c.same_continuation ? 'Same continuation' : 'Logits changed');if(c.step0_max_abs_logit_delta!==undefined)item(row,'Max Δ logit',num(c.step0_max_abs_logit_delta));box.append(row)}
@@ -118,4 +152,6 @@
   $('load-benchmark').addEventListener('click', () => records('benchmark','benchmark-results',(root,r)=>{item(root,'Model',r.model_name);item(root,'SAE',r.sae_id);for(const [k,v]of Object.entries(r.metrics||{}))item(root,k,num(v))}));
   $('load-training').addEventListener('click', () => records('training','training-results',(root,r)=>{for(const [k,v] of Object.entries({Backend:r.backend,Architecture:r.architecture,Steps:r.global_step,Reloaded:r.reloaded,Reconstruction_MSE:r.reconstruction_mse}))item(root,k,num(v) === '—' ? String(v) : num(v));}));
   $('load-interpret').addEventListener('click', () => records('explanation','interpret-results',(root,r)=>{item(root,'Feature',r.feature_id);item(root,'Held-out score',num(r.heldout_score));if(r.approved===true&&r.description_published===true&&r.rights_reviewed===true)item(root,'Interpretation',r.description);else root.append(el('p','No approved interpretation.'));}));
+  // Results load without an API connection.
+  ['load-generation','load-circuit','load-benchmark','load-training','load-interpret'].forEach(id=>$(id)?.click());
 })();
