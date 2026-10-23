@@ -1,0 +1,44 @@
+:root{--play-border:#d9dfe7;--play-blue:#215b83}
+.workspace-main.playground{padding-top:45px;max-width:1500px}
+.playhead{display:flex;gap:24px;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--play-border);padding-bottom:38px}
+.playhead h1{font:400 clamp(48px,5.2vw,75px)/1.06 'Source Serif 4',Georgia,serif;letter-spacing:-.045em}
+.playhead p{font-size:19px;margin-top:18px;color:#4b5565}
+.playstate{font-size:16px;color:#215b83;border:1px solid #c7d6e2;padding:11px 15px;flex-shrink:0}
+.connection{border-bottom:1px solid var(--play-border);padding:20px 0}.connection summary,.live-compute summary{cursor:pointer;font-size:17px;color:var(--play-blue)}
+.connect-row{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}.connect-row input{width:min(500px,100%);border:1px solid var(--play-border);padding:13px;font:inherit}.connect-row span{font-size:16px;color:#4b5565}
+.module-title{margin:60px 0 30px}.module-title h2{font:400 clamp(55px,5.5vw,88px)/1.04 'Source Serif 4',Georgia,serif;letter-spacing:-.055em}.module-title p{font-size:20px;line-height:1.5;margin-top:15px;color:#4b5565}
+.play-form{display:flex;flex-wrap:wrap;gap:22px 28px;margin:35px 0}.play-form label{flex:1 1 185px;min-width:0;font-size:16px;font-weight:540;display:flex;flex-direction:column;gap:11px}.play-form label.wide{flex-basis:100%}
+.play-form input,.play-form textarea,.play-form select{font:inherit;font-size:18px;color:#1c2230;border:1px solid var(--play-border);border-radius:2px;background:white;padding:13px 14px;min-height:50px;width:100%;resize:vertical}
+.play-form input:focus,.play-form textarea:focus,.play-form select:focus{outline:2px solid var(--play-blue);outline-offset:0}
+.action-line{width:100%;display:flex;gap:15px;align-items:center;flex-wrap:wrap}
+.primary-action,.quiet-action,.connect-row button{border:1px solid #1c2230;background:#1c2230;color:white;font:inherit;font-size:17px;padding:15px 24px;cursor:pointer;border-radius:2px}
+.quiet-action{background:transparent;color:#215b83;border-color:#b1c2d2}.primary-action:hover,.connect-row button:hover{background:#215b83;border-color:#215b83}.quiet-action:hover{border-color:#215b83}
+.play-output{border-top:1px solid var(--play-border);margin-top:34px;padding-top:30px;min-height:80px;font-size:18px;line-height:1.5}
+.play-output:empty{display:none}.play-output h3{font:400 clamp(26px,3vw,42px)/1.2 'Source Serif 4',serif;margin:8px 0 22px}
+.play-output p{font-size:18px;max-width:760px;line-height:1.55;margin:12px 0}.play-output .play-summary{font-size:17px;color:#4b5565}
+.measure-row{display:flex;flex-wrap:wrap;gap:20px;margin:15px 0;border-top:1px solid var(--play-border)}.measure{min-width:150px;flex:1;padding:20px 8px 10px 0}.measure .measure-name{display:block;font-size:15px;color:#4b5565;margin-bottom:12px}.measure strong{display:block;font:400 clamp(34px,4.2vw,57px)/1.1 'Source Serif 4',Georgia,serif;letter-spacing:-.045em}
+.play-tokens{display:flex;flex-wrap:wrap;gap:5px;margin:18px 0}.play-tokens button{background:#fff;border:1px solid var(--play-border);padding:11px 9px;font:inherit;font-size:17px;cursor:pointer}.play-tokens button.active{background:#215b83;border-color:#215b83;color:#fff}
+.feature-list{border-top:1px solid var(--play-border)}.feature-list button{background:none;width:100%;border:0;border-bottom:1px solid var(--play-border);font-size:17px;padding:15px 0;color:#1c2230;display:flex;justify-content:space-between;text-align:left;cursor:pointer}.feature-list button:hover{color:#215b83}
+.comparison{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#d9dfe7;border:1px solid var(--play-border);margin-top:22px}.comparison>div{background:#fdfdfc;padding:24px;min-width:0}.comparison h4{font-size:16px;font-weight:600;color:#4b5565;margin:0 0 18px}.comparison p{font:400 clamp(20px,2.1vw,28px)/1.45 'Source Serif 4',Georgia,serif;white-space:pre-wrap;overflow-wrap:anywhere}
+.demo-status{margin-top:22px;color:#4b5565;font-size:16px}.demo-status strong{color:#215b83;font-weight:550}
+.weight-label{font-size:20px;padding-top:41px;min-width:33px}
+#play-circuit{display:block;width:100%;height:auto;max-height:520px;background:#f7f8f9;border-top:1px solid var(--play-border);border-bottom:1px solid var(--play-border)}
+#play-circuit circle{cursor:pointer}#play-circuit circle:focus{outline:none;stroke:#1c2230;stroke-width:3}
+.live-compute{border-top:1px solid var(--play-border);margin-top:40px;padding:24px 0}.live-compute summary{color:#1c2230}.live-compute[open] summary{color:#215b83}
+.bar-track{height:10px;background:#e5e8ee;margin-top:23px;max-width:650px}.bar-fill{height:100%;background:#215b83;transition:width .25s}
+.play-failure{color:#964939;font-size:18px}
+.playground .workspace-panel{margin-top:0}.playground button:focus-visible,.playground summary:focus-visible{outline:2px solid #215b83;outline-offset:3px}
+@media(max-width:900px){.playhead{display:block}.playstate{display:inline-block;margin-top:22px}.workspace-main.playground{padding-top:35px}.module-title{margin-top:40px}}
+@media(max-width:700px){.workspace-main.playground{padding:25px 21px 55px}.playhead h1{font-size:44px}.playhead p{font-size:18px}.module-title h2{font-size:59px}.module-title p{font-size:17px}.play-form{gap:16px}.play-form label{flex-basis:100%}.play-form input,.play-form select,.play-form textarea{font-size:16px}.comparison{grid-template-columns:1fr}.comparison>div{padding:18px}.play-output{margin-top:20px}.primary-action,.quiet-action{font-size:16px}.measure{min-width:125px}.connection summary{font-size:16px}}
+/* Let the primary example and its controls occupy the first viewport. */
+.playhead{justify-content:flex-end;min-height:0;padding:0 0 10px;border:0}
+.playstate{padding:8px 11px;font-size:15px}
+.connection{padding:11px 0 18px}
+.module-title{margin:30px 0 22px}
+.module-title h2{font-size:clamp(48px,4.7vw,73px)}
+.module-title p{margin-top:9px;font-size:18px}
+.play-form{margin:24px 0;gap:16px 24px}
+.play-form label{gap:8px}
+.play-form textarea{min-height:70px}
+.action-line{margin-top:0}
+@media(max-width:700px){.module-title{margin:23px 0 20px}.module-title h2{font-size:52px}.playhead{padding-bottom:7px}}
