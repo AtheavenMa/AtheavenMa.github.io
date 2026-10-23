@@ -41,8 +41,41 @@
   const getWords=text=>text.trim().match(/[\w]+|[^\w\s]/g)||[];
   const seed=(s)=>{let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return h>>>0};
   const fakeFeature=(word,pos,base)=>{const h=seed(word+':'+pos+':'+base);return {id:(h%32000),activation:Number(((h%7500)/100+1).toFixed(2))}};
-  function runExplore(){
-    const prompt=$('explore-prompt').value.trim();out('explore-output',root=>{
+  let approvedTrace=null;
+  const approvedReady=fetch(source+'explore-demo01.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null);
+  const operatorReady=()=>Boolean(apiOrigin&&$('live-token').value.trim());
+  const siteId=()=>($('live-site').value||'gemma270m:gemma270m_scope_resid:L5').trim();
+  async function pollJob(jobId){
+    const started=Date.now();
+    while(Date.now()-started<180000){
+      const state=await request('/api/private/jobs/'+encodeURIComponent(jobId),{operator:true});
+      if(state.status==='succeeded')return request('/api/private/jobs/'+encodeURIComponent(jobId)+'/result',{operator:true});
+      if(state.status==='failed'||state.status==='cancelled')throw Error('Worker '+state.status+(state.error_code?': '+state.error_code:''));
+      await new Promise(resolve=>setTimeout(resolve,2000));
+    }
+    throw Error('The worker has not finished. No result was invented.');
+  }
+  async function submitPrivate(prompt,spec){
+    await request('/api/jobs/preflight',{method:'POST',body:{...spec,text:prompt}});
+    const input=await request('/api/private/inputs',{method:'POST',body:{text:prompt},operator:true});
+    const raw=globalThis.crypto?.randomUUID?.()||('request-'+Date.now());
+    const key=raw.replace(/[^A-Za-z0-9_-]/g,'').slice(0,120);
+    const job=await request('/api/private/jobs',{method:'POST',body:{...spec,input_ref:input.input_ref,client_key:key.length>=8?key:('request-'+Date.now())},operator:true});
+    return pollJob(job.job_id||job.id);
+  }
+  function openIntervene(featureId,prompt){$('intervene-feature').value=featureId;$('intervene-prompt').value=prompt;$('intervene-example').value=inferredExample(prompt);showModule('intervene')}
+  function tokenBoard(root,tokens,note){
+    root.append(create('h3','Token activations'));
+    const bar=create('div','','play-tokens'),detail=create('div');root.append(bar,detail);
+    const prompt=$('explore-prompt').value.trim();
+    function focus(i){lastSelectedToken=i;bar.querySelectorAll('button').forEach((b,j)=>b.classList.toggle('active',j===i));detail.replaceChildren();const token=tokens[i];detail.append(create('h3','“'+token.text+'”'));const list=create('div','','feature-list');token.features.slice(0,8).forEach(v=>{const b=create('button','Feature '+v.feature_id+' →   '+fmt(v.activation));b.type='button';b.addEventListener('click',()=>openIntervene(v.feature_id,prompt));list.append(b)});detail.append(list);status(detail,note,false)}
+    tokens.forEach((token,i)=>{const b=create('button',token.text);b.type='button';b.title='Inspect '+token.text;b.addEventListener('click',()=>focus(i));bar.append(b)});
+    focus(Math.min(lastSelectedToken,Math.max(tokens.length-1,0)));
+  }
+  async function runExplore(){
+    const prompt=$('explore-prompt').value.trim();
+    try{const approved=approvedTrace||await approvedReady;approvedTrace=approved;if(approved&&prompt===approved.prompt_text){out('explore-output',root=>tokenBoard(root,approved.tokens,'Recorded Gemma activations for the approved prompt.'));return}}catch(err){out('explore-output',root=>paragraph(root,err.message,'play-failure'));return}
+    out('explore-output',root=>{
       if(!prompt)throw Error('Enter a prompt.');const words=getWords(prompt).slice(0,64);if(!words.length)throw Error('Enter a prompt.');
       root.append(create('h3','Token activations'));
       const bar=create('div','','play-tokens'),detail=create('div');root.append(bar,detail);
@@ -54,7 +87,7 @@
     });
   }
   $('explore-example').addEventListener('change',()=>{$('explore-prompt').value=prompts[$('explore-example').value];lastSelectedToken=0;runExplore()});
-  $('explore-run').addEventListener('click',()=>{lastSelectedToken=0;runExplore()});
+  $('explore-run').addEventListener('click',async()=>{lastSelectedToken=0;const prompt=$('explore-prompt').value.trim();const approved=approvedTrace||await approvedReady;approvedTrace=approved;if(!operatorReady()||(approved&&prompt===approved.prompt_text)){runExplore();return}try{out('explore-output',root=>root.append(create('p','Running on the connected worker…')));const result=await submitPrivate(prompt,{site_id:siteId(),operation:'inspect',feature_ids:[],strength:0,max_new_tokens:0});out('explore-output',root=>tokenBoard(root,result.tokens,'Computed by the connected worker.'))}catch(err){out('explore-output',root=>paragraph(root,err.message,'play-failure'))}});
   $('explore-reset').addEventListener('click',()=>{$('explore-example').value='boats';$('explore-prompt').value=prompts.boats;lastSelectedToken=0;runExplore()});
   function runIntervene(){out('intervene-output',root=>{
     const key=$('intervene-example').value,op=$('intervene-operation').value,strength=Number($('intervene-strength').value),id=Number($('intervene-feature').value),prompt=$('intervene-prompt').value.trim();
@@ -68,7 +101,7 @@
     status(root,label,!sourceMatch);
   });}
   $('intervene-example').addEventListener('change',()=>{const key=$('intervene-example').value;if(sourceMatches(key)){$('intervene-feature').value=key==='sensor'?'1627':'1819';$('intervene-prompt').value=prompts[key];}runIntervene()});
-  $('intervene-run').addEventListener('click',runIntervene);$('intervene-prompt').addEventListener('input',()=>{$('intervene-example').value=inferredExample($('intervene-prompt').value.trim());});
+  $('intervene-run').addEventListener('click',async()=>{const prompt=$('intervene-prompt').value.trim(),op=$('intervene-operation').value,id=Number($('intervene-feature').value);const recorded=prompt===prompts.boats&&$('intervene-example').value==='boats'&&id===1819&&op==='ablate';if(recorded||!operatorReady()){runIntervene();return}try{out('intervene-output',root=>root.append(create('p','Running on the connected worker…')));const result=await submitPrivate(prompt,{site_id:siteId(),operation:op,feature_ids:[id],strength:Number($('intervene-strength').value),max_new_tokens:0});out('intervene-output',root=>{root.append(create('h3',op==='ablate'?'Feature ablation':op==='scale'?'Feature scaling':op==='clamp'?'Feature clamp':'Feature addition'));if(result.feature_active_at_edit_position===false){paragraph(root,result.message);status(root,'The worker measured no logit change because this feature is inactive at the last token.',false);return}metrics(root,{'Feature':String(result.feature_id),'Max logit change':fmt(result.max_abs_logit_delta),'Next token':result.baseline_argmax_token_id+' → '+result.edited_argmax_token_id});status(root,'Computed by the connected worker.',false)})}catch(err){out('intervene-output',root=>paragraph(root,err.message,'play-failure'))}});$('intervene-prompt').addEventListener('input',()=>{$('intervene-example').value=inferredExample($('intervene-prompt').value.trim());});
   for(const k of ['intervene-operation','intervene-strength','intervene-feature'])$(k).addEventListener('change',runIntervene);
   $('intervene-generation').addEventListener('click',()=>{const prompt=$('intervene-prompt').value.trim();$('generate-example').value=inferredGenerationExample(prompt);$('generate-prompt').value=prompt;$('generate-feature').value=$('intervene-feature').value;$('generate-strength').value=$('intervene-strength').value;$('generate-operation').value=$('intervene-operation').value;showModule('generate')});
   function runGenerate(){out('generate-output',root=>{
@@ -93,7 +126,7 @@
   $('generate-example').addEventListener('change',()=>{const key=$('generate-example').value;if(sourceMatches(key))$('generate-prompt').value=prompts[key];runGenerate()});
   $('generate-prompt').addEventListener('input',()=>{$('generate-example').value=inferredGenerationExample($('generate-prompt').value.trim());});
   for(const id of ['generate-operation','generate-feature','generate-strength'])$(id).addEventListener('change',runGenerate);
-  $('generate-run').addEventListener('click',runGenerate);
+  $('generate-run').addEventListener('click',async()=>{const key=$('generate-example').value,operation=$('generate-operation').value,prompt=$('generate-prompt').value.trim(),feature=Number($('generate-feature').value);const measured=sourceMatches(key)&&prompt===prompts[key]&&feature===1819&&operation==='ablate'&&(key==='boats'||key==='night');if(measured||!operatorReady()){runGenerate();return}if(operation==='clamp'||operation==='add'){out('generate-output',root=>paragraph(root,'The worker generates with no change, ablation, or scaling. Clamp and add stay illustrative until you disconnect the API.','play-failure'));return}try{const spec=operation==='noop'?{site_id:siteId(),operation:'identity',feature_ids:[],strength:0,max_new_tokens:16}:{site_id:siteId(),operation,feature_ids:[feature],strength:operation==='scale'?Number($('generate-strength').value):0,max_new_tokens:16};out('generate-output',root=>root.append(create('p','Running on the connected worker…')));const result=await submitPrivate(prompt,spec);out('generate-output',root=>{root.append(create('h3','Generated continuation'));comparison(root,'Baseline',result.baseline_continuation,operation==='scale'?'Scale':'After edit',result.edited_continuation);const step=result.steps&&result.steps[0];metrics(root,{'Feature':String(result.feature_id??feature),'First-token change':result.same_continuation?'No':'Yes','Maximum logit change':step?fmt(step.max_abs_logit_delta):'—'});status(root,'Computed by the connected worker.',false)})}catch(err){out('generate-output',root=>paragraph(root,err.message,'play-failure'))}});
   async function fetchRecord(name){let r=await fetch(source+name+'.json',{cache:'no-store'});if(!r.ok)throw Error('Could not load '+name+' data.');return r.json()}
   let circuitLoading=null;
   async function runCircuit(){
