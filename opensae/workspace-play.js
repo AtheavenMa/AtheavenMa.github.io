@@ -305,6 +305,10 @@
     const row=selectedEvalSite();
     const old=$('benchmark-metric').value;
     const metrics=(row?.metrics||[]).map(x=>x.id);
+    if(row?.protocol==='saebench.native_pilot'){
+      if(metrics.includes('saebench.core.l0'))metrics.push('core.l0');
+      if(metrics.includes('saebench.core.mse'))metrics.push('core.reconstruction_mse');
+    }
     const available=[['overview','Overview'],['l0','Active features (L0)'],['mse','Reconstruction MSE'],['variance','Explained variance'],['ablation','Ablation effect'],['probe','Sparse probing accuracy'],['coverage','Research Lab coverage']]
       .filter(([key])=>key==='overview'||key==='coverage'||metrics.includes(evaluationMetricDefinitions[key]?.[0]));
     fillOptions($('benchmark-metric'),available,old);
@@ -351,7 +355,9 @@
   }
   function benchmarkMetric(row,key){
     const id=evaluationMetricDefinitions[key]?.[0];
-    const metric=(row.metrics||[]).find(x=>x.id===id&&(key!=='ablation'||x.condition==='feature-ablation'));
+    const nativeIds={l0:'saebench.core.l0',mse:'saebench.core.mse'};
+    const resolvedId=row.protocol==='saebench.native_pilot'?(nativeIds[key]||id):id;
+    const metric=(row.metrics||[]).find(x=>x.id===resolvedId&&(key!=='ablation'||x.condition==='feature-ablation'));
     if(!metric)return null;
     const value=Number(metric.value);
     return {name:evaluationMetricDefinitions[key][1],
