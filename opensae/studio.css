@@ -102,3 +102,18 @@ a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer}img{disp
 .qa-items details a:hover{color:var(--blue)}
 @media(max-width:850px){.contact-questions{grid-template-columns:1fr;gap:50px}}
 @media(max-width:600px){.contact-hero{min-height:520px;padding:90px 26px 110px;gap:19px}.contact-hero h1{font-size:clamp(83px,17vw,112px);margin-bottom:16px}.contact-mail{font-size:clamp(27px,7.4vw,40px)}.contact-questions{padding:85px 26px 115px}.contact-questions h2{font-size:clamp(54px,11vw,72px)}.qa-items details{padding:24px 0}.qa-items details p{font-size:18px}}
+
+/* OpenSAE editorial evidence: legible pairings, no decorative labels */
+.experiment-preview{grid-template-columns:minmax(0,1.3fr) minmax(310px,.7fr);align-items:stretch;min-height:365px}
+.experiment-left{display:flex;flex-direction:column;justify-content:space-between;gap:34px;padding:clamp(36px,4vw,64px)}
+.experiment-left .preview-prompt{margin:0;max-width:620px;font-size:clamp(29px,3vw,46px);line-height:1.26}
+.experiment-left .preview-subject{margin:0;font-size:17px;line-height:1.4}
+.experiment-right{padding:clamp(36px,4vw,64px);display:flex;flex-direction:column;justify-content:space-between;gap:25px;min-width:0}
+.experiment-right .preview-outcome{font-family:var(--serif);font-size:clamp(25px,2.35vw,37px);line-height:1.25;max-width:370px;margin:0}
+.preview-metric{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.preview-metric strong{font-family:var(--serif);font-size:clamp(54px,5vw,80px);font-weight:400;letter-spacing:-.065em;line-height:1}
+.preview-metric span{font-size:16px;color:var(--soft)}
+.experiment-right>a{align-self:flex-start;font-size:17px;text-decoration:underline;text-underline-offset:7px}
+.page-home .hero h1{font-size:clamp(58px,6.35vw,113px);max-width:1100px}
+.page-contact .contact-hero h1{max-width:1250px;font-size:clamp(40px,6vw,95px);line-height:1.15}
+@media(max-width:840px){.experiment-preview{grid-template-columns:1fr}.experiment-left{border-right:0;border-bottom:1px solid var(--line);min-height:240px}.experiment-right{min-height:280px}.preview-metric{gap:14px}.page-home .hero h1 em{white-space:normal}}
