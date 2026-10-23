@@ -19,11 +19,11 @@
 <div class="play-output" id="generate-output"></div>
 </section>
 <section class="workspace-panel" data-pane="circuits"><div class="module-title"><h2>Circuits</h2><p>Trace connections between features and outputs.</p></div>
-<div class="play-form"><label>Minimum edge weight<input id="circuit-weight" max="40" min="0" step="1" type="range" value="5"/></label><strong class="weight-label" id="weight-label">5</strong><div class="action-line"><button class="primary-action" id="circuit-run">Show all edges</button><p class="api-soon" id="circuit-complete" hidden>All available edges are displayed.</p></div></div>
+<div class="play-form"><label>Minimum edge weight<input id="circuit-weight" max="40" min="0" step="1" type="range" value="5"/></label><strong class="weight-label" id="weight-label">5</strong><div class="action-line"><button class="primary-action" id="circuit-run">View circuit ↗</button><p class="api-soon" id="circuit-complete" hidden>All available edges are displayed.</p></div></div>
 <div class="play-output" id="circuit-summary"></div><svg aria-label="Interactive circuit graph" id="play-circuit" role="img" viewbox="0 0 1000 520"></svg><div class="play-output" id="circuit-detail"></div>
 </section>
 <section class="workspace-panel" data-pane="benchmarks"><div class="module-title"><h2>Evaluate</h2><p>Explore reconstruction and probing measurements.</p></div>
-<div class="play-form"><label>Metric<select id="benchmark-metric"><option value="l0">Active features (L0)</option><option value="mse">Reconstruction MSE</option><option value="probe">Sparse probing accuracy</option></select></label></div><div class="play-output" id="benchmark-output"></div>
+<div class="play-form"><label>Metric<select id="benchmark-metric"><option value="l0">Active features (L0)</option><option value="mse">Reconstruction MSE</option><option value="probe">Sparse probing accuracy</option></select></label><div class="action-line"><button class="primary-action" id="benchmark-run" type="button">View metrics ↗</button></div></div><div class="play-output" id="benchmark-output"></div>
 </section>
 <section class="workspace-panel" data-pane="training"><div class="module-title"><h2>Train</h2><p>Choose a configuration and explore the training process.</p></div>
 <div class="play-form"><label>Architecture<select id="train-architecture"><option value="topk">TopK</option><option value="batch">BatchTopK</option></select></label><label>Top K<select id="train-k"><option>32</option><option>16</option><option>64</option></select></label><label>Steps<select id="train-steps"><option>50</option><option>100</option><option>200</option></select></label><div class="action-line"><button class="primary-action" id="training-run" type="button">Explore training ↗</button><button class="quiet-action" id="training-reset">Reset</button></div></div><div class="play-output" id="training-output"></div>
@@ -31,4 +31,4 @@
 <section class="workspace-panel" data-pane="interpret"><div class="module-title"><h2>Interpret</h2><p>Propose and test what a feature responds to.</p></div>
 <div class="play-form"><label>Feature<select id="interpret-feature"><option value="1680">Feature 1680</option><option value="1819">Feature 1819</option><option value="1627">Feature 1627</option></select></label><label>Evidence<select id="interpret-set"><option value="positive">Activating examples</option><option value="negative">Non-activating examples</option></select></label><div class="action-line"><button class="primary-action" id="interpret-run" type="button">Review hypothesis ↗</button></div></div><div class="play-output" id="interpret-output"></div>
 </section>
-</main></div><script defer="" src="studio.js"></script><script defer="True" src="workspace-play.js?v=20261023-action-triggered-1"></script></body></html>
+</main></div><script defer="" src="studio.js"></script><script defer="True" src="workspace-play.js?v=20261023-action-triggered-2"></script></body></html>
