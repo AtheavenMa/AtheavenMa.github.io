@@ -64,3 +64,26 @@
 
 /* Retired legacy result footnotes. Keep factual result content visible. */
 .playground .demo-status{display:none!important}
+
+/* Evidence-first generation comparison, feature inspection and evaluation. */
+.probability-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:24px 0}
+.probability-card{background:#f5f7fa;border:1px solid #d7e0e9;padding:22px;min-width:0}
+.probability-card h4{font-size:17px;margin:0 0 12px;color:#566576}
+.probability-number{font:400 clamp(35px,4.2vw,59px)/1.1 'Source Serif 4',Georgia,serif;letter-spacing:-.04em}
+.probability-track{height:11px;background:#dce6ee;margin-top:20px;overflow:hidden}
+.probability-fill{display:block;height:100%;background:#809bb0}
+.probability-edited .probability-fill{background:#215b83}
+.probability-edited .probability-number{color:#215b83}
+.generation-insight{display:flex;flex-direction:column;gap:7px;border-left:4px solid #215b83;padding:5px 0 5px 17px;margin:18px 0 24px}
+.generation-insight strong{font-size:23px;font-weight:550}.generation-insight span{font-size:18px;color:#526479}
+.eval-metric-row{display:grid;grid-template-columns:1.1fr .7fr 1.9fr;align-items:center;gap:20px;padding:22px 0;border-bottom:1px solid #d9dfe7}
+.eval-metric-name{font-size:18px;font-weight:550}.eval-metric-row strong{font:400 36px/1.15 'Source Serif 4',serif}
+.eval-metric-row p{margin:0!important;font-size:16px!important;color:#526479}
+.eval-context{padding:22px 0}.eval-context strong{font-size:19px}.eval-context p{margin:4px 0!important}
+.evidence-link{display:inline-block;font-size:17px;border-bottom:1px solid #215b83;margin:8px 24px 12px 0;color:#215b83}
+.interpret-token-row{padding:26px 0;display:flex;flex-wrap:wrap;gap:3px;align-items:center;line-height:1.8}
+.token-evidence{padding:4px 6px;font:400 23px/1.5 'Source Serif 4',Georgia,serif;white-space:pre-wrap}
+.token-evidence.active{background:#d5e7f4;color:#194f75;border-radius:2px}
+.activation-rows{max-width:630px;border-top:1px solid #d9dfe7}
+.activation-row{display:flex;justify-content:space-between;gap:20px;padding:17px 10px;border-bottom:1px solid #d9dfe7}
+@media(max-width:750px){.probability-grid{grid-template-columns:1fr}.eval-metric-row{grid-template-columns:1fr;gap:6px}}

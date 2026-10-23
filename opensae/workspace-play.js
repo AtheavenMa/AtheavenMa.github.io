@@ -9,15 +9,8 @@
     night: 'The night clerk counted the brass keys before locking the side door.',
     sensor: 'The sensor reading rose from seven to twelve after calibration.'
   };
-  const baseline = {
-    boats: '\n\nThe boat was a blue paper boat, and the bridge was a stone bridge',
-    night: '\n\nThe door was open, and the door was locked.\n\nThe door was',
-  };
-  const after = {
-    boats: '<start_of_image>The boat was a blue paper boat, and the boat was a blue paper',
-    night: '\n\nThe door was open, and the door was locked.\n\nThe door was',
-  };
-  let apiOrigin = '', queuedJob = '', circuit = null, activeModule = 'explore', lastSelectedToken = 0;
+
+    let apiOrigin = '', queuedJob = '', circuit = null, activeModule = 'explore', lastSelectedToken = 0;
   const sourceMatches = key => Object.prototype.hasOwnProperty.call(prompts,key);
   const inferredExample = prompt => Object.keys(prompts).find(key => prompts[key]===prompt) || 'custom';
   const inferredGenerationExample = prompt => {const key=inferredExample(prompt);return ['boats','night'].includes(key)?key:'custom'};
@@ -97,44 +90,127 @@
   $('explore-example').addEventListener('change',()=>{$('explore-prompt').value=prompts[$('explore-example').value];lastSelectedToken=0;clearResult('explore')});
   $('explore-run').addEventListener('click',async()=>{clearResult('explore');lastSelectedToken=0;const version=resultVersions.explore;const prompt=$('explore-prompt').value.trim();const approved=approvedTrace||await approvedReady;if(version!==resultVersions.explore)return;approvedTrace=approved;if(!operatorReady()||(approved&&prompt===approved.prompt_text)){runExplore();return}try{out('explore-output',root=>root.append(create('p','Running on the connected worker…')));const result=await submitPrivate(prompt,{site_id:siteId(),operation:'inspect',feature_ids:[],strength:0,max_new_tokens:0});if(version===resultVersions.explore)out('explore-output',root=>tokenBoard(root,result.tokens))}catch(err){if(version===resultVersions.explore)out('explore-output',root=>paragraph(root,err.message,'play-failure'))}});
   $('explore-reset').addEventListener('click',()=>{$('explore-example').value='boats';$('explore-prompt').value=prompts.boats;lastSelectedToken=0;clearResult('explore')});
-  function runIntervene(){out('intervene-output',root=>{
-    const key=$('intervene-example').value,op=$('intervene-operation').value,strength=Number($('intervene-strength').value),id=Number($('intervene-feature').value),prompt=$('intervene-prompt').value.trim();
-    if(!Number.isInteger(id)||id<0)throw Error('Choose a valid feature.');if(!prompt)throw Error('Enter a prompt.');if(!Number.isFinite(strength)||strength<0||strength>10)throw Error('Strength must be between 0 and 10.');
-    const sourceMatch=prompt===prompts.boats&&key==='boats'&&id===1819&&op==='ablate';
-    let change=sourceMatch?9.802836:(id%23+12)*0.15*(op==='ablate'?1:op==='scale'?strength/2:op==='clamp'?Math.min(strength,4)/3:strength/3);
-    if(op==='scale'&&strength===1)change=0;
-    root.append(create('h3',op==='ablate'?'Feature ablation':op==='scale'?'Feature scaling':op==='clamp'?'Feature clamp':'Feature addition'));
-    metrics(root,{'Feature':String(id),'Max logit change':fmt(change),'Next token':sourceMatch?'108 → 255999':change<.1?'Unchanged':'May change'});
-  });}
-  $('intervene-example').addEventListener('change',()=>{const key=$('intervene-example').value;if(sourceMatches(key)){$('intervene-feature').value=key==='sensor'?'1627':'1819';$('intervene-prompt').value=prompts[key];}clearResult('intervene')});
-  $('intervene-run').addEventListener('click',async()=>{clearResult('intervene');const version=resultVersions.intervene;const prompt=$('intervene-prompt').value.trim(),op=$('intervene-operation').value,id=Number($('intervene-feature').value);const recorded=prompt===prompts.boats&&$('intervene-example').value==='boats'&&id===1819&&op==='ablate';if(recorded||!operatorReady()){runIntervene();return}try{out('intervene-output',root=>root.append(create('p','Running on the connected worker…')));const result=await submitPrivate(prompt,{site_id:siteId(),operation:op,feature_ids:[id],strength:Number($('intervene-strength').value),max_new_tokens:0});if(version!==resultVersions.intervene)return;out('intervene-output',root=>{root.append(create('h3',op==='ablate'?'Feature ablation':op==='scale'?'Feature scaling':op==='clamp'?'Feature clamp':'Feature addition'));if(result.feature_active_at_edit_position===false){paragraph(root,result.message);return}metrics(root,{'Feature':String(result.feature_id),'Max logit change':fmt(result.max_abs_logit_delta),'Next token':result.baseline_argmax_token_id+' → '+result.edited_argmax_token_id})})}catch(err){if(version===resultVersions.intervene)out('intervene-output',root=>paragraph(root,err.message,'play-failure'))}});$('intervene-prompt').addEventListener('input',()=>{clearResult('intervene');$('intervene-example').value=inferredExample($('intervene-prompt').value.trim());});
-  for(const k of ['intervene-operation','intervene-strength','intervene-feature'])$(k).addEventListener('change',()=>clearResult('intervene'));
-  for(const k of ['intervene-strength','intervene-feature'])$(k).addEventListener('input',()=>clearResult('intervene'));
-  $('intervene-generation').addEventListener('click',()=>{const prompt=$('intervene-prompt').value.trim();$('generate-example').value=inferredGenerationExample(prompt);$('generate-prompt').value=prompt;$('generate-feature').value=$('intervene-feature').value;$('generate-strength').value=$('intervene-strength').value;$('generate-operation').value=$('intervene-operation').value;showModule('generate')});
-  function runGenerate(){out('generate-output',root=>{
-    const key=$('generate-example').value,operation=$('generate-operation').value,prompt=$('generate-prompt').value.trim(), feature=Number($('generate-feature').value), strength=Number($('generate-strength').value);
-    if(!prompt)throw Error('Enter a prompt.');
-    if(!Number.isInteger(feature)||feature<0)throw Error('Choose a valid feature.');
-    if(!Number.isFinite(strength)||strength<0||strength>10)throw Error('Strength must be between 0 and 10.');
-    const match=sourceMatches(key)&&prompt===prompts[key];
-    const measured=match&&feature===1819&&operation==='ablate'&&(key==='boats'||key==='night');
-    const clean=match&&baseline[key]!==undefined?baseline[key]:`\n\n${prompt.split(/\s+/).slice(-8).join(' ')} The description continues in a similar way.`;
-    const edited=operation==='noop'?clean:measured?after[key]:
-      `${clean.slice(0,90)}\n[Feature ${feature} ${operation} at strength ${strength}]`;
-    root.append(create('h3','Generated continuation'));
-    comparison(root,'Baseline',clean,operation==='noop'?'No change':operation==='scale'?'Scale':operation==='clamp'?'Clamp':operation==='add'?'Add':'After ablation',edited);
-    let delta=0;
-    if(measured)delta=key==='boats'?9.802836:7.65;
-    else if(operation!=='noop')delta=(seed(`${prompt}:${feature}:${operation}`)%1000)/100*(operation==='ablate'?1:Math.abs(strength-(operation==='scale'?1:0))/2);
-    const changed=operation==='noop'?false:measured?key==='boats':delta>=.1;
-    metrics(root,{'Feature':String(feature),'First-token change':changed?'Yes':'No','Maximum logit change':fmt(delta)});
-  });}
-  $('generate-example').addEventListener('change',()=>{const key=$('generate-example').value;if(sourceMatches(key))$('generate-prompt').value=prompts[key];clearResult('generate')});
-  $('generate-prompt').addEventListener('input',()=>{clearResult('generate');$('generate-example').value=inferredGenerationExample($('generate-prompt').value.trim());});
-  for(const id of ['generate-operation','generate-feature','generate-strength'])$(id).addEventListener('change',()=>clearResult('generate'));
-  for(const id of ['generate-feature','generate-strength'])$(id).addEventListener('input',()=>clearResult('generate'));
-  $('generate-run').addEventListener('click',async()=>{clearResult('generate');const version=resultVersions.generate;const key=$('generate-example').value,operation=$('generate-operation').value,prompt=$('generate-prompt').value.trim(),feature=Number($('generate-feature').value);const measured=sourceMatches(key)&&prompt===prompts[key]&&feature===1819&&operation==='ablate'&&(key==='boats'||key==='night');if(measured||!operatorReady()){runGenerate();return}if(operation==='clamp'||operation==='add'){out('generate-output',root=>paragraph(root,'This operation is not available.','play-failure'));return}try{const spec=operation==='noop'?{site_id:siteId(),operation:'identity',feature_ids:[],strength:0,max_new_tokens:16}:{site_id:siteId(),operation,feature_ids:[feature],strength:operation==='scale'?Number($('generate-strength').value):0,max_new_tokens:16};out('generate-output',root=>root.append(create('p','Running on the connected worker…')));const result=await submitPrivate(prompt,spec);if(version!==resultVersions.generate)return;out('generate-output',root=>{root.append(create('h3','Generated continuation'));comparison(root,'Baseline',result.baseline_continuation,operation==='scale'?'Scale':'After edit',result.edited_continuation);const step=result.steps&&result.steps[0];metrics(root,{'Feature':String(result.feature_id??feature),'First-token change':result.same_continuation?'No':'Yes','Maximum logit change':step?fmt(step.max_abs_logit_delta):'—'})})}catch(err){if(version===resultVersions.generate)out('generate-output',root=>paragraph(root,err.message,'play-failure'))}});
-  async function fetchRecord(name){let r=await fetch(source+name+'.json',{cache:'no-store'});if(!r.ok)throw Error('Could not load '+name+' data.');return r.json()}
+
+  const publishedPromptDigests={
+    boats:'33f0195c5961825882fa08ffddb9b4de80bd572b728b9b87fc4ed772652c75e6',
+    night:'683d2275d77b908d4e18aa421764dbc0b1a7aa601d1b9702891ab050e1373790'
+  };
+  let generationRecord=null,traceRecord=null;
+  async function measuredGeneration(){
+    generationRecord??=await fetchRecord('generation');
+    return generationRecord;
+  }
+  function recordedCondition(data,key,feature,op,strength){
+    if(!data||feature!==1819||!(key in publishedPromptDigests))return null;
+    if(!['ablate','scale','noop'].includes(op))return null;
+    if(op==='scale'&&Number(strength)!==2)return null;
+    const sample=(data.samples||[]).find(x=>x.prompt_sha256===publishedPromptDigests[key]&&x.feature_id===feature);
+    if(!sample)return null;
+    const edit=(sample.conditions||[]).find(x=>x.name===op);
+    return edit?{sample,edit}:null;
+  }
+  function probabilityCard(root,title,probability,isEdited){
+    const p=Number(probability)*100;
+    const card=create('div','','probability-card'+(isEdited?' probability-edited':''));
+    card.append(create('h4',title));
+    card.append(create('strong',fmt(p)+'%','probability-number'));
+    const track=create('div','','probability-track');
+    const fill=create('span','','probability-fill');
+    fill.style.width=Math.max(0,Math.min(100,p))+'%';
+    track.append(fill);card.append(track);
+    root.append(card);
+  }
+  function renderProbabilityChange(root,found,op){
+    const clean=found.edit.clean_argmax_probability;
+    const edited=found.edit.edited_probability_of_clean_argmax;
+    const delta=(edited-clean)*100;
+    root.append(create('h3','Next-token comparison'));
+    const pair=create('div','','probability-grid');
+    probabilityCard(pair,'Baseline',clean,false);
+    probabilityCard(pair,op==='ablate'?'After ablation':op==='scale'?'After scaling':'No change',edited,true);
+    root.append(pair);
+    const summary=create('div','','generation-insight');
+    const changed=found.edit.argmax_changed===true;
+    summary.append(create('strong',changed?'Next token changed':(Math.abs(delta)>0.01?'Token preference shifted':'No change')));
+    if(op!=='noop')summary.append(create('span',(delta>=0?'+':'')+fmt(delta)+' percentage points for the baseline next token'));
+    if(changed&&Number.isFinite(found.edit.edited_argmax_probability))summary.append(create('span','New leading token probability '+fmt(100*found.edit.edited_argmax_probability)+'%'));
+    root.append(summary);
+  }
+  function updateStrengthControl(prefix){
+    const op=$(prefix+'-operation').value;
+    const wrap=$(prefix+'-strength-wrap');
+    wrap.hidden=op!=='scale';
+    $(prefix+'-strength').value='2';
+  }
+
+  async function runIntervene(){
+    const version=resultVersions.intervene;
+    const key=$('intervene-example').value;
+    const op=$('intervene-operation').value;
+    const feature=Number($('intervene-feature').value);
+    if(!Number.isInteger(feature)||feature<0){out('intervene-output',root=>paragraph(root,'Enter a valid Feature ID.'));return}
+    try{
+      const record=await measuredGeneration();
+      if(version!==resultVersions.intervene)return;
+      const found=recordedCondition(record,key,feature,op,$('intervene-strength').value);
+      if(!found){out('intervene-output',root=>paragraph(root,'No recorded edit for this selection.'));return}
+      out('intervene-output',root=>{
+        root.append(create('h3','Feature '+feature));
+        metrics(root,{'Activation':fmt(found.sample.feature_activation),'Token position':String(found.sample.feature_position)});
+        renderProbabilityChange(root,found,op);
+      });
+    }catch(e){if(version===resultVersions.intervene)out('intervene-output',root=>paragraph(root,'Unable to load intervention data.','play-failure'))}
+  }
+  $('intervene-example').addEventListener('change',()=>{
+    const key=$('intervene-example').value;
+    if(sourceMatches(key)){
+      $('intervene-feature').value=key==='sensor'?'1627':'1819';
+      $('intervene-prompt').value=prompts[key];
+    }
+    clearResult('intervene');
+  });
+  $('intervene-run').addEventListener('click',()=>{clearResult('intervene');runIntervene()});
+  $('intervene-prompt').addEventListener('input',()=>clearResult('intervene'));
+  $('intervene-operation').addEventListener('change',()=>{updateStrengthControl('intervene');clearResult('intervene')});
+  $('intervene-feature').addEventListener('input',()=>clearResult('intervene'));
+  $('intervene-generation').addEventListener('click',()=>{
+    const prompt=$('intervene-prompt').value.trim();
+    const key=inferredGenerationExample(prompt);
+    $('generate-example').value=key;
+    $('generate-prompt').value=prompt;
+    $('generate-feature').value=$('intervene-feature').value;
+    $('generate-operation').value=$('intervene-operation').value;
+    updateStrengthControl('generate');
+    showModule('generate');
+  });
+  async function runGenerate(){
+    const version=resultVersions.generate;
+    const key=$('generate-example').value;
+    const op=$('generate-operation').value;
+    const feature=Number($('generate-feature').value);
+    try{
+      const record=await measuredGeneration();
+      if(version!==resultVersions.generate)return;
+      const found=recordedCondition(record,key,feature,op,$('generate-strength').value);
+      if(!found){out('generate-output',root=>paragraph(root,'No recorded generation for this selection.'));return}
+      out('generate-output',root=>{
+        renderProbabilityChange(root,found,op);
+      });
+    }catch(e){if(version===resultVersions.generate)out('generate-output',root=>paragraph(root,'Unable to load generation data.','play-failure'))}
+  }
+  $('generate-example').addEventListener('change',()=>{
+    const key=$('generate-example').value;
+    if(sourceMatches(key))$('generate-prompt').value=prompts[key];
+    clearResult('generate');
+  });
+  $('generate-feature').addEventListener('input',()=>clearResult('generate'));
+  $('generate-prompt').addEventListener('input',()=>clearResult('generate'));
+  $('generate-operation').addEventListener('change',()=>{updateStrengthControl('generate');clearResult('generate')});
+  $('generate-run').addEventListener('click',()=>{clearResult('generate');runGenerate()});
+  updateStrengthControl('intervene');
+  updateStrengthControl('generate');
+
+    async function fetchRecord(name){let r=await fetch(source+name+'.json',{cache:'no-store'});if(!r.ok)throw Error('Could not load '+name+' data.');return r.json()}
   let circuitLoading=null;
   async function runCircuit(){
     const version=resultVersions.circuits;
@@ -148,22 +224,102 @@
     }catch(e){out('circuit-summary',root=>paragraph(root,e.message,'play-failure'))}
   }
   $('circuit-run').addEventListener('click',()=>{circuitVisible=true;runCircuit()});$('circuit-weight').addEventListener('input',()=>{const weight=Number($('circuit-weight').value);$('weight-label').textContent=String(weight);clearResult('circuits')});
+
   let benchmarkRecord=null;
-  async function runBenchmark(){const version=resultVersions.benchmarks;try{benchmarkRecord??=await fetchRecord('benchmark');if(version!==resultVersions.benchmarks)return;const m=benchmarkRecord.metrics||{};const key=$('benchmark-metric').value;const entries={l0:['Active features (L0)',m['saebench.core.l0'],'features'],mse:['Reconstruction MSE',m['saebench.core.mse'],''],probe:['Sparse probing accuracy',m['saebench.sparse_probing.sae_top_1_test_accuracy'],'%']};const [label,value,suffix]=entries[key];out('benchmark-output',root=>{root.append(create('h3',label));metrics(root,{[label]:suffix==='%'?fmt(value*100)+'%':fmt(value),'Model':benchmarkRecord.model_name||'Pythia 70M','SAE':benchmarkRecord.sae_id||'Layer 3'})});}catch(e){out('benchmark-output',root=>paragraph(root,e.message,'play-failure'))}}
-  $('benchmark-metric').addEventListener('change',()=>clearResult('benchmarks'));$('benchmark-run').addEventListener('click',()=>{clearResult('benchmarks');runBenchmark()});
-  let trainingRecord=null;
+  function linkedText(root,txt,url){
+    const a=create('a',txt+' ↗');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.className='evidence-link';root.append(a);
+  }
+  async function runBenchmark(){
+    const version=resultVersions.benchmarks;
+    try{
+      benchmarkRecord??=await fetchRecord('benchmark');
+      if(version!==resultVersions.benchmarks)return;
+      const b=benchmarkRecord,m=b.metrics||{},section=$('benchmark-metric').value;
+      out('benchmark-output',root=>{
+        const l0=Number(m['saebench.core.l0']), mse=Number(m['saebench.core.mse']), probe=Number(m['saebench.sparse_probing.sae_top_1_test_accuracy']);
+        if(section==='coverage'){
+          root.append(create('h3','Research Lab coverage'));
+          metrics(root,{'Model sites':'48','Prompt groups':'500','Feature cards':'300','Intervention sites':'6'});
+          linkedText(root,'Explore the evaluation dataset','https://huggingface.co/datasets/OpenSAE/SAEBase-Evaluation');
+          linkedText(root,'Research Lab','https://huggingface.co/spaces/OpenSAE/SAEBase');
+          return;
+        }
+        root.append(create('h3',section==='overview'?'Benchmark results':section==='l0'?'Active features':section==='mse'?'Reconstruction error':'Sparse probing'));
+        const descriptors=[
+          ['Active features (L0)',fmt(l0),'Average number of active features in the SAE representation.'],
+          ['Reconstruction MSE',mse.toFixed(5),'Mean squared reconstruction error; smaller is better.'],
+          ['Sparse probing accuracy',fmt(probe*100)+'%','Accuracy of a sparse classifier using SAE features.']
+        ];
+        const rows=section==='overview'?descriptors:descriptors.filter((_,i)=>i==={l0:0,mse:1,probe:2}[section]);
+        for(const [name,value,description] of rows){
+          const item=create('div','','eval-metric-row');
+          item.append(create('div',name,'eval-metric-name'),create('strong',value),create('p',description));
+          root.append(item);
+        }
+        const context=create('div','','eval-context');
+        context.append(create('strong','Model and evaluation'));
+        context.append(create('p','Pythia 70M · Layer 3'));
+        context.append(create('p','Dataset: AG News · SAE: '+String(b.sae_id||'Layer 3')));
+        root.append(context);
+        linkedText(root,'Source dataset','https://huggingface.co/datasets/OpenSAE/SAEBase-Evaluation');
+      });
+    }catch(e){if(version===resultVersions.benchmarks)out('benchmark-output',root=>paragraph(root,'Unable to load benchmark results.','play-failure'))}
+  }
+  $('benchmark-metric').addEventListener('change',()=>clearResult('benchmarks'));
+  $('benchmark-run').addEventListener('click',()=>{clearResult('benchmarks');runBenchmark()});
+
+    let trainingRecord=null;
   async function runTraining(){const version=resultVersions.training;try{trainingRecord??=await fetchRecord('training');if(version!==resultVersions.training)return;const r=trainingRecord;const config={architecture:$('train-architecture').value,k:Number($('train-k').value),steps:Number($('train-steps').value)};const actual=config.architecture==='topk'&&config.k===32&&config.steps===50;const mse=actual?r.reconstruction_mse:Math.max(3.5,12.8-Math.log2(config.steps+1)*.64+config.k*.021+(config.architecture==='batch'?-.75:0));out('training-output',root=>{root.append(create('h3',actual?'Completed training run':'Training preview'));metrics(root,{'Steps':String(config.steps),'Top K':String(config.k),'Reconstruction MSE':fmt(mse)});
       if(!actual){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 800 190');svg.style.cssText='width:100%;max-height:210px;margin-top:20px';const poly=document.createElementNS(svg.namespaceURI,'polyline');let pts=[];for(let i=0;i<=28;i++){const frac=i/28;const val=(1-frac)*(1-frac)*.85+.09+Math.sin(i*2.4)*.015;pts.push((12+frac*774)+','+(18+val*152))}poly.setAttribute('points',pts.join(' '));poly.setAttribute('fill','none');poly.setAttribute('stroke','#215b83');poly.setAttribute('stroke-width','2.6');svg.append(poly);root.append(svg);}
 });
     }catch(e){out('training-output',root=>paragraph(root,e.message,'play-failure'))}}
   $('training-run').addEventListener('click',runTraining);for(const id of ['train-architecture','train-k','train-steps'])$(id).addEventListener('change',()=>clearResult('training'));$('training-reset').addEventListener('click',()=>{$('train-architecture').value='topk';$('train-k').value='32';$('train-steps').value='50';clearResult('training')});
-  let explanationRecord=null;
-  async function runInterpret(){const version=resultVersions.interpret;try{explanationRecord??=await fetchRecord('explanation');if(version!==resultVersions.interpret)return;const feature=Number($('interpret-feature').value),set=$('interpret-set').value;out('interpret-output',root=>{root.append(create('h3','Feature '+feature));
-      if(feature===1680){const positive=set==='positive';metrics(root,{'Held-out score (all examples)':fmt(explanationRecord.heldout_score??.5),[positive?'Positive examples':'Negative examples']:String(positive?(explanationRecord.heldout_n_positive??3):(explanationRecord.heldout_n_negative??1))});}
-      else{const hypothesis=feature===1819?'Respond to objects described within a scene.':'Respond to numeric changes in short technical statements.';paragraph(root,'Possible explanation: '+hypothesis);metrics(root,{'Evidence':set==='positive'?'Activating examples':'Non-activating examples'})}
-    })}catch(e){out('interpret-output',root=>paragraph(root,e.message,'play-failure'))}}
-  $('interpret-run').addEventListener('click',runInterpret);$('interpret-feature').addEventListener('change',()=>clearResult('interpret'));$('interpret-set').addEventListener('change',()=>clearResult('interpret'));
-  async function request(path,{method='GET',body,operator=false}={}){if(!apiOrigin)throw Error('Connect your API first.');const headers={'Accept':'application/json'};if(body!==undefined)headers['Content-Type']='application/json';if(operator){const token=$('live-token').value.trim();if(!token)throw Error('Enter the operator token.');headers.Authorization='Bearer '+token}const res=await fetch(apiOrigin+path,{method,headers,...(body!==undefined?{body:JSON.stringify(body)}:{}),credentials:'omit',mode:'cors',cache:'no-store'});let payload;try{payload=await res.json()}catch{throw Error('API did not return JSON.')}if(!res.ok)throw Error(typeof payload.detail==='string'?payload.detail:'API error '+res.status);return payload}
+
+  async function runInterpret(){
+    const version=resultVersions.interpret;
+    try{
+      traceRecord??=await fetchRecord('explore-demo01');
+      if(version!==resultVersions.interpret)return;
+      const trace=traceRecord,feature=Number($('interpret-feature').value),view=$('interpret-set').value;
+      const active=(trace.tokens||[]).flatMap(t=>(t.features||[]).filter(f=>f.feature_id===feature).map(f=>({position:t.position,token:t.text,activation:f.activation})));
+      const explain={
+        1627:'May respond to quantities in sensor readings.',
+        1680:'May respond to the opening of a sentence.',
+        1819:'May respond at the end of a sentence.'
+      };
+      out('interpret-output',root=>{
+        root.append(create('h3','Feature '+feature));
+        root.append(create('p','Possible explanation: '+(explain[feature]||'Feature activation pattern.')));
+        const strongest=active.reduce((v,x)=>Math.max(v,x.activation),0);
+        metrics(root,{'Active tokens':String(active.length),'Peak activation':fmt(strongest)});
+        if(view==='tokens'){
+          const wrap=create('div','','interpret-token-row'),ids=new Set(active.map(a=>a.position));
+          for(const token of trace.tokens||[]){
+            if(token.text==='<bos>')continue;
+            const raw=String(token.text).replace(/^▁/,' ');
+            const pill=create('span',raw);
+            pill.className=ids.has(token.position)?'token-evidence active':'token-evidence';
+            if(ids.has(token.position))pill.title='Activation '+fmt(active.find(a=>a.position===token.position)?.activation||0);
+            wrap.append(pill);
+          }
+          root.append(wrap);
+        }else{
+          const body=create('div','','activation-rows');
+          active.sort((a,b)=>b.activation-a.activation).forEach(x=>{
+            const row=create('div','','activation-row');
+            row.append(create('span',String(x.token).replace(/^▁/,'').replace(/</g,'')),create('strong',fmt(x.activation)));
+            body.append(row);
+          });
+          root.append(body);
+        }
+      });
+    }catch(e){if(version===resultVersions.interpret)out('interpret-output',root=>paragraph(root,'Unable to load feature activations.','play-failure'))}
+  }
+  $('interpret-run').addEventListener('click',()=>{clearResult('interpret');runInterpret()});
+  $('interpret-feature').addEventListener('change',()=>clearResult('interpret'));
+  $('interpret-set').addEventListener('change',()=>clearResult('interpret'));
+
+    async function request(path,{method='GET',body,operator=false}={}){if(!apiOrigin)throw Error('Connect your API first.');const headers={'Accept':'application/json'};if(body!==undefined)headers['Content-Type']='application/json';if(operator){const token=$('live-token').value.trim();if(!token)throw Error('Enter the operator token.');headers.Authorization='Bearer '+token}const res=await fetch(apiOrigin+path,{method,headers,...(body!==undefined?{body:JSON.stringify(body)}:{}),credentials:'omit',mode:'cors',cache:'no-store'});let payload;try{payload=await res.json()}catch{throw Error('API did not return JSON.')}if(!res.ok)throw Error(typeof payload.detail==='string'?payload.detail:'API error '+res.status);return payload}
   // Reuse the current intervention instead of asking the operator to re-enter the prompt.
   document.querySelector('.live-compute')?.addEventListener('toggle',event=>{if(event.target.open)$('live-prompt').value=$('intervene-prompt').value;});
   $('api-connect').addEventListener('click',async()=>{try{const uri=new URL($('api-base').value.trim());if(uri.username||uri.password||uri.search||uri.hash||(!['https:'].includes(uri.protocol)&&!(uri.protocol==='http:'&&['localhost','127.0.0.1'].includes(uri.hostname))))throw Error('Use an HTTPS API origin or localhost.');apiOrigin=uri.origin;const data=await request('/api/health');$('api-status').textContent='Connected';$('mode-status').textContent='Demo test · Connected API';$('public-api-note').hidden=true;document.querySelector('.live-compute').hidden=false;}catch(e){apiOrigin='';$('api-status').textContent=e.message;$('mode-status').textContent='Demo test · API in building';$('public-api-note').hidden=false;document.querySelector('.live-compute').hidden=true;}});
