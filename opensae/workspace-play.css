@@ -42,3 +42,5 @@
 .play-form textarea{min-height:70px}
 .action-line{margin-top:0}
 @media(max-width:700px){.module-title{margin:23px 0 20px}.module-title h2{font-size:52px}.playhead{padding-bottom:7px}}
+
+.playground button:disabled{opacity:.52;cursor:default} .playground [hidden]{display:none!important}
