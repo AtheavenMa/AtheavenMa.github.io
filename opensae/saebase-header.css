@@ -1,0 +1,26 @@
+/* The same product navigation on SAEBase Workspace, API, and Docs. */
+.saebase-shared-header{min-height:78px;height:78px;display:flex;justify-content:space-between;align-items:center;gap:22px;padding:0 clamp(20px,4vw,65px);background:var(--paper);border-bottom:1px solid var(--line)}
+.saebase-shared-header .workspace-brand{display:flex;align-items:center;gap:0;font-size:24px;font-weight:700;letter-spacing:-.055em;white-space:nowrap;margin:0;min-width:0}
+.saebase-shared-header .workspace-brand a{color:var(--ink);font-size:inherit;text-decoration:none}
+.saebase-shared-header .workspace-brand strong{font-size:21px;font-weight:500}
+.saebase-shared-header .brand-divider{font-size:19px;font-weight:400;color:#9ca8b5;margin:0 12px}
+.saebase-header-links{display:flex;gap:clamp(16px,2vw,36px);align-items:center;justify-content:flex-end;white-space:nowrap}
+.saebase-shared-header .saebase-header-links a{font-size:16px;font-weight:400;line-height:1.5;margin:0;padding:4px 0;background:none;border:0;color:var(--ink);text-decoration:none}
+.saebase-shared-header .saebase-header-links a[aria-current="page"]{color:var(--blue);box-shadow:0 1px var(--blue)}
+.saebase-shared-header .saebase-header-links a:hover,.saebase-shared-header .workspace-brand a:hover{color:var(--blue)}
+.saebase-shared-header a:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
+.saebase-doc-page .api-page{margin-top:95px}
+.saebase-doc-page .api-page a{color:var(--blue)}
+@media(max-width:600px){
+ .saebase-shared-header{height:68px;min-height:68px;padding:0 16px;gap:12px}
+ .saebase-shared-header .workspace-brand{font-size:19px}
+ .saebase-shared-header .workspace-brand strong{font-size:17px}
+ .saebase-shared-header .brand-divider{font-size:15px;margin:0 7px}
+ .saebase-header-links{gap:clamp(10px,3vw,17px)}
+ .saebase-shared-header .saebase-header-links a{font-size:14px}
+ .saebase-doc-page .api-page{margin-top:52px}
+}
+@media(max-width:365px){
+ .saebase-shared-header{height:auto;min-height:68px;flex-wrap:wrap;gap:4px;padding:11px 16px 13px}
+ .saebase-header-links{justify-content:flex-start;width:100%}
+}
