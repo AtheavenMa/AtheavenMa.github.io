@@ -187,7 +187,7 @@
   $('load-circuit').addEventListener('click', () => records('circuit','circuit-results',(root,r)=>{graph=r.graph;item(root,'Model',r.model);item(root,'Nodes',graph.nodes?.length);item(root,'Edges',graph.edges?.length);drawCircuit()}));
   $('load-benchmark').addEventListener('click', () => records('benchmark','benchmark-results',(root,r)=>{item(root,'Model',r.model_name);item(root,'SAE',r.sae_id);for(const [k,v]of Object.entries(r.metrics||{}))item(root,k,num(v))}));
   $('load-training').addEventListener('click', () => records('training','training-results',(root,r)=>{for(const [k,v] of Object.entries({Backend:r.backend,Architecture:r.architecture,Steps:r.global_step,Reloaded:r.reloaded,Reconstruction_MSE:r.reconstruction_mse}))item(root,k,num(v) === '—' ? String(v) : num(v));}));
-  $('load-interpret').addEventListener('click', () => records('explanation','interpret-results',(root,r)=>{item(root,'Feature',r.feature_id);item(root,'Held-out score',num(r.heldout_score));if(r.approved===true&&r.description_published===true&&r.rights_reviewed===true)item(root,'Interpretation',r.description);else root.append(el('p','No approved interpretation.'));}));
+  $('load-interpret').addEventListener('click', () => records('explanation','interpret-results',(root,r)=>{item(root,'Feature',r.feature_id);item(root,'Held-out score',num(r.heldout_score));if(r.approved===true&&r.description_published===true&&r.rights_reviewed===true)item(root,'Interpretation',r.description);}));
   async function loadInterventionResult() {
     try {
       const r = await staticRecord('generation');
