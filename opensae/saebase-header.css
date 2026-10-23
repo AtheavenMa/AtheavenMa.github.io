@@ -24,3 +24,10 @@
  .saebase-shared-header{height:auto;min-height:68px;flex-wrap:wrap;gap:4px;padding:11px 16px 13px}
  .saebase-header-links{justify-content:flex-start;width:100%}
 }
+
+
+/* Same approved original icon-and-name wordmark on Workspace, Docs and API. */
+.saebase-shared-header .workspace-brand>a:has(.opensae-approved-banner){display:inline-flex;align-items:center;line-height:1}
+.saebase-shared-header .workspace-brand .opensae-approved-banner{display:block;width:auto;height:43px;max-width:none;object-fit:contain}
+@media(max-width:600px){.saebase-shared-header .workspace-brand .opensae-approved-banner{height:32px}.saebase-shared-header .brand-divider{margin:0 5px}}
+@media(max-width:365px){.saebase-shared-header .workspace-brand .opensae-approved-banner{height:34px}}
