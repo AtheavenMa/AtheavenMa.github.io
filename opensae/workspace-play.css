@@ -44,3 +44,8 @@
 @media(max-width:700px){.module-title{margin:23px 0 20px}.module-title h2{font-size:52px}.playhead{padding-bottom:7px}}
 
 .playground button:disabled{opacity:.52;cursor:default} .playground [hidden]{display:none!important}
+
+/* Clear availability state for sample-first research controls. */
+.api-soon{font-size:15px;line-height:1.5;color:#747982;margin:8px 0 15px}
+.workspace-panel .primary-action:disabled,.workspace-panel .quiet-action:disabled{background:#edf0f2!important;border-color:#d8dce1!important;color:#838a92!important;box-shadow:none!important;opacity:1;cursor:not-allowed}
+.api-soon[hidden]{display:none!important}
