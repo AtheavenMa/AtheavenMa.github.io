@@ -1,0 +1,1 @@
+(()=>{const e=document.querySelector(".menu-toggle"),t=document.querySelector("#site-nav");e&&t&&e.addEventListener("click",()=>{const n=t.classList.toggle("open");e.setAttribute("aria-expanded",String(n))}),document.querySelectorAll('a[href^="#"]').forEach(n=>n.addEventListener("click",()=>{t&&(t.classList.remove("open"),e?.setAttribute("aria-expanded","false"))}))})();
