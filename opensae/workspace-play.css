@@ -49,3 +49,13 @@
 .api-soon{font-size:15px;line-height:1.5;color:#747982;margin:8px 0 15px}
 .workspace-panel .primary-action:disabled,.workspace-panel .quiet-action:disabled{background:#edf0f2!important;border-color:#d8dce1!important;color:#838a92!important;box-shadow:none!important;opacity:1;cursor:not-allowed}
 .api-soon[hidden]{display:none!important}
+
+/* Prompt-backed workflows are visible but await public API access. */
+.workspace-panel.prompt-pending .play-form{opacity:.75}
+.workspace-panel.prompt-pending .play-form :is(input,textarea,select){background:#f0f1f3!important;border-color:#d9dce1!important;color:#828791!important;-webkit-text-fill-color:#828791;cursor:not-allowed;resize:none}
+.workspace-panel.prompt-pending .play-form label{color:#858b94}
+.workspace-panel.prompt-pending .play-output,.workspace-panel.prompt-pending .live-compute{display:none!important}
+.workspace-panel.prompt-pending .api-pending-note{opacity:1;margin:4px 0 26px;font-size:17px;color:#535c68}
+.workspace-rail nav button[data-module="explore"],.workspace-rail nav button[data-module="intervene"],.workspace-rail nav button[data-module="generate"]{color:#939ba4}
+.workspace-rail nav button.active[data-module="explore"],.workspace-rail nav button.active[data-module="intervene"],.workspace-rail nav button.active[data-module="generate"]{color:#626c78}
+#api-disclosure[hidden],#public-api-note[hidden]{display:none!important}
