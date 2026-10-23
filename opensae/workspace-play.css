@@ -87,3 +87,9 @@
 .activation-rows{max-width:630px;border-top:1px solid #d9dfe7}
 .activation-row{display:flex;justify-content:space-between;gap:20px;padding:17px 10px;border-bottom:1px solid #d9dfe7}
 @media(max-width:750px){.probability-grid{grid-template-columns:1fr}.eval-metric-row{grid-template-columns:1fr;gap:6px}}
+
+/* Direct circuit inspection. */
+.circuit-viewport{position:relative}
+.circuit-tooltip{position:absolute;z-index:8;pointer-events:none;max-width:260px;display:flex;flex-direction:column;gap:5px;background:#fff;border:1px solid #aabfcf;box-shadow:0 5px 18px rgba(12,45,65,.13);padding:12px 14px;color:#203347;font-size:14px;line-height:1.4}
+.circuit-tooltip strong{font-size:16px;font-weight:600}.circuit-tooltip span{color:#516276}
+.circuit-tooltip[hidden]{display:none!important}
