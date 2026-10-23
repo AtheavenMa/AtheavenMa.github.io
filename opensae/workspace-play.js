@@ -220,7 +220,50 @@
       for(const [li,layer] of layers.entries()){const row=buckets.get(layer);row.forEach((n,i)=>coords.set(n.id,{x:35+li*930/Math.max(1,layers.length-1),y:12+(i+1)*490/(row.length+1)}))}
       function sv(tag,attrs){const el=document.createElementNS(ns,tag);for(const [k,v]of Object.entries(attrs))el.setAttribute(k,String(v));svg.append(el);return el}
       for(const e of edges){const a=coords.get(e.source),b=coords.get(e.target);if(a&&b)sv('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:e.weight<0?'#9b7f76':'#91a2b8','stroke-width':Math.min(2,0.5+Math.abs(e.weight)/24),opacity:'.48'})}
-      for(const n of nodes){const xy=coords.get(n.id);if(!xy)continue;const circle=sv('circle',{cx:xy.x,cy:xy.y,r:n.kind==='logit'?6:n.kind==='error'?5:3.7,fill:n.kind==='error'?'#925750':'#215b83',tabindex:'0',role:'button','aria-label':'Open node '+n.id});const open=()=>out('circuit-detail',root=>{metrics(root,{'Node':n.id,'Type':n.kind||'feature', 'Layer':Number.isInteger(n.layer)?String(n.layer):'—'});if(n.label)paragraph(root,n.label)});circle.addEventListener('click',open);circle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}})}
+
+      const tooltip=$('circuit-tooltip');
+      const explainNode=n=>{
+        if(n.kind==='feature')return 'Feature '+n.feature_id+' · Layer '+n.layer+' · Token '+n.token_position;
+        if(n.kind==='token')return 'Input token · Position '+n.token_position;
+        if(n.kind==='logit')return 'Output prediction pathway';
+        return 'Reconstruction error pathway';
+      };
+      const noteNode=n=>{
+        if(n.kind==='feature')return 'Learned feature contributing along the connected circuit paths.';
+        if(n.kind==='token')return 'Input position contributing to downstream features.';
+        if(n.kind==='logit')return 'Contribution to the output token prediction.';
+        return 'Contribution not reconstructed by the sparse features.';
+      };
+      const placeTooltip=(event)=>{
+        const bounds=$('play-circuit').getBoundingClientRect();
+        const left=Math.min(Math.max(event.clientX-bounds.left+14,12),Math.max(12,bounds.width-260));
+        const top=Math.max(4,event.clientY-bounds.top+10);
+        tooltip.style.left=left+'px';tooltip.style.top=top+'px';
+      };
+      for(const n of nodes){
+        const xy=coords.get(n.id);if(!xy)continue;
+        const circle=sv('circle',{cx:xy.x,cy:xy.y,r:n.kind==='logit'?6:n.kind==='error'?5:4,fill:n.kind==='error'?'#925750':'#215b83',tabindex:'0',role:'button','aria-label':explainNode(n)});
+        const title=document.createElementNS(ns,'title');title.textContent=explainNode(n)+' — '+noteNode(n);circle.append(title);
+        const reveal=(ev)=>{
+          tooltip.replaceChildren(create('strong',explainNode(n)),create('span',noteNode(n)));
+          tooltip.hidden=false;
+          if(ev&&ev.clientX!==undefined)placeTooltip(ev);
+          else{tooltip.style.left=Math.max(6,Math.min($('play-circuit').clientWidth-260,xy.x))+'px';tooltip.style.top=Math.max(4,xy.y)+'px'}
+        };
+        const open=()=>out('circuit-detail',root=>{
+          root.append(create('h3',explainNode(n)));
+          paragraph(root,noteNode(n));
+          if(n.kind==='feature')metrics(root,{'Feature ID':String(n.feature_id),'Layer':String(n.layer),'Token position':String(n.token_position)});
+        });
+        circle.addEventListener('pointerenter',reveal);
+        circle.addEventListener('pointermove',placeTooltip);
+        circle.addEventListener('pointerleave',()=>tooltip.hidden=true);
+        circle.addEventListener('focus',reveal);
+        circle.addEventListener('blur',()=>tooltip.hidden=true);
+        circle.addEventListener('click',open);
+        circle.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+      }
+
     }catch(e){out('circuit-summary',root=>paragraph(root,e.message,'play-failure'))}
   }
   $('circuit-run').addEventListener('click',()=>{circuitVisible=true;runCircuit()});$('circuit-weight').addEventListener('input',()=>{const weight=Number($('circuit-weight').value);$('weight-label').textContent=String(weight);clearResult('circuits')});
