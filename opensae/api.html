@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>API — OpenSAE</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Source+Serif+4:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="studio.css" rel="stylesheet"/><link href="workspace-live.css" rel="stylesheet"/></head><body class="page-home">
+<header class="masthead"><div class="masthead-inner"><a aria-label="OpenSAE Home" class="wordmark" href="index.html">OpenSAE</a><button aria-controls="site-nav" aria-expanded="false" aria-label="Open navigation" class="menu-toggle" type="button"><span></span><span></span></button><nav aria-label="Main navigation" class="nav-links" id="site-nav"><a data-page="vision" href="vision.html">Vision</a><a data-page="research" href="research.html">Research</a><a data-page="saebase" href="saebase.html">SAEBase</a><a data-page="contact" href="contact.html">Contact</a></nav><a class="nav-cta" href="workspace.html">Open SAEBase ↗</a></div></header>
+<main class="api-page"><h1>Build with SAEBase.</h1><p>Python tools and an HTTP API for research workflows.</p>
+<section id="start"><h2>Start locally</h2><pre><code>git clone https://github.com/OpenSAE/SAEBase.git
+cd SAEBase
+python -m pip install -e ".[analysis]"
+python examples/interventions/pythia_feature_edit.py</code></pre></section>
+<section id="http"><h2>Read the API</h2><p>Start the Research Lab backend, then browse models and results.</p><pre><code>python -m pip install -r apps/research-lab/requirements.txt
+cd apps/research-lab
+uvicorn backend.api:app --host 127.0.0.1 --port 8000</code></pre><pre><code>curl http://127.0.0.1:8000/api/health
+curl 'http://127.0.0.1:8000/api/sites?limit=5'
+curl http://127.0.0.1:8000/api/explore/traces
+curl http://127.0.0.1:8000/api/wp15/benchmark</code></pre><a href="workspace.html">Connect the Workspace ↗</a></section>
+<section id="explore"><h2>Explore features</h2><pre><code>curl -X POST http://127.0.0.1:8000/api/explore/search \
+ -H 'Content-Type: application/json' \
+ -d '{"mode":"explanation","query":"number","limit":5}'</code></pre></section>
+<section id="intervene"><h2>Intervene</h2><p>The public API validates edits; actual compute uses the private worker.</p><pre><code>curl -X POST http://127.0.0.1:8000/api/jobs/preflight \
+ -H 'Content-Type: application/json' \
+ -d '{"site_id":"YOUR_VERIFIED_SITE","text":"Example prompt", "operation":"ablate", "feature_ids":[1819], "strength":1, "max_new_tokens":0}'</code></pre><p>Operator-only execution: POST <code>/api/private/inputs</code>, then POST <code>/api/private/jobs</code>, then GET <code>/api/private/jobs/{job_id}/result</code>. Requires a configured GPU worker and operator token.</p></section>
+<section id="generate"><h2>Generate</h2><pre><code>python scripts/wp15_steer.py \
+  --prompt-file prompt.txt --sae-key gemma270m_scope_resid \
+  --layer 5 --device cuda --max-new-tokens 16 \
+  --scale 2 --output generation.json</code></pre></section>
+<section id="evaluate"><h2>Evaluate</h2><pre><code>JAXTYPING_DISABLE=1 python scripts/m3_native_saebench_smoke.py</code></pre></section>
+<section id="train"><h2>Train</h2><p>Use <code>saebase.wp12.training.TrainPlan</code> and <code>run_training</code> with a compatible local model and dataset. Load the trained checkpoint before using it.</p></section>
+<section id="interpret"><h2>Interpret</h2><pre><code>python scripts/wp12_autointerpret.py \
+  --local-model /path/to/model --examples feature.json \
+  --output candidate.json --device cuda</code></pre><p>Interpretation candidates require review before publication.</p></section>
+</main><footer class="footer"><a href="index.html">OpenSAE</a> · <a href="contact.html">Contact</a></footer></body></html>
