@@ -328,7 +328,7 @@
       const explain={
         1627:'May respond to quantities in sensor readings.',
         1680:'May respond to the opening of a sentence.',
-        1819:'May respond at the end of a sentence.'
+        1819:'Respond to objects described within a scene.'
       };
       out('interpret-output',root=>{
         root.append(create('h3','Feature '+feature));
