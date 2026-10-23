@@ -1,0 +1,662 @@
+{
+  "schema": "opensae.evaluation-sites.v1",
+  "sources": "OpenSAE/SAEBase Stage D compact reports",
+  "rows": [
+    {
+      "model": "gemma270m",
+      "sae": "gemma270m_scope_resid",
+      "layer": 5,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/gemma270m_gemma270m_scope_resid_L5_m3m4.json",
+      "model_name": "gemma-3-270m",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 29.59375,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 26.542215312258186,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.9960876332784103,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 544.4898433685303,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "gemma270m",
+      "sae": "gemma270m_scope_resid",
+      "layer": 9,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/gemma270m_gemma270m_scope_resid_L9_m3m4.json",
+      "model_name": "gemma-3-270m",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 38.375,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 194.029170153415,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.9956961126026779,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 218.5887532234192,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "gemma270m",
+      "sae": "gemma270m_scope_resid",
+      "layer": 12,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/gemma270m_gemma270m_scope_resid_L12_m3m4.json",
+      "model_name": "gemma-3-270m",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 73.828125,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 6211.399611460073,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.9815030722617407,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 192.075541973114,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "gemma1b",
+      "sae": "gemma1b_scope_resid",
+      "layer": 7,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/gemma1b_gemma1b_scope_resid_L7_m3m4.json",
+      "model_name": "google/gemma-3-1b-pt",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 44.203125,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 24.170324876026708,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.9945018351843096,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 998.0324802398682,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "gemma1b",
+      "sae": "gemma1b_scope_resid",
+      "layer": 13,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/gemma1b_gemma1b_scope_resid_L13_m3m4.json",
+      "model_name": "google/gemma-3-1b-pt",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 58.46875,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 392.15298906245454,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.9946460049094926,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 192.07367357611656,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "gemma1b",
+      "sae": "gemma1b_scope_resid",
+      "layer": 17,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/gemma1b_gemma1b_scope_resid_L17_m3m4.json",
+      "model_name": "google/gemma-3-1b-pt",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 57.421875,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 2120.874938720198,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.9902167978901185,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 281.59420013427734,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "gemma2_2b_base",
+      "sae": "gemma2_2b_pt_l25_canonical",
+      "layer": 13,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/gemma2_2b_base_gemma2_2b_pt_l25_canonical_L13_m3m4.json",
+      "model_name": "google/gemma-2-2b",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 79.84375,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 1.8708208263731896,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.8624282776229326,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 1187.5063619613647,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "gemma2_2b_base",
+      "sae": "gemma2_2b_pt_l25_canonical",
+      "layer": 25,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/gemma2_2b_base_gemma2_2b_pt_l25_canonical_L25_m3m4.json",
+      "model_name": "google/gemma-2-2b",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 88.234375,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 19.77263166884019,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.8849783429040522,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 691.7528381347656,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "qwen35_2b",
+      "sae": "qwen35_2b_resid_w32k",
+      "layer": 6,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/qwen35_2b_qwen35_2b_resid_w32k_L6_m3m4.json",
+      "model_name": "Qwen/Qwen3.5-2B-Base",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 50,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 0.006793501483693208,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.46346274486470307,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 56.52088910341263,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "qwen35_2b",
+      "sae": "qwen35_2b_resid_w32k",
+      "layer": 12,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/qwen35_2b_qwen35_2b_resid_w32k_L12_m3m4.json",
+      "model_name": "Qwen/Qwen3.5-2B-Base",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 50,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 0.009805408531902636,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.5532504684400252,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 69.88461792469025,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "qwen35_2b",
+      "sae": "qwen35_2b_resid_w32k",
+      "layer": 15,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/qwen35_2b_qwen35_2b_resid_w32k_L15_m3m4.json",
+      "model_name": "Qwen/Qwen3.5-2B-Base",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 50,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 0.022683608212980867,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.6552050741283569,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 434.9815306663513,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "qwen35_2b",
+      "sae": "qwen35_2b_resid_w32k",
+      "layer": 20,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/qwen35_2b_qwen35_2b_resid_w32k_L20_m3m4.json",
+      "model_name": "Qwen/Qwen3.5-2B-Base",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 50,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 0.12875008172159408,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.6393610397161591,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 88.30731463432312,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "qwen3_8b",
+      "sae": "qwen3_8b_resid_w64k",
+      "layer": 9,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/qwen3_8b_qwen3_8b_resid_w64k_L9_m3m4.json",
+      "model_name": "Qwen/Qwen3-8B-Base",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 50,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 0.4320439064708014,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.31170907396943487,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 90.98629534244537,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "qwen3_8b",
+      "sae": "qwen3_8b_resid_w64k",
+      "layer": 18,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/qwen3_8b_qwen3_8b_resid_w64k_L18_m3m4.json",
+      "model_name": "Qwen/Qwen3-8B-Base",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 50,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 1.2545259425764421,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.4155404086706985,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 80.89625352621078,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "qwen3_8b",
+      "sae": "qwen3_8b_resid_w64k",
+      "layer": 23,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/qwen3_8b_qwen3_8b_resid_w64k_L23_m3m4.json",
+      "model_name": "Qwen/Qwen3-8B-Base",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 50,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 5.515160429610223,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.40572943601426786,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 183.35777175426483,
+          "n": 64
+        }
+      ]
+    },
+    {
+      "model": "qwen3_8b",
+      "sae": "qwen3_8b_resid_w64k",
+      "layer": 31,
+      "source": "https://github.com/OpenSAE/SAEBase/blob/main/conf/coverage/stage_d_evidence/reports/qwen3_8b_qwen3_8b_resid_w64k_L31_m3m4.json",
+      "model_name": "Qwen/Qwen3-8B-Base",
+      "groups": 64,
+      "protocol": "stage_d.population.v1",
+      "metrics": [
+        {
+          "id": "core.l0",
+          "condition": null,
+          "value": 50,
+          "n": 64
+        },
+        {
+          "id": "core.reconstruction_mse",
+          "condition": null,
+          "value": 104.54906565321956,
+          "n": 64
+        },
+        {
+          "id": "core.explained_variance",
+          "condition": null,
+          "value": 0.3955223965348901,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "identity",
+          "value": 0,
+          "n": 64
+        },
+        {
+          "id": "intervention.logit_delta_l2",
+          "condition": "feature-ablation",
+          "value": 427.6726031303406,
+          "n": 64
+        }
+      ]
+    }
+  ]
+}
