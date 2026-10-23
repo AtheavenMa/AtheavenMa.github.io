@@ -28,7 +28,7 @@
   function clearResult(name) {
     resultVersions[name]=(resultVersions[name]||0)+1;
     if(resultIds[name])reset(resultIds[name]);
-    if(name==='circuits'){circuitVisible=false;reset('circuit-detail');$('play-circuit').replaceChildren();$('circuit-complete').hidden=true}
+    if(name==='circuits'){circuitVisible=false;reset('circuit-detail');$('play-circuit').replaceChildren();$('circuit-complete').hidden=true;$('circuit-tooltip').hidden=true}
   }
   function showModule(name) {
     if(!document.querySelector(`[data-pane="${name}"]`))return;
