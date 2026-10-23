@@ -61,3 +61,6 @@
 /* Hide untouched response containers until the corresponding action is invoked. */
 .playground .play-output:empty{display:none!important}
 .playground #play-circuit:empty{display:none!important}
+
+/* Retired legacy result footnotes. Keep factual result content visible. */
+.playground .demo-status{display:none!important}
