@@ -268,48 +268,132 @@
   }
   $('circuit-run').addEventListener('click',()=>{circuitVisible=true;runCircuit()});$('circuit-weight').addEventListener('input',()=>{const weight=Number($('circuit-weight').value);$('weight-label').textContent=String(weight);clearResult('circuits')});
 
-  let benchmarkRecord=null;
+
+  const evaluationFiles=['data/evaluate-sites-1.json','data/evaluate-sites-2.json','data/evaluate-sites-3.json'];
+  const evaluationMetricDefinitions={
+    l0:['core.l0','Active features (L0)','Average active SAE features per input.'],
+    mse:['core.reconstruction_mse','Reconstruction MSE','Mean squared reconstruction error for this model site.'],
+    variance:['core.explained_variance','Explained variance','Fraction of activation variance reconstructed by the SAE.'],
+    ablation:['intervention.logit_delta_l2','Ablation effect (L2)','Magnitude of the next-token logit change under feature ablation.'],
+    probe:['saebench.sparse_probing.sae_top_1_test_accuracy','Sparse probing accuracy','Accuracy of a sparse probe using SAE features.']
+  };
+  const knownModelLabels={
+    gemma270m:'Gemma 3 270M',gemma1b:'Gemma 3 1B',
+    gemma2_2b_base:'Gemma 2 2B Base',gemma2_2b_it:'Gemma 2 2B IT',
+    gemma2_9b_pt:'Gemma 2 9B',gemma3_4b_pt:'Gemma 3 4B PT',gemma3_4b_it:'Gemma 3 4B IT',
+    qwen35_2b:'Qwen 3.5 2B',qwen35_4b:'Qwen 3.5 4B',qwen35_9b:'Qwen 3.5 9B',
+    qwen3_8b:'Qwen 3 8B',qwen3_1_7b:'Qwen 3 1.7B',qwen3_1_7b_base:'Qwen 3 1.7B Base',
+    llama31_8b:'Llama 3.1 8B',mistral7b_instruct:'Mistral 7B Instruct',
+    pythia410m:'Pythia 410M',r1_distill_qwen15b:'R1 Distill Qwen 1.5B',
+    r1_distill_llama8b:'R1 Distill Llama 8B',pythia70m_native:'Pythia 70M'
+  };
+  let evaluationSites=[],evaluationLoaded=false,benchmarkRecord=null;
   function linkedText(root,txt,url){
     const a=create('a',txt+' ↗');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.className='evidence-link';root.append(a);
   }
+  function evalRowsFor(model,sae){return evaluationSites.filter(x=>x.model===model&&(!sae||x.sae===sae))}
+  function fillOptions(element,rows,current){
+    element.replaceChildren();
+    for(const [value,label] of rows){const option=create('option',label);option.value=String(value);element.append(option)}
+    if(rows.some(([v])=>String(v)===String(current)))element.value=String(current);
+    else if(rows.length)element.value=String(rows[0][0]);
+  }
+  function selectedEvalSite(){
+    return evaluationSites.find(x=>x.model===$('benchmark-model').value&&x.sae===$('benchmark-sae').value&&String(x.layer)===$('benchmark-layer').value);
+  }
+  function updateEvalMetricOptions(){
+    const row=selectedEvalSite();
+    const old=$('benchmark-metric').value;
+    const metrics=(row?.metrics||[]).map(x=>x.id);
+    const available=[['overview','Overview'],['l0','Active features (L0)'],['mse','Reconstruction MSE'],['variance','Explained variance'],['ablation','Ablation effect'],['probe','Sparse probing accuracy'],['coverage','Research Lab coverage']]
+      .filter(([key])=>key==='overview'||key==='coverage'||metrics.includes(evaluationMetricDefinitions[key]?.[0]));
+    fillOptions($('benchmark-metric'),available,old);
+  }
+  function updateEvalLayer(){
+    const rows=evalRowsFor($('benchmark-model').value,$('benchmark-sae').value);
+    fillOptions($('benchmark-layer'),rows.map(x=>[x.layer,'Layer '+x.layer]),$('benchmark-layer').value);
+    updateEvalMetricOptions();clearResult('benchmarks');
+  }
+  function updateEvalSae(){
+    const model=$('benchmark-model').value;
+    const saes=[...new Set(evalRowsFor(model).map(x=>x.sae))];
+    fillOptions($('benchmark-sae'),saes.map(s=>[s,s]),$('benchmark-sae').value);
+    updateEvalLayer();
+  }
+  async function initializeEvaluation(){
+    try{
+      const chunks=await Promise.all(evaluationFiles.map(async file=>{
+        const response=await fetch(file,{cache:'no-store'});
+        if(!response.ok)throw Error('Cannot load evaluation sites.');
+        return response.json();
+      }));
+      const rows=chunks.flatMap(x=>x.rows||[]);
+      if(rows.length!==48||new Set(rows.map(x=>x.model+'|'+x.sae+'|'+x.layer)).size!==48)throw Error('Evaluation index is incomplete.');
+      evaluationSites=rows;
+      // Native SAEBench pilot uses a separate protocol from the 48-site evaluation.
+      try{
+        benchmarkRecord=await fetchRecord('benchmark');
+        evaluationSites.push({
+          model:'pythia70m_native',sae:String(benchmarkRecord.sae_id),
+          layer:3,groups:null,model_name:'pythia-70m-deduped',
+          protocol:'saebench.native_pilot',
+          source:'https://github.com/OpenSAE/SAEBase/blob/main/apps/research-lab/data/wp15/benchmark.json',
+          metrics:Object.entries(benchmarkRecord.metrics||{}).map(([id,value])=>({id,value,condition:null}))
+        });
+      }catch{}
+      fillOptions($('benchmark-model'),[...new Set(evaluationSites.map(x=>x.model))].map(m=>[m,knownModelLabels[m]||m]).sort((a,b)=>a[1].localeCompare(b[1])),'gemma270m');
+      evaluationLoaded=true;updateEvalSae();
+    }catch(e){
+      fillOptions($('benchmark-model'),[['','Evaluation data unavailable']],'');
+      $('benchmark-sae').disabled=true;$('benchmark-layer').disabled=true;
+      out('benchmark-output',root=>paragraph(root,'Unable to load evaluation data.','play-failure'));
+    }
+  }
+  function benchmarkMetric(row,key){
+    const id=evaluationMetricDefinitions[key]?.[0];
+    const metric=(row.metrics||[]).find(x=>x.id===id&&(key!=='ablation'||x.condition==='feature-ablation'));
+    if(!metric)return null;
+    const value=Number(metric.value);
+    return {name:evaluationMetricDefinitions[key][1],
+      value:key==='variance'||key==='probe'?fmt(value*100)+'%':key==='mse'?value.toFixed(5):fmt(value),
+      description:evaluationMetricDefinitions[key][2]};
+  }
   async function runBenchmark(){
     const version=resultVersions.benchmarks;
-    try{
-      benchmarkRecord??=await fetchRecord('benchmark');
-      if(version!==resultVersions.benchmarks)return;
-      const b=benchmarkRecord,m=b.metrics||{},section=$('benchmark-metric').value;
-      out('benchmark-output',root=>{
-        const l0=Number(m['saebench.core.l0']), mse=Number(m['saebench.core.mse']), probe=Number(m['saebench.sparse_probing.sae_top_1_test_accuracy']);
-        if(section==='coverage'){
-          root.append(create('h3','Research Lab coverage'));
-          metrics(root,{'Model sites':'48','Prompt groups':'500','Feature cards':'300','Intervention sites':'6'});
-          linkedText(root,'Explore the evaluation dataset','https://huggingface.co/datasets/OpenSAE/SAEBase-Evaluation');
-          linkedText(root,'Research Lab','https://huggingface.co/spaces/OpenSAE/SAEBase');
-          return;
-        }
-        root.append(create('h3',section==='overview'?'Benchmark results':section==='l0'?'Active features':section==='mse'?'Reconstruction error':'Sparse probing'));
-        const descriptors=[
-          ['Active features (L0)',fmt(l0),'Average number of active features in the SAE representation.'],
-          ['Reconstruction MSE',mse.toFixed(5),'Mean squared reconstruction error; smaller is better.'],
-          ['Sparse probing accuracy',fmt(probe*100)+'%','Accuracy of a sparse classifier using SAE features.']
-        ];
-        const rows=section==='overview'?descriptors:descriptors.filter((_,i)=>i==={l0:0,mse:1,probe:2}[section]);
-        for(const [name,value,description] of rows){
-          const item=create('div','','eval-metric-row');
-          item.append(create('div',name,'eval-metric-name'),create('strong',value),create('p',description));
-          root.append(item);
-        }
-        const context=create('div','','eval-context');
-        context.append(create('strong','Model and evaluation'));
-        context.append(create('p','Pythia 70M · Layer 3'));
-        context.append(create('p','Dataset: AG News · SAE: '+String(b.sae_id||'Layer 3')));
-        root.append(context);
-        linkedText(root,'Source dataset','https://huggingface.co/datasets/OpenSAE/SAEBase-Evaluation');
-      });
-    }catch(e){if(version===resultVersions.benchmarks)out('benchmark-output',root=>paragraph(root,'Unable to load benchmark results.','play-failure'))}
+    if(!evaluationLoaded)return;
+    const site=selectedEvalSite(),section=$('benchmark-metric').value;
+    if(!site)return;
+    out('benchmark-output',root=>{
+      if(section==='coverage'){
+        root.append(create('h3','Evaluation coverage'));
+        metrics(root,{'Models':'18','Model–SAE pairs':'18','Sites':'48','Evaluation groups / site':'64'});
+        linkedText(root,'Research Lab','https://huggingface.co/spaces/OpenSAE/SAEBase');
+        linkedText(root,'Evaluation dataset','https://huggingface.co/datasets/OpenSAE/SAEBase-Evaluation');
+        return;
+      }
+      root.append(create('h3',section==='overview'?'Evaluation results':evaluationMetricDefinitions[section]?.[1]||'Metrics'));
+      const metricsToShow=section==='overview'?['l0','mse','variance','ablation','probe']:[section];
+      for(const key of metricsToShow){
+        const entry=benchmarkMetric(site,key);if(!entry)continue;
+        const item=create('div','','eval-metric-row');
+        item.append(create('div',entry.name,'eval-metric-name'),create('strong',entry.value),create('p',entry.description));
+        root.append(item);
+      }
+      const context=create('div','','eval-context');
+      context.append(create('strong',knownModelLabels[site.model]||site.model));
+      context.append(create('p','SAE: '+site.sae+' · Layer '+site.layer));
+      context.append(create('p',site.protocol==='saebench.native_pilot'?'SAEBench pilot · AG News':'64 independent evaluation groups · SAEBase population protocol'));
+      root.append(context);
+      linkedText(root,'Source report',site.source);
+      linkedText(root,'Evaluation dataset','https://huggingface.co/datasets/OpenSAE/SAEBase-Evaluation');
+    });
   }
+  $('benchmark-model').addEventListener('change',updateEvalSae);
+  $('benchmark-sae').addEventListener('change',updateEvalLayer);
+  $('benchmark-layer').addEventListener('change',()=>{updateEvalMetricOptions();clearResult('benchmarks')});
   $('benchmark-metric').addEventListener('change',()=>clearResult('benchmarks'));
   $('benchmark-run').addEventListener('click',()=>{clearResult('benchmarks');runBenchmark()});
+  initializeEvaluation();
 
     let trainingRecord=null;
   async function runTraining(){const version=resultVersions.training;try{trainingRecord??=await fetchRecord('training');if(version!==resultVersions.training)return;const r=trainingRecord;const config={architecture:$('train-architecture').value,k:Number($('train-k').value),steps:Number($('train-steps').value)};const actual=config.architecture==='topk'&&config.k===32&&config.steps===50;const mse=actual?r.reconstruction_mse:Math.max(3.5,12.8-Math.log2(config.steps+1)*.64+config.k*.021+(config.architecture==='batch'?-.75:0));out('training-output',root=>{root.append(create('h3',actual?'Completed training run':'Training preview'));metrics(root,{'Steps':String(config.steps),'Top K':String(config.k),'Reconstruction MSE':fmt(mse)});
