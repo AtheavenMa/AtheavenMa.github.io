@@ -4,15 +4,17 @@
 var DATA=window.OPENRESEARCH_ATLAS||{}, name="knowledge", selected=null, query="", zoom=1, expanded=new Set(), diff=null;
 var parents=new Map(), children=new Map(), visible=[];
 var cfg={
- knowledge:{root:"q.research",title:"Why we build.",sub:"RESEARCH QUESTIONS & GOALS",primary:["refines","addresses","decomposes"]},
+ core:{root:"q.research",title:"How the project is organized.",sub:"PROJECT DESIGN & MANAGEMENT",primary:["refines","addresses","decomposes"]},
+ knowledge:{root:"q.cub.train",title:"Train a trustworthy CUB-200 ResNet.",sub:"SCIENTIFIC QUESTIONS & GOALS",primary:["refines","addresses","decomposes"]},
  code:{root:"code:root",title:"How it works.",sub:"CODE STRUCTURE & INTERFACES",primary:["contains"]},
- environment:{root:"env:root",title:"Where it runs.",sub:"EXECUTION & MACHINE CONTEXT",primary:["contains"]}
+ environment:{root:"env:root",title:"Where it runs.",sub:"EXECUTION & MACHINE CONTEXT",primary:["contains"]},
+ glossary:{root:"glossary:root",title:"A shared scientific vocabulary.",sub:"TERMS, DEFINITIONS & SOURCES",primary:["contains"]}
 };
 var $=id=>document.getElementById(id),g=()=>DATA[name]||{nodes:[],edges:[],gates:[]}, nodes=()=>new Map(g().nodes.map(n=>[n.id,n])),kind=n=>n.kind||n.type||"node";
 function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text);return e;}
 function svg(tag,attrs,text){var e=document.createElementNS("http://www.w3.org/2000/svg",tag);for(var k in attrs)e.setAttribute(k,String(attrs[k]));if(text!==undefined)e.textContent=String(text);return e;}
 function short(t,n){var a=Array.from(String(t||""));return a.length>n?a.slice(0,n-1).join("")+"…":a.join("");}
-function sortNodes(a,b){var w={root:0,question:1,solve:2,goal:3,group:1,module:2,class:3,function:4,method:5};return ((w[kind(a)]||9)-(w[kind(b)]||9))||String(a.title).localeCompare(String(b.title),"zh");}
+function sortNodes(a,b){var w={root:0,question:1,solve:2,goal:3,group:1,term:3,module:2,class:3,function:4,method:5};return ((w[kind(a)]||9)-(w[kind(b)]||9))||String(a.title).localeCompare(String(b.title),"zh");}
 function hierarchy(){
  var map=nodes();parents=new Map();children=new Map();
  for(var e of g().edges||[]){
@@ -98,7 +100,13 @@ function linkTo(id,label){
  var btn=el("button","detail-link",label);
  btn.style.cssText="width:100%;text-align:left;background:none;border-left:0;border-right:0;border-top:0";
  btn.addEventListener("click",()=>{
-  var target=/^(q\.|s\.|g\.)/.test(id)?"knowledge":id.startsWith("env:")?"environment":name;
+  var target=name;
+  if(!nodes().has(id)){
+    if((DATA.knowledge?.nodes||[]).some(n=>n.id===id))target="knowledge";
+    else if((DATA.core?.nodes||[]).some(n=>n.id===id))target="core";
+    else if((DATA.glossary?.nodes||[]).some(n=>n.id===id))target="glossary";
+    else if((DATA.environment?.nodes||[]).some(n=>n.id===id))target="environment";
+  }
   if(target!==name)switchGraph(target);selectedGraphNode(id);
  });return btn;
 }
@@ -116,6 +124,10 @@ function renderDetails(){
   for(var child of gate.children)box.appendChild(linkTo(child,m.get(child)?.title||child));
  }
  if(n.signature){var box=section(area,"SIGNATURE");box.appendChild(el("pre","signature",n.signature));}
+ if(n.aliases?.length){var box=section(area,"ALIASES");box.appendChild(el("p","",n.aliases.join(" · ")));}
+ if(n.why_it_matters){var box=section(area,"WHY THIS MATTERS");box.appendChild(el("p","",n.why_it_matters));}
+ if(n.foundation){var box=section(area,"FOUNDATION NOTE");var a=el("a","detail-link",n.foundation);
+  a.href="https://github.com/OpenSAE/OpenResearch/blob/main/"+n.foundation;a.target="_blank";a.rel="noopener noreferrer";box.appendChild(a);}
  if(n.next){var box=section(area,"NEXT STEP");box.appendChild(el("p","",n.next));}
  var evidence=[...(n.evidence||[])];if(!evidence.length&&n.path)evidence.push(n.path);
  if(evidence.length){var box=section(area,"EVIDENCE / SOURCE");
@@ -125,8 +137,14 @@ function renderDetails(){
    box.appendChild(a);
   }
  }
- if((n.context_ids||[]).length){var box=section(area,"RESEARCH CONTEXT");
-  for(var key of n.context_ids)box.appendChild(linkTo(key,key+" · "+(DATA.knowledge?.nodes.find(x=>x.id===key)?.title||"")));
+ if((n.context_ids||[]).length){var box=section(area,name==="glossary"?"RELATED SCIENTIFIC GOALS":"SCIENTIFIC KNOWLEDGE");
+  for(var key of n.context_ids)box.appendChild(linkTo(key,key+" · "+((DATA.knowledge?.nodes||[]).find(x=>x.id===key)?.title||"")));
+ }
+ if((n.core_ids||[]).length){var box=section(area,"PROJECT DESIGN / CORE");
+  for(var key of n.core_ids)box.appendChild(linkTo(key,key+" · "+((DATA.core?.nodes||[]).find(x=>x.id===key)?.title||"")));
+ }
+ if((n.term_ids||[]).length){var box=section(area,"CANONICAL SCIENTIFIC TERMS");
+  for(var key of n.term_ids)box.appendChild(linkTo(key,key+" · "+((DATA.glossary?.nodes||[]).find(x=>x.id===key)?.title||"")));
  }
  if((n.environment_refs||[]).length){var box=section(area,"ENVIRONMENT DEPENDENCIES");for(var key of n.environment_refs)box.appendChild(el("div","detail-link",key));}
  var other=(g().edges||[]).filter(e=>(e.source===n.id||e.target===n.id)&&(!cfg[name].primary.includes(e.type)||parents.get(e.target)!==e.source));
@@ -139,7 +157,7 @@ function render(){renderSVG();renderOutline();renderDetails();
  var fake=name==="environment"&&g().synthetic;
  $("dataNote").textContent=fake?"Synthetic preview · not real hardware":"Click nodes to inspect connections and evidence.";
  $("sourceState").textContent=fake?"SYNTHETIC DATA · EXAMPLE ONLY":"Source-backed research infrastructure";
- $("footerSource").textContent=name==="knowledge"?"Source: doc/knowledge/context_graph.json":name==="code"?"Source: Python AST snapshot":"Source: machine probe or synthetic preview";
+ $("footerSource").textContent=name==="core"?"Source: harness/core/project_graph.json":name==="knowledge"?"Source: doc/knowledge/context_graph.json":name==="glossary"?"Source: doc/knowledge/glossary.json":name==="code"?"Source: Python AST snapshot":"Source: machine probe or synthetic preview";
 }
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>switchGraph(b.dataset.graph)));
 $("search").addEventListener("input",ev=>{query=ev.target.value;render();});
@@ -154,6 +172,6 @@ $("diffFile").addEventListener("change",async ev=>{var file=ev.target.files?.[0]
  $("legendMain").textContent="Code delta: "+(d.added_ids?.length||0)+" added · "+(d.removed_ids?.length||0)+" removed · "+(d.changed?.length||0)+" changed";
  }catch(error){alert("Cannot load code diff: "+error.message);}ev.target.value="";
 });
-switchGraph(document.body?.dataset?.atlasView || "knowledge");
+switchGraph(document.body?.dataset?.atlasView || "core");
 })();
 
