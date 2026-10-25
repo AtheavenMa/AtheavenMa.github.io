@@ -51,6 +51,11 @@
           <div id="canvasWrap" class="canvas-wrap" aria-label="Interactive node graph" tabindex="0">
             <svg id="diagram" role="img" aria-label="Source-backed expandable project tree"></svg>
           </div>
+          <div class="status-legend" id="statusLegend" role="note" aria-label="Node status colors: Not Implemented red, Partial yellow, Implemented green">
+            <span class="legend-item"><i class="legend-swatch not-implemented" aria-hidden="true"></i>Not Implemented</span>
+            <span class="legend-item"><i class="legend-swatch partial" aria-hidden="true"></i>Partial</span>
+            <span class="legend-item"><i class="legend-swatch implemented" aria-hidden="true"></i>Implemented</span>
+          </div>
           <div class="canvas-foot">
             <span id="focusHint"></span>
             <label class="import-diff" id="diffControl">Compare code changes<input id="diffFile" type="file" accept=".json,application/json"></label>

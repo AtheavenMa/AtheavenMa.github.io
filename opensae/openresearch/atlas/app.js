@@ -11,13 +11,9 @@
     glossary: { root: "glossary:root", primary: ["contains"] }
   };
   const STATES = {
-    planned: "#98a0ae",
-    partial: "#d8a348",
-    implemented: "#558da6",
-    verified: "#479477",
-    blocked: "#bf7272",
-    observed: "#479477",
-    synthetic: "#98a0ae"
+    not_implemented: "#c85b61",
+    partial: "#d5a238",
+    implemented: "#429669"
   };
   const PALETTE = {
     root: "#e0e4e9", question: "#e6eaef", solve: "#f1f3f5",
@@ -59,7 +55,6 @@
   }
   function kind(node) { return node?.kind || node?.type || "goal"; }
   function graph() { return DATA[config.view] || { nodes: [], edges: [], gates: [] }; }
-  function gate(id) { return (graph().gates || []).find(x => x.parent === id); }
   function plain(text) {
     return String(text || "").replace(/^\s*(问题|方案|目标|定义|现状)[:：]\s*/, "").replace(/\s+/g, " ").trim();
   }
@@ -85,7 +80,7 @@
       if (!children.has(edge.source)) children.set(edge.source, []);
       children.get(edge.source).push(edge.target);
     }
-    for (const siblings of children.values()) siblings.sort((a, b) => order(byId.get(a), byId.get(b)));
+    // Child edges are intentionally rendered in stored top-to-bottom order.
     const preferred = VIEWS[config.view].root;
     rootIds = byId.has(preferred) ? [preferred] : [...byId.keys()].filter(id => !parents.has(id));
   }
@@ -198,7 +193,7 @@
   }
   function measure(node, focused) {
     const w = focused ? 320 : 270;
-    const title = wrap(node.title || node.id, gate(node.id) ? w - 93 : w - 45, focused ? 15 : 13.5, focused ? 3 : 2);
+    const title = wrap(node.title || node.id, w - 45, focused ? 15 : 13.5, focused ? 3 : 2);
     const body = wrap(node.summary || node.description, w - 42, focused ? 12.4 : 11.8, focused ? 7 : 4);
     const height = Math.max(85, 22 + title.length * (focused ? 21 : 19)
       + (body.length ? 10 + body.length * (focused ? 19 : 17) : 0) + 18);
@@ -309,10 +304,6 @@
         class: className }, lines[i]));
     }
   }
-  function gateLabel(id) {
-    const item = gate(id);
-    return item ? item.operator : null;
-  }
   function drawCard(node, p, layer, positions, focus) {
     const k = kind(node), chosen = focus && node.id === config.focusId;
     const classes = ["graph-node", "node-" + k, chosen ? "node-selected" : "",
@@ -344,17 +335,6 @@
       const contentY = top + p.title.length * (chosen ? 21 : 19) + 7;
       textLines(card, p.body, titleX, contentY, chosen ? 19 : 17, "node-description");
     }
-    const mark = gateLabel(node.id);
-    if (mark) {
-      const label = svg("g", { class: "gate-mark" });
-      label.appendChild(svg("rect", {
-        x: p.w - 47, y: 10, width: 36, height: 21, rx: 7
-      }));
-      label.appendChild(svg("text", {
-        x: p.w - 29, y: 24, "text-anchor": "middle", class: "gate-text"
-      }, mark));
-      card.appendChild(label);
-    }
     const count = (children.get(node.id) || []).length;
     if (count) {
       const label = svg("g", { class: "child-count", "aria-hidden": "true" });
@@ -382,7 +362,7 @@
     const lines = svg("g", { class: "edges" });
     const cards = svg("g", { class: "cards" });
     const position = layout.positions;
-    function link(source, target, secondary) {
+    function link(source, target) {
       const a = position.get(source), b = position.get(target);
       if (!a || !b) return;
       const x1 = a.x + a.w, x2 = b.x;
@@ -390,20 +370,14 @@
       if (x2 <= x1) return;
       const mid = (x1 + x2) / 2;
       lines.appendChild(svg("path", {
-        class: secondary ? "edge-dependency" : "edge-main",
+        class: "edge-main",
         d: "M " + x1 + " " + y1 + " C " + mid + " " + y1 +
           ", " + mid + " " + y2 + ", " + x2 + " " + y2
       }));
     }
     for (const item of layout.visible) {
       const p = parents.get(item.id);
-      if (p) link(p, item.id, false);
-    }
-    if (config.mode === "focus") {
-      for (const e of graph().edges || []) {
-        if (["depends_on", "informed_by"].includes(e.type) &&
-            position.has(e.source) && position.has(e.target)) link(e.source, e.target, true);
-      }
+      if (p) link(p, item.id);
     }
     for (const item of layout.visible) {
       const n = byId.get(item.id), p = position.get(item.id);
@@ -515,18 +489,13 @@
     const swatch = el("span", "detail-status-swatch");
     swatch.style.background = STATES[n.status] || "#adb2b9";
     status.appendChild(swatch);
-    status.appendChild(el("span", "", n.status || kind(n)));
+    status.appendChild(el("span", "", ({not_implemented:"Not Implemented",partial:"Partial",implemented:"Implemented"})[n.status] || "Unknown"));
     area.appendChild(status);
     area.appendChild(el("p", "detail-description", plain(n.description || "")));
     if (n.signature) section(area, "Signature").appendChild(el("code", "signature", n.signature));
     if (n.why_it_matters) section(area, "Why this matters").appendChild(el("p", "", n.why_it_matters));
     if (n.aliases?.length) section(area, "Also known as").appendChild(el("p", "", n.aliases.join(" · ")));
     if (n.next) section(area, "Next step").appendChild(el("p", "", n.next));
-    const logic = gate(n.id);
-    if (logic) {
-      const block = section(area, "Completion logic · " + logic.operator);
-      for (const id of logic.children) block.appendChild(refLink(id, byId.get(id)?.title || id));
-    }
     for (const [title, keys] of [
       ["Scientific knowledge", n.context_ids], ["Project context", n.core_ids],
       ["Scientific terms", n.term_ids]
@@ -556,16 +525,6 @@
           a.href = "https://github.com/OpenSAE/OpenResearch/blob/main/" + path;
         }
         a.target = "_blank"; a.rel = "noopener noreferrer"; block.appendChild(a);
-      }
-    }
-    const extra = (graph().edges || []).filter(e =>
-      (e.source === n.id || e.target === n.id) &&
-      (!VIEWS[config.view].primary.includes(e.type) || parents.get(e.target) !== e.source));
-    if (extra.length) {
-      const block = section(area, "Related");
-      for (const e of extra.slice(0, 16)) {
-        const other = e.source === n.id ? e.target : e.source;
-        block.appendChild(refLink(other, e.type + " · " + (byId.get(other)?.title || other)));
       }
     }
     if (config.view === "code" && config.diff) {
