@@ -4,8 +4,8 @@
 
   const DATA = window.OPENRESEARCH_ATLAS || {};
   const VIEWS = {
-    core: { root: "q.research", primary: ["refines", "addresses", "decomposes"] },
-    knowledge: { root: "q.cub.train", primary: ["refines", "addresses", "decomposes"] },
+    core: { root: "core:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
+    knowledge: { root: "knowledge:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
     code: { root: "code:root", primary: ["contains"] },
     environment: { root: "env:root", primary: ["contains"] },
     glossary: { root: "glossary:root", primary: ["contains"] }
@@ -60,7 +60,7 @@
   }
   function matches(node) {
     const q = config.query.trim().toLocaleLowerCase();
-    return !q || [node.id, node.title, node.description, node.signature, node.path,
+    return !q || [node.id, node.title, node.source_symbol, node.description, node.signature, node.path,
       ...(node.aliases || []), ...(node.term_ids || []), ...(node.context_ids || [])]
       .join(" ").toLocaleLowerCase().includes(q);
   }
@@ -489,10 +489,22 @@
     const swatch = el("span", "detail-status-swatch");
     swatch.style.background = STATES[n.status] || "#adb2b9";
     status.appendChild(swatch);
-    status.appendChild(el("span", "", ({not_implemented:"Not Implemented",partial:"Partial",implemented:"Implemented"})[n.status] || "Unknown"));
+    status.appendChild(el("span", "", config.view==="environment" && graph().synthetic
+      ? "演示数据（未实测）"
+      : ({not_implemented:"Not Implemented",partial:"Partial",implemented:"Implemented"})[n.status] || "Unknown"));
     area.appendChild(status);
     area.appendChild(el("p", "detail-description", plain(n.description || "")));
-    if (n.signature) section(area, "Signature").appendChild(el("code", "signature", n.signature));
+    if (n.source_symbol && ["module","class","method","function"].includes(kind(n))) {
+      const technical = section(area, "源代码标识");
+      technical.appendChild(el("code", "signature", n.source_symbol));
+    }
+    if (n.signature) section(area, "方法签名").appendChild(el("code", "signature", n.signature));
+    if (n.facts) {
+      const details = section(area, "设备与执行信息");
+      for (const [key,value] of Object.entries(n.facts)) {
+        details.appendChild(el("p", "", key + "：" + value));
+      }
+    }
     if (n.why_it_matters) section(area, "Why this matters").appendChild(el("p", "", n.why_it_matters));
     if (n.aliases?.length) section(area, "Also known as").appendChild(el("p", "", n.aliases.join(" · ")));
     if (n.next) section(area, "Next step").appendChild(el("p", "", n.next));
@@ -542,7 +554,8 @@
     $("canvasWrap").classList.toggle("in-focus", config.mode === "focus");
     $("diffControl").classList.toggle("is-hidden", config.view !== "code");
     $("focusHint").textContent = config.view === "environment" && graph().synthetic
-      ? "Synthetic example · not an observed machine" : "";
+      ? "示例环境，非当前电脑的硬件测量" : "";
+    $("statusLegend").classList.toggle("implemented-only", config.view !== "environment");
     $("collapse").disabled = config.mode === "focus";
     $("expand").disabled = config.mode === "focus";
     if (config.mode === "focus") centerSelected();
