@@ -130,3 +130,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,.graph-node:focus-visib
 .legend-swatch.implemented{background:var(--status-implemented)}
 @media(max-width:730px){.status-legend{bottom:50px;left:8px;gap:10px;padding:8px 9px}
 .legend-item{font-size:10px}.legend-swatch{height:14px}}
+
+/* Only the existing green state is relevant outside Environment. */
+.status-legend.implemented-only .legend-item:not(:last-child){display:none}

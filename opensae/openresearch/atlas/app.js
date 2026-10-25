@@ -1,1 +1,660 @@
-!function(){"use strict";function e(e,t,n){const o=document.createElement(e);return t&&(o.className=t),void 0!==n&&(o.textContent=String(n)),o}function t(e,t,n){const o=document.createElementNS("http://www.w3.org/2000/svg",e);for(const[e,n]of Object.entries(t||{}))o.setAttribute(e,String(n));return void 0!==n&&(o.textContent=String(n)),o}function n(e){return e?.kind||e?.type||"goal"}function o(){return B[D.view]||{nodes:[],edges:[],gates:[]}}function i(e){return String(e||"").replace(/^\s*(\u95ee\u9898|\u65b9\u6848|\u76ee\u6807|\u5b9a\u4e49|\u73b0\u72b6)[:\uff1a]\s*/,"").replace(/\s+/g," ").trim()}function s(e){const t=D.query.trim().toLocaleLowerCase();return!t||[e.id,e.title,e.description,e.signature,e.path,...e.aliases||[],...e.term_ids||[],...e.context_ids||[]].join(" ").toLocaleLowerCase().includes(t)}function d(){F=new Map((o().nodes||[]).map(e=>[e.id,e])),J=new Map,V=new Map;for(const e of o().edges||[])R[D.view].primary.includes(e.type)&&F.has(e.source)&&F.has(e.target)&&!J.has(e.target)&&(J.set(e.target,e.source),V.has(e.source)||V.set(e.source,[]),V.get(e.source).push(e.target));const e=R[D.view].root;$=F.has(e)?[e]:[...F.keys()].filter(e=>!J.has(e))}function c(e){const t=[],n=new Set;let o=e;for(;F.has(o)&&!n.has(o)&&t.length<=16;)n.add(o),t.push(o),o=J.get(o);return t.reverse()}function a(){const e=new Set($);if(["core","knowledge"].includes(D.view))for(const t of $)for(const n of V.get(t)||[])e.add(n);if("environment"===D.view)for(const t of F.values())"group"===n(t)&&e.add(t.id);return e}function r(){const e=(window.location?.search||"").match(/[?&]focus=([^&]+)/);if(!e)return null;try{return decodeURIComponent(e[1].replace(/\+/g,"%20"))}catch(e){return null}}function l(e,t){if(!window.history?.pushState||!window.location?.pathname)return;const n=window.location.pathname,o=e?n+"?focus="+encodeURIComponent(e):n;try{window.history[t?"replaceState":"pushState"]({view:D.view,focusId:e||null},"",o)}catch(e){}}function u(e){if(F.has(e))return D.view;for(const t of Object.keys(R))if((B[t]?.nodes||[]).some(t=>t.id===e))return t;return null}function f(e,t,n){const o=t||u(e);return!(!o||!(B[o]?.nodes||[]).some(t=>t.id===e))&&(o!==D.view?(window.location&&(window.location.href=o+".html?focus="+encodeURIComponent(e)),!0):(D.mode="focus",D.focusId=e,D.query="",P("search").value="",D.outlineOpen=!1,D.detailsOpen=!1,l(e,!!n),T(!0),!0))}function h(e){D.mode="overview",D.focusId=null,D.query="",D.detailsOpen=!1,D.zoom=1,P("search").value="",e&&l(null,!1),T(!0)}function p(e){f(e,u(e),!1)}function m(){R[D.view]&&B[D.view]||(D.view="core"),d(),D.expanded=a();const e=r();e&&F.has(e)&&(D.mode="focus",D.focusId=e),j(),T(!0)}function g(e,t){const n=e.codePointAt(0)||0;return n>=11904||n>=4352&&n<=4607?t:" "===e?.3*t:"il.,:;'!|".includes(e)?.32*t:"MW@%".includes(e)?.83*t:.56*t}function w(e,t,n,o){const s=Array.from(i(e));if(!s.length)return[];const d=[];let c="",a=0,r=0;for(;r<s.length&&d.length<o;){const e=s[r],o=g(e,n);c&&a+o>t?(d.push(c.trim()),c="",a=0):(c+=e,a+=o,r++)}if(c&&d.length<o&&d.push(c.trim()),r<s.length&&d.length){const e=d.length-1;d[e]=d[e].replace(/.{1,2}$/u,"")+"\u2026"}return d}function v(e,t){const n=t?320:270,o=w(e.title||e.id,n-45,t?15:13.5,t?3:2),i=w(e.summary||e.description,n-42,t?12.4:11.8,t?7:4);return{w:n,h:Math.max(85,22+o.length*(t?21:19)+(i.length?10+i.length*(t?19:17):0)+18),title:o,body:i}}function y(){function e(i,s){if(!(!F.has(i)||n.has(i)||s>13)&&(!D.query||t.has(i))&&(n.add(i),o.push({id:i,depth:s,role:"overview"}),D.query||D.expanded.has(i)))for(const t of V.get(i)||[])e(t,s+1)}const t=new Set;if(D.query.trim())for(const e of F.values())if(s(e))for(const n of c(e.id))t.add(n);const n=new Set,o=[];for(const t of $)e(t,0);return o}function b(){function e(t){if(s.has(t))return s.get(t);const n=(V.get(t)||[]).filter(e=>o.has(e));let d=n.reduce((t,n)=>t+e(n),0)+Math.max(0,n.length-1)*c;const a=i.get(t)||v(F.get(t),!1);i.set(t,a);const r=Math.max(a.h,d);return s.set(t,r),r}function t(e,n,l){const u=i.get(e),f=s.get(e),h=l+f/2;d.set(e,{x:r+n*(270+a),y:h-u.h/2,...u,depth:n});const p=(V.get(e)||[]).filter(e=>o.has(e));let m=l+(f-(p.reduce((e,t)=>e+s.get(t),0)+Math.max(0,p.length-1)*c))/2;for(const e of p)t(e,n+1,m),m+=s.get(e)+c}const n=y(),o=new Set(n.map(e=>e.id)),i=new Map,s=new Map,d=new Map,c=18,a=56,r=30;let l=34;for(const n of $)if(o.has(n)){const o=e(n);t(n,0,l),l+=o+28}return{visible:n,positions:d}}function x(){const e=D.focusId;if(!F.has(e))return b();const t=c(e),n=t.slice(Math.max(0,t.length-3),-1),o=(V.get(e)||[]).filter(e=>F.has(e)),i=[...n,e,...o],s=new Map,d=58,a=30,r=v(F.get(e),!0),l=o.map(e=>v(F.get(e),!1)),u=l.reduce((e,t)=>e+t.h,0)+20*Math.max(0,l.length-1),f=38+Math.max(r.h,u)/2,h=n.length,p=a+h*(270+d);s.set(e,{x:p,y:f-r.h/2,...r,depth:h,role:"focus"}),n.forEach((e,t)=>{const n=v(F.get(e),!1);s.set(e,{x:a+t*(270+d),y:f-n.h/2,...n,depth:t,role:"ancestor"})});let m=f-u/2;return o.forEach((e,t)=>{const n=l[t];s.set(e,{x:p+r.w+d,y:m,...n,depth:h+1,role:"child"}),m+=n.h+20}),{visible:i.map(e=>({id:e,depth:s.get(e).depth,role:s.get(e).role})),positions:s}}function C(e){let t=0,n=0;for(const o of e.positions.values())t=Math.max(t,o.x+o.w),n=Math.max(n,o.y+o.h);return{...e,width:Math.max(600,t+35),height:Math.max(300,n+35)}}function k(e,n,o,i,s,d){for(let c=0;c<n.length;c++)e.appendChild(t("text",{x:o,y:i+c*s,class:d},n[c]))}function M(e,o,s,d,c){const a=n(e),r=c&&e.id===D.focusId,l=t("g",{class:["graph-node","node-"+a,r?"node-selected":"",D.diff&&"code"===D.view&&(D.diff.added_ids||[]).includes(e.id)?"node-added":"",D.diff&&"code"===D.view&&(D.diff.changed||[]).some(t=>t.id===e.id)?"node-changed":""].filter(Boolean).join(" "),transform:"translate("+o.x+","+o.y+")",role:"button",tabindex:"0","aria-label":e.title+": "+i(e.description||""),"data-node-id":e.id,"data-status":e.status||"unknown"});l.appendChild(t("title",{},(e.title||"")+(e.status?" \u2014 "+e.status:"")+". "+i(e.description||""))),l.appendChild(t("rect",{class:"node-surface",rx:10,width:o.w,height:o.h,fill:H[a]||"#fbfbfc"}));const u=U[e.status];u&&l.appendChild(t("rect",{class:"node-status",rx:2,x:0,y:9,width:4,height:o.h-18,fill:u}));const h=17,p=23;if(k(l,o.title,h,p,r?21:19,"node-title"),o.body.length){const e=p+o.title.length*(r?21:19)+7;k(l,o.body,h,e,r?19:17,"node-description")}const m=(V.get(e.id)||[]).length;if(m){const e=t("g",{class:"child-count","aria-hidden":"true"});e.appendChild(t("rect",{x:o.w-41,y:o.h-25,width:29,height:18,rx:9})),e.appendChild(t("text",{x:o.w-26.5,y:o.h-12,"text-anchor":"middle"},String(m))),l.appendChild(e)}const g=()=>f(e.id,D.view,!1);l.addEventListener("click",g),l.addEventListener("keydown",e=>{"Enter"!==e.key&&" "!==e.key||(e.preventDefault(),g())}),s.appendChild(l)}function E(e){function n(e,n){const o=d.get(e),s=d.get(n);if(!o||!s)return;const c=o.x+o.w,a=s.x,r=o.y+o.h/2,l=s.y+s.h/2;if(a<=c)return;const u=(c+a)/2;i.appendChild(t("path",{class:"edge-main",d:"M "+c+" "+r+" C "+u+" "+r+", "+u+" "+l+", "+a+" "+l}))}const o=P("diagram");o.replaceChildren();const i=t("g",{class:"edges"}),s=t("g",{class:"cards"}),d=e.positions;for(const t of e.visible){const e=J.get(t.id);e&&n(e,t.id)}for(const t of e.visible){const e=F.get(t.id),n=d.get(t.id);e&&n&&M(e,n,s,d,"focus"===D.mode)}o.append(i,s),o.setAttribute("viewBox","0 0 "+e.width+" "+e.height),D.positions=d,D.scene={width:e.width,height:e.height}}function O(){const e=P("canvasWrap"),t=Number(e.clientWidth)||1150,n=Number(e.clientHeight)||630,{width:o,height:i}=D.scene,s=(t-56)/o,d=(n-48)/i;return Math.max(.62,Math.min("focus"===D.mode?1.1:1.02,s,d))}function L(){const e=P("canvasWrap"),t=D.positions.get(D.focusId);if(!t)return;const n=Number(e.clientWidth)||1150,o=Number(e.clientHeight)||630,i=D.zoom*(t.x+t.w/2)-n/2,s=D.zoom*(t.y+t.h/2)-o/2;"function"==typeof e.scrollTo&&e.scrollTo({left:Math.max(0,i),top:Math.max(0,s),behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches?"auto":"smooth"})}function S(){const e=P("diagram");e.setAttribute("width",Math.round(D.scene.width*D.zoom)),e.setAttribute("height",Math.round(D.scene.height*D.zoom)),P("zoomValue").textContent=Math.round(100*D.zoom)+"%"}function I(t,n,o){const i=e("button","outline-item"+(D.focusId===t?" selected":""),n);return i.style.paddingLeft=13+12*o+"px",i.title=F.get(t)?.description||n,i.addEventListener("click",()=>f(t,D.view,!1)),i}function z(){const t=P("outline");t.replaceChildren();const n=y();if("focus"===D.mode&&D.focusId){const e=c(D.focusId),n=new Set([...e,...V.get(D.focusId)||[]]);for(const o of n)t.appendChild(I(o,F.get(o).title,Math.min(4,e.indexOf(o)>=0?e.indexOf(o):e.length)))}else for(const e of n)t.appendChild(I(e.id,F.get(e.id).title,e.depth));t.children.length||t.appendChild(e("p","empty-message","No matching nodes"))}function _(){P("sidebar").classList.toggle("is-hidden",!D.outlineOpen),P("detailDrawer").classList.toggle("is-hidden",!D.detailsOpen),P("detailsToggle").disabled=!D.focusId,P("overviewBack").classList.toggle("is-hidden","focus"!==D.mode)}function N(){const t=P("breadcrumb");if(t.replaceChildren(),"focus"!==D.mode||!D.focusId)return void t.appendChild(e("span","crumb-current",D.view[0].toUpperCase()+D.view.slice(1)));const n=c(D.focusId),o=n.slice(-3);n.length>3&&t.appendChild(e("span","crumb-ellipsis","\u2026"));for(let n=0;n<o.length;n++){n&&t.appendChild(e("span","crumb-divider","/"));const i=o[n],s=F.get(i);if(i===D.focusId)t.appendChild(e("span","crumb-current",s.title));else{const n=e("button","crumb-link",s.title);n.addEventListener("click",()=>f(i,D.view,!1)),t.appendChild(n)}}}function q(t,n){const o=e("section","context-section");return o.appendChild(e("h4","",n)),t.appendChild(o),o}function W(t,n){const o=u(t),i=e("button","context-link",n);return i.addEventListener("click",()=>p(t)),i.title=o?o+" \xb7 "+t:"Unknown node",i}function A(){const t=P("detailBody");t.replaceChildren();const n=F.get(D.focusId);if(!n)return void t.appendChild(e("p","empty-message","Select a node to inspect evidence and cross-links."));t.appendChild(e("h2","detail-title",n.title));const o=e("div","detail-status"),s=e("span","detail-status-swatch");s.style.background=U[n.status]||"#adb2b9",o.appendChild(s),o.appendChild(e("span","",{not_implemented:"Not Implemented",partial:"Partial",implemented:"Implemented"}[n.status]||"Unknown")),t.appendChild(o),t.appendChild(e("p","detail-description",i(n.description||""))),n.signature&&q(t,"Signature").appendChild(e("code","signature",n.signature)),n.why_it_matters&&q(t,"Why this matters").appendChild(e("p","",n.why_it_matters)),n.aliases?.length&&q(t,"Also known as").appendChild(e("p","",n.aliases.join(" \xb7 "))),n.next&&q(t,"Next step").appendChild(e("p","",n.next));for(const[e,o]of[["Scientific knowledge",n.context_ids],["Project context",n.core_ids],["Scientific terms",n.term_ids]])if(o?.length){const n=q(t,e);for(const e of o){const t=u(e),o=(B[t]?.nodes||[]).find(t=>t.id===e);n.appendChild(W(e,o?.title||e))}}if(n.foundation){const o=q(t,"Background"),i=e("a","context-link",n.foundation);i.href="https://github.com/OpenSAE/OpenResearch/blob/main/"+n.foundation,i.target="_blank",i.rel="noopener noreferrer",o.appendChild(i)}if(n.evidence?.length){const o=q(t,"Evidence");for(const t of n.evidence.slice(0,12)){const n=e("a","context-link",t),i=t.split(":")[0];i.startsWith("https://")?n.href=i:i.startsWith("/")||i.includes("..")||(n.href="https://github.com/OpenSAE/OpenResearch/blob/main/"+i),n.target="_blank",n.rel="noopener noreferrer",o.appendChild(n)}}if("code"===D.view&&D.diff){const o=D.diff.changed?.find(e=>e.id===n.id);o&&q(t,"Observed change").appendChild(e("p","",o.fields.join(", ")))}}function T(e){const t=C("focus"===D.mode?x():b());D.visible=t.visible,E(t),e&&(D.zoom=O()),S(),N(),z(),A(),_(),P("canvasWrap").classList.toggle("in-focus","focus"===D.mode),P("diffControl").classList.toggle("is-hidden","code"!==D.view),P("focusHint").textContent="environment"===D.view&&o().synthetic?"Synthetic example \xb7 not an observed machine":"",P("collapse").disabled="focus"===D.mode,P("expand").disabled="focus"===D.mode,"focus"===D.mode?L():e&&"function"==typeof P("canvasWrap").scrollTo&&P("canvasWrap").scrollTo({left:0,top:0})}function j(){P("overviewBack").addEventListener("click",()=>h(!0)),P("outlineToggle").addEventListener("click",()=>{D.outlineOpen=!D.outlineOpen,D.detailsOpen=!1,_()}),P("outlineClose").addEventListener("click",()=>{D.outlineOpen=!1,_()}),P("detailsToggle").addEventListener("click",()=>{D.focusId&&(D.detailsOpen=!D.detailsOpen,D.outlineOpen=!1,A(),_())}),P("detailsClose").addEventListener("click",()=>{D.detailsOpen=!1,_()}),P("search").addEventListener("input",e=>{D.query=String(e.target.value||""),D.mode="overview",D.focusId=null,D.detailsOpen=!1,D.outlineOpen=!!D.query.trim(),window.location?.search?.includes("focus=")&&l(null,!0),T(!0)}),P("collapse").addEventListener("click",()=>{"focus"!==D.mode&&(D.expanded=new Set($),T(!0))}),P("expand").addEventListener("click",()=>{"focus"!==D.mode&&(D.expanded=new Set(F.keys()),T(!0))}),P("fit").addEventListener("click",()=>{D.zoom=O(),S(),"focus"===D.mode&&L()}),P("zoomIn").addEventListener("click",()=>{D.zoom=Math.min(1.8,Math.round(100*(D.zoom+.15))/100),S(),"focus"===D.mode&&L()}),P("zoomOut").addEventListener("click",()=>{D.zoom=Math.max(.45,Math.round(100*(D.zoom-.15))/100),S(),"focus"===D.mode&&L()}),P("diffFile").addEventListener("change",async e=>{const t=e.target.files?.[0];if(t){try{const e=JSON.parse(await t.text());if("code_diff"!==e.kind)throw new Error("Expected a code_diff JSON report");D.diff=e,"code"!==D.view?window.location&&(window.location.href="code.html"):T(!0)}catch(e){"function"==typeof alert&&alert("Cannot load code-tree diff: "+e.message)}e.target.value=""}}),window.addEventListener&&(window.addEventListener("popstate",()=>{const e=r();D.focusId=e&&F.has(e)?e:null,D.mode=D.focusId?"focus":"overview",D.detailsOpen=!1,D.query="",P("search").value="",T(!0)}),window.addEventListener("keydown",e=>{"Escape"===e.key&&(D.detailsOpen||D.outlineOpen?(D.detailsOpen=!1,D.outlineOpen=!1,_()):"focus"===D.mode&&h(!0))}),window.addEventListener("resize",()=>{const e=P("canvasWrap"),t={width:Number(e.clientWidth)||0,height:Number(e.clientHeight)||0};(Math.abs(t.width-G.width)>90||Math.abs(t.height-G.height)>90)&&(G=t,T(!0))}))}const B=window.OPENRESEARCH_ATLAS||{},R={core:{root:"q.research",primary:["refines","addresses","decomposes"]},knowledge:{root:"q.cub.train",primary:["refines","addresses","decomposes"]},code:{root:"code:root",primary:["contains"]},environment:{root:"env:root",primary:["contains"]},glossary:{root:"glossary:root",primary:["contains"]}},U={not_implemented:"#c85b61",partial:"#d5a238",implemented:"#429669"},H={root:"#e0e4e9",question:"#e6eaef",solve:"#f1f3f5",goal:"#fbfcfd",group:"#e8ebef",term:"#fbfcfd",module:"#f4f5f6",class:"#edf0f3",method:"#fcfcfc",function:"#fafbfc",device:"#f7f8fa",capability:"#fcfcfc"},P=e=>document.getElementById(e),D={view:document.body?.dataset?.atlasView||"core",focusId:null,mode:"overview",expanded:new Set,query:"",zoom:1,outlineOpen:!1,detailsOpen:!1,diff:null,positions:new Map,scene:{width:700,height:440},visible:[]};let J=new Map,V=new Map,F=new Map,$=[],G={width:0,height:0};m()}();
+/* OpenResearch Atlas: centered, source-backed trees with node focus navigation. */
+(function () {
+  "use strict";
+
+  const DATA = window.OPENRESEARCH_ATLAS || {};
+  const VIEWS = {
+    core: { root: "core:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
+    knowledge: { root: "knowledge:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
+    code: { root: "code:root", primary: ["contains"] },
+    environment: { root: "env:root", primary: ["contains"] },
+    glossary: { root: "glossary:root", primary: ["contains"] }
+  };
+  const STATES = {
+    not_implemented: "#c85b61",
+    partial: "#d5a238",
+    implemented: "#429669"
+  };
+  const PALETTE = {
+    root: "#e0e4e9", question: "#e6eaef", solve: "#f1f3f5",
+    goal: "#fbfcfd", group: "#e8ebef", term: "#fbfcfd",
+    module: "#f4f5f6", class: "#edf0f3", method: "#fcfcfc",
+    function: "#fafbfc", device: "#f7f8fa", capability: "#fcfcfc"
+  };
+
+  const $ = id => document.getElementById(id);
+  const config = {
+    view: document.body?.dataset?.atlasView || "core",
+    focusId: null,
+    mode: "overview",
+    expanded: new Set(),
+    query: "",
+    zoom: 1,
+    outlineOpen: false,
+    detailsOpen: false,
+    diff: null,
+    positions: new Map(),
+    scene: { width: 700, height: 440 },
+    visible: []
+  };
+  let parents = new Map(), children = new Map(), byId = new Map();
+  let rootIds = [];
+  let lastViewport = { width: 0, height: 0 };
+
+  function el(tag, className, value) {
+    const item = document.createElement(tag);
+    if (className) item.className = className;
+    if (value !== undefined) item.textContent = String(value);
+    return item;
+  }
+  function svg(tag, attrs, text) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [key, value] of Object.entries(attrs || {})) node.setAttribute(key, String(value));
+    if (text !== undefined) node.textContent = String(text);
+    return node;
+  }
+  function kind(node) { return node?.kind || node?.type || "goal"; }
+  function graph() { return DATA[config.view] || { nodes: [], edges: [], gates: [] }; }
+  function plain(text) {
+    return String(text || "").replace(/^\s*(问题|方案|目标|定义|现状)[:：]\s*/, "").replace(/\s+/g, " ").trim();
+  }
+  function matches(node) {
+    const q = config.query.trim().toLocaleLowerCase();
+    return !q || [node.id, node.title, node.source_symbol, node.description, node.signature, node.path,
+      ...(node.aliases || []), ...(node.term_ids || []), ...(node.context_ids || [])]
+      .join(" ").toLocaleLowerCase().includes(q);
+  }
+  function order(a, b) {
+    const weights = { question: 0, solve: 1, goal: 2, root: 0,
+      group: 1, module: 2, class: 3, function: 4, method: 5, term: 3 };
+    return (weights[kind(a)] ?? 6) - (weights[kind(b)] ?? 6)
+      || String(a.title).localeCompare(String(b.title), "zh");
+  }
+  function rebuildHierarchy() {
+    byId = new Map((graph().nodes || []).map(n => [n.id, n]));
+    parents = new Map(); children = new Map();
+    for (const edge of graph().edges || []) {
+      if (!VIEWS[config.view].primary.includes(edge.type)) continue;
+      if (!byId.has(edge.source) || !byId.has(edge.target) || parents.has(edge.target)) continue;
+      parents.set(edge.target, edge.source);
+      if (!children.has(edge.source)) children.set(edge.source, []);
+      children.get(edge.source).push(edge.target);
+    }
+    // Child edges are intentionally rendered in stored top-to-bottom order.
+    const preferred = VIEWS[config.view].root;
+    rootIds = byId.has(preferred) ? [preferred] : [...byId.keys()].filter(id => !parents.has(id));
+  }
+  function ancestors(id) {
+    const result = []; const seen = new Set();
+    let cursor = id;
+    while (byId.has(cursor) && !seen.has(cursor) && result.length <= 16) {
+      seen.add(cursor); result.push(cursor);
+      cursor = parents.get(cursor);
+    }
+    return result.reverse();
+  }
+  function initialExpanded() {
+    const result = new Set(rootIds);
+    if (["core", "knowledge"].includes(config.view)) {
+      for (const id of rootIds) for (const c of children.get(id) || []) result.add(c);
+    }
+    if (config.view === "environment") {
+      for (const n of byId.values()) if (kind(n) === "group") result.add(n.id);
+    }
+    return result;
+  }
+  function getSearchFocus() {
+    const raw = (window.location?.search || "").match(/[?&]focus=([^&]+)/);
+    if (!raw) return null;
+    try { return decodeURIComponent(raw[1].replace(/\+/g, "%20")); }
+    catch (_) { return null; }
+  }
+  function setAddress(focusId, replace) {
+    if (!window.history?.pushState || !window.location?.pathname) return;
+    const path = window.location.pathname;
+    const url = focusId ? path + "?focus=" + encodeURIComponent(focusId) : path;
+    try {
+      window.history[replace ? "replaceState" : "pushState"](
+        { view: config.view, focusId: focusId || null }, "", url
+      );
+    } catch (_) { /* file:// mode may reject history; still allow local navigation */ }
+  }
+  function locateView(id) {
+    if (byId.has(id)) return config.view;
+    for (const key of Object.keys(VIEWS)) {
+      if ((DATA[key]?.nodes || []).some(n => n.id === id)) return key;
+    }
+    return null;
+  }
+  function navigate(id, view, replace) {
+    const target = view || locateView(id);
+    if (!target || !(DATA[target]?.nodes || []).some(n => n.id === id)) return false;
+    if (target !== config.view) {
+      if (window.location) window.location.href = target + ".html?focus=" + encodeURIComponent(id);
+      return true;
+    }
+    config.mode = "focus";
+    config.focusId = id;
+    config.query = "";
+    $("search").value = "";
+    config.outlineOpen = false;
+    config.detailsOpen = false;
+    setAddress(id, !!replace);
+    render(true);
+    return true;
+  }
+  function overview(push) {
+    config.mode = "overview"; config.focusId = null; config.query = "";
+    config.detailsOpen = false; config.zoom = 1;
+    $("search").value = "";
+    if (push) setAddress(null, false);
+    render(true);
+  }
+  function openCross(id) { navigate(id, locateView(id), false); }
+  function init() {
+    if (!VIEWS[config.view] || !DATA[config.view]) config.view = "core";
+    rebuildHierarchy();
+    config.expanded = initialExpanded();
+    const deep = getSearchFocus();
+    if (deep && byId.has(deep)) {
+      config.mode = "focus"; config.focusId = deep;
+    }
+    bind();
+    render(true);
+  }
+
+  // SVG text wrapping uses a conservative display-width estimate for CJK and Latin.
+  function charWidth(character, fontSize) {
+    const code = character.codePointAt(0) || 0;
+    if (code >= 0x2e80 || code >= 0x1100 && code <= 0x11ff) return fontSize;
+    if (character === " ") return fontSize * .30;
+    if ("il.,:;'!|".includes(character)) return fontSize * .32;
+    if ("MW@%".includes(character)) return fontSize * .83;
+    return fontSize * .56;
+  }
+  function wrap(text, width, fontSize, maxLines) {
+    const chars = Array.from(plain(text));
+    if (!chars.length) return [];
+    const lines = []; let line = "", used = 0, at = 0;
+    while (at < chars.length && lines.length < maxLines) {
+      const ch = chars[at], w = charWidth(ch, fontSize);
+      if (line && used + w > width) {
+        lines.push(line.trim()); line = ""; used = 0;
+      } else {
+        line += ch; used += w; at++;
+      }
+    }
+    if (line && lines.length < maxLines) lines.push(line.trim());
+    if (at < chars.length && lines.length) {
+      const i = lines.length - 1;
+      lines[i] = lines[i].replace(/.{1,2}$/u, "") + "…";
+    }
+    return lines;
+  }
+  function measure(node, focused) {
+    const w = focused ? 320 : 270;
+    const title = wrap(node.title || node.id, w - 45, focused ? 15 : 13.5, focused ? 3 : 2);
+    const body = wrap(node.summary || node.description, w - 42, focused ? 12.4 : 11.8, focused ? 7 : 4);
+    const height = Math.max(85, 22 + title.length * (focused ? 21 : 19)
+      + (body.length ? 10 + body.length * (focused ? 19 : 17) : 0) + 18);
+    return { w, h: height, title, body };
+  }
+  function visibleOverview() {
+    const needed = new Set();
+    if (config.query.trim()) {
+      for (const n of byId.values()) if (matches(n)) {
+        for (const id of ancestors(n.id)) needed.add(id);
+      }
+    }
+    const seen = new Set(), list = [];
+    function visit(id, depth) {
+      if (!byId.has(id) || seen.has(id) || depth > 13) return;
+      if (config.query && !needed.has(id)) return;
+      seen.add(id); list.push({ id, depth, role: "overview" });
+      if (config.query || config.expanded.has(id)) {
+        for (const child of children.get(id) || []) visit(child, depth + 1);
+      }
+    }
+    for (const id of rootIds) visit(id, 0);
+    return list;
+  }
+
+  function layoutOverview() {
+    const visible = visibleOverview();
+    const allowed = new Set(visible.map(v => v.id));
+    const sizes = new Map(), blocks = new Map(), positions = new Map();
+    const VERTICAL_GAP = 18, HORIZONTAL_GAP = 56, ORIGIN_X = 30;
+    function height(id) {
+      if (blocks.has(id)) return blocks.get(id);
+      const kids = (children.get(id) || []).filter(x => allowed.has(x));
+      let total = kids.reduce((sum, child) => sum + height(child), 0)
+        + Math.max(0, kids.length - 1) * VERTICAL_GAP;
+      const own = sizes.get(id) || measure(byId.get(id), false);
+      sizes.set(id, own);
+      const result = Math.max(own.h, total);
+      blocks.set(id, result);
+      return result;
+    }
+    function place(id, depth, top) {
+      const size = sizes.get(id), block = blocks.get(id);
+      const centerY = top + block / 2;
+      positions.set(id, { x: ORIGIN_X + depth * (270 + HORIZONTAL_GAP),
+        y: centerY - size.h / 2, ...size, depth });
+      const kids = (children.get(id) || []).filter(x => allowed.has(x));
+      const total = kids.reduce((sum, child) => sum + blocks.get(child), 0)
+        + Math.max(0, kids.length - 1) * VERTICAL_GAP;
+      let childTop = top + (block - total) / 2;
+      for (const child of kids) {
+        place(child, depth + 1, childTop);
+        childTop += blocks.get(child) + VERTICAL_GAP;
+      }
+    }
+    let y = 34;
+    for (const id of rootIds) if (allowed.has(id)) {
+      const h = height(id); place(id, 0, y); y += h + 28;
+    }
+    return { visible, positions };
+  }
+
+  function layoutFocus() {
+    const id = config.focusId;
+    if (!byId.has(id)) return layoutOverview();
+    const chain = ancestors(id);
+    const ancestorsShown = chain.slice(Math.max(0, chain.length - 3), -1);
+    const kids = (children.get(id) || []).filter(x => byId.has(x));
+    const ids = [...ancestorsShown, id, ...kids];
+    const positions = new Map();
+    const horizontalGap = 58, xStart = 30;
+    const focusSize = measure(byId.get(id), true);
+    const childSizes = kids.map(k => measure(byId.get(k), false));
+    const childTotal = childSizes.reduce((sum, s) => sum + s.h, 0)
+      + Math.max(0, childSizes.length - 1) * 20;
+    const center = 38 + Math.max(focusSize.h, childTotal) / 2;
+    const depthOffset = ancestorsShown.length;
+    const ownX = xStart + depthOffset * (270 + horizontalGap);
+    positions.set(id, { x: ownX, y: center - focusSize.h / 2,
+      ...focusSize, depth: depthOffset, role: "focus" });
+    ancestorsShown.forEach((key, i) => {
+      const size = measure(byId.get(key), false);
+      positions.set(key, { x: xStart + i * (270 + horizontalGap),
+        y: center - size.h / 2, ...size, depth: i, role: "ancestor" });
+    });
+    let y = center - childTotal / 2;
+    kids.forEach((child, index) => {
+      const size = childSizes[index];
+      positions.set(child, { x: ownX + focusSize.w + horizontalGap,
+        y, ...size, depth: depthOffset + 1, role: "child" });
+      y += size.h + 20;
+    });
+    return { visible: ids.map(key => ({
+      id: key, depth: positions.get(key).depth, role: positions.get(key).role
+    })), positions };
+  }
+  function normalizeLayout(layout) {
+    let maxX = 0, maxY = 0;
+    for (const p of layout.positions.values()) {
+      maxX = Math.max(maxX, p.x + p.w); maxY = Math.max(maxY, p.y + p.h);
+    }
+    return { ...layout, width: Math.max(600, maxX + 35),
+      height: Math.max(300, maxY + 35) };
+  }
+  function textLines(group, lines, x, startY, lineHeight, className) {
+    for (let i = 0; i < lines.length; i++) {
+      group.appendChild(svg("text", { x, y: startY + i * lineHeight,
+        class: className }, lines[i]));
+    }
+  }
+  function drawCard(node, p, layer, positions, focus) {
+    const k = kind(node), chosen = focus && node.id === config.focusId;
+    const classes = ["graph-node", "node-" + k, chosen ? "node-selected" : "",
+      config.diff && config.view === "code" &&
+        (config.diff.added_ids || []).includes(node.id) ? "node-added" : "",
+      config.diff && config.view === "code" &&
+        (config.diff.changed || []).some(x => x.id === node.id) ? "node-changed" : ""
+    ].filter(Boolean).join(" ");
+    const card = svg("g", {
+      class: classes, transform: "translate(" + p.x + "," + p.y + ")",
+      role: "button", tabindex: "0",
+      "aria-label": node.title + ": " + plain(node.description || ""),
+      "data-node-id": node.id, "data-status": node.status || "unknown"
+    });
+    card.appendChild(svg("title", {}, (node.title || "") +
+      (node.status ? " — " + node.status : "") + ". " + plain(node.description || "")));
+    card.appendChild(svg("rect", {
+      class: "node-surface", rx: 10, width: p.w, height: p.h,
+      fill: PALETTE[k] || "#fbfbfc"
+    }));
+    const status = STATES[node.status];
+    if (status) card.appendChild(svg("rect", {
+      class: "node-status", rx: 2, x: 0, y: 9,
+      width: 4, height: p.h - 18, fill: status
+    }));
+    const titleX = 17, top = 23, titleFont = chosen ? 15 : 13.5;
+    textLines(card, p.title, titleX, top, chosen ? 21 : 19, "node-title");
+    if (p.body.length) {
+      const contentY = top + p.title.length * (chosen ? 21 : 19) + 7;
+      textLines(card, p.body, titleX, contentY, chosen ? 19 : 17, "node-description");
+    }
+    const count = (children.get(node.id) || []).length;
+    if (count) {
+      const label = svg("g", { class: "child-count", "aria-hidden": "true" });
+      label.appendChild(svg("rect", {
+        x: p.w - 41, y: p.h - 25, width: 29, height: 18, rx: 9
+      }));
+      label.appendChild(svg("text", {
+        x: p.w - 26.5, y: p.h - 12, "text-anchor": "middle"
+      }, String(count)));
+      card.appendChild(label);
+    }
+    const onOpen = () => navigate(node.id, config.view, false);
+    card.addEventListener("click", onOpen);
+    card.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault(); onOpen();
+      }
+    });
+    layer.appendChild(card);
+  }
+
+  function drawSVG(layout) {
+    const drawing = $("diagram");
+    drawing.replaceChildren();
+    const lines = svg("g", { class: "edges" });
+    const cards = svg("g", { class: "cards" });
+    const position = layout.positions;
+    function link(source, target) {
+      const a = position.get(source), b = position.get(target);
+      if (!a || !b) return;
+      const x1 = a.x + a.w, x2 = b.x;
+      const y1 = a.y + a.h / 2, y2 = b.y + b.h / 2;
+      if (x2 <= x1) return;
+      const mid = (x1 + x2) / 2;
+      lines.appendChild(svg("path", {
+        class: "edge-main",
+        d: "M " + x1 + " " + y1 + " C " + mid + " " + y1 +
+          ", " + mid + " " + y2 + ", " + x2 + " " + y2
+      }));
+    }
+    for (const item of layout.visible) {
+      const p = parents.get(item.id);
+      if (p) link(p, item.id);
+    }
+    for (const item of layout.visible) {
+      const n = byId.get(item.id), p = position.get(item.id);
+      if (n && p) drawCard(n, p, cards, position, config.mode === "focus");
+    }
+    drawing.append(lines, cards);
+    drawing.setAttribute("viewBox", "0 0 " + layout.width + " " + layout.height);
+    config.positions = position;
+    config.scene = { width: layout.width, height: layout.height };
+  }
+  function fitZoom() {
+    const v = $("canvasWrap");
+    const w = Number(v.clientWidth) || 1150;
+    const h = Number(v.clientHeight) || 630;
+    const { width, height } = config.scene;
+    const a = (w - 56) / width, b = (h - 48) / height;
+    return Math.max(0.62, Math.min(config.mode === "focus" ? 1.10 : 1.02, a, b));
+  }
+  function centerSelected() {
+    const v = $("canvasWrap");
+    const p = config.positions.get(config.focusId);
+    if (!p) return;
+    const width = Number(v.clientWidth) || 1150;
+    const height = Number(v.clientHeight) || 630;
+    const x = config.zoom * (p.x + p.w / 2) - width / 2;
+    const y = config.zoom * (p.y + p.h / 2) - height / 2;
+    if (typeof v.scrollTo === "function") {
+      v.scrollTo({ left: Math.max(0, x), top: Math.max(0, y),
+        behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth" });
+    }
+  }
+  function setScale() {
+    const drawing = $("diagram");
+    drawing.setAttribute("width", Math.round(config.scene.width * config.zoom));
+    drawing.setAttribute("height", Math.round(config.scene.height * config.zoom));
+    $("zoomValue").textContent = Math.round(config.zoom * 100) + "%";
+  }
+  function rowButton(id, label, indent) {
+    const button = el("button", "outline-item" +
+      (config.focusId === id ? " selected" : ""), label);
+    button.style.paddingLeft = (13 + indent * 12) + "px";
+    button.title = byId.get(id)?.description || label;
+    button.addEventListener("click", () => navigate(id, config.view, false));
+    return button;
+  }
+  function renderOutline() {
+    const output = $("outline");
+    output.replaceChildren();
+    const list = visibleOverview();
+    if (config.mode === "focus" && config.focusId) {
+      const path = ancestors(config.focusId);
+      const ids = new Set([...path, ...(children.get(config.focusId) || [])]);
+      for (const id of ids) output.appendChild(rowButton(id, byId.get(id).title,
+        Math.min(4, path.indexOf(id) >= 0 ? path.indexOf(id) : path.length)));
+    } else {
+      for (const item of list) output.appendChild(rowButton(item.id, byId.get(item.id).title, item.depth));
+    }
+    if (!output.children.length) output.appendChild(el("p", "empty-message", "No matching nodes"));
+  }
+  function setDrawerState() {
+    $("sidebar").classList.toggle("is-hidden", !config.outlineOpen);
+    $("detailDrawer").classList.toggle("is-hidden", !config.detailsOpen);
+    $("detailsToggle").disabled = !config.focusId;
+    $("overviewBack").classList.toggle("is-hidden", config.mode !== "focus");
+  }
+  function updateBreadcrumb() {
+    const area = $("breadcrumb");
+    area.replaceChildren();
+    if (config.mode !== "focus" || !config.focusId) {
+      area.appendChild(el("span", "crumb-current", config.view[0].toUpperCase() + config.view.slice(1)));
+      return;
+    }
+    const path = ancestors(config.focusId);
+    const visiblePath = path.slice(-3);
+    if (path.length > 3) area.appendChild(el("span", "crumb-ellipsis", "…"));
+    for (let i = 0; i < visiblePath.length; i++) {
+      if (i) area.appendChild(el("span", "crumb-divider", "/"));
+      const id = visiblePath[i], n = byId.get(id);
+      if (id === config.focusId) area.appendChild(el("span", "crumb-current", n.title));
+      else {
+        const button = el("button", "crumb-link", n.title);
+        button.addEventListener("click", () => navigate(id, config.view, false));
+        area.appendChild(button);
+      }
+    }
+  }
+  function section(area, label) {
+    const block = el("section", "context-section");
+    block.appendChild(el("h4", "", label));
+    area.appendChild(block);
+    return block;
+  }
+  function refLink(id, label) {
+    const target = locateView(id);
+    const button = el("button", "context-link", label);
+    button.addEventListener("click", () => openCross(id));
+    button.title = target ? target + " · " + id : "Unknown node";
+    return button;
+  }
+  function renderDetails() {
+    const area = $("detailBody"); area.replaceChildren();
+    const n = byId.get(config.focusId);
+    if (!n) {
+      area.appendChild(el("p", "empty-message", "Select a node to inspect evidence and cross-links."));
+      return;
+    }
+    area.appendChild(el("h2", "detail-title", n.title));
+    const status = el("div", "detail-status");
+    const swatch = el("span", "detail-status-swatch");
+    swatch.style.background = STATES[n.status] || "#adb2b9";
+    status.appendChild(swatch);
+    status.appendChild(el("span", "", config.view==="environment" && graph().synthetic
+      ? "演示数据（未实测）"
+      : ({not_implemented:"Not Implemented",partial:"Partial",implemented:"Implemented"})[n.status] || "Unknown"));
+    area.appendChild(status);
+    area.appendChild(el("p", "detail-description", plain(n.description || "")));
+    if (n.source_symbol && ["module","class","method","function"].includes(kind(n))) {
+      const technical = section(area, "源代码标识");
+      technical.appendChild(el("code", "signature", n.source_symbol));
+    }
+    if (n.signature) section(area, "方法签名").appendChild(el("code", "signature", n.signature));
+    if (n.facts) {
+      const details = section(area, "设备与执行信息");
+      for (const [key,value] of Object.entries(n.facts)) {
+        details.appendChild(el("p", "", key + "：" + value));
+      }
+    }
+    if (n.why_it_matters) section(area, "Why this matters").appendChild(el("p", "", n.why_it_matters));
+    if (n.aliases?.length) section(area, "Also known as").appendChild(el("p", "", n.aliases.join(" · ")));
+    if (n.next) section(area, "Next step").appendChild(el("p", "", n.next));
+    for (const [title, keys] of [
+      ["Scientific knowledge", n.context_ids], ["Project context", n.core_ids],
+      ["Scientific terms", n.term_ids]
+    ]) {
+      if (keys?.length) {
+        const block = section(area, title);
+        for (const key of keys) {
+          const targetView = locateView(key);
+          const source = (DATA[targetView]?.nodes || []).find(x => x.id === key);
+          block.appendChild(refLink(key, source?.title || key));
+        }
+      }
+    }
+    if (n.foundation) {
+      const block = section(area, "Background");
+      const a = el("a", "context-link", n.foundation);
+      a.href = "https://github.com/OpenSAE/OpenResearch/blob/main/" + n.foundation;
+      a.target = "_blank"; a.rel = "noopener noreferrer"; block.appendChild(a);
+    }
+    if (n.evidence?.length) {
+      const block = section(area, "Evidence");
+      for (const source of n.evidence.slice(0, 12)) {
+        const a = el("a", "context-link", source);
+        const path = source.split(":")[0];
+        if (path.startsWith("https://")) a.href = path;
+        else if (!path.startsWith("/") && !path.includes("..")) {
+          a.href = "https://github.com/OpenSAE/OpenResearch/blob/main/" + path;
+        }
+        a.target = "_blank"; a.rel = "noopener noreferrer"; block.appendChild(a);
+      }
+    }
+    if (config.view === "code" && config.diff) {
+      const changed = config.diff.changed?.find(x => x.id === n.id);
+      if (changed) section(area, "Observed change").appendChild(el("p", "", changed.fields.join(", ")));
+    }
+  }
+  function render(autoFit) {
+    const layout = normalizeLayout(config.mode === "focus" ? layoutFocus() : layoutOverview());
+    config.visible = layout.visible;
+    drawSVG(layout);
+    if (autoFit) config.zoom = fitZoom();
+    setScale();
+    updateBreadcrumb(); renderOutline(); renderDetails(); setDrawerState();
+    $("canvasWrap").classList.toggle("in-focus", config.mode === "focus");
+    $("diffControl").classList.toggle("is-hidden", config.view !== "code");
+    $("focusHint").textContent = config.view === "environment" && graph().synthetic
+      ? "示例环境，非当前电脑的硬件测量" : "";
+    $("statusLegend").classList.toggle("implemented-only", config.view !== "environment");
+    $("collapse").disabled = config.mode === "focus";
+    $("expand").disabled = config.mode === "focus";
+    if (config.mode === "focus") centerSelected();
+    else if (autoFit && typeof $("canvasWrap").scrollTo === "function") {
+      $("canvasWrap").scrollTo({ left: 0, top: 0 });
+    }
+  }
+
+  function bind() {
+    // Each public HTML is a genuine URL; same-view focus changes use browser history.
+    $("overviewBack").addEventListener("click", () => overview(true));
+    $("outlineToggle").addEventListener("click", () => {
+      config.outlineOpen = !config.outlineOpen;
+      config.detailsOpen = false; setDrawerState();
+    });
+    $("outlineClose").addEventListener("click", () => {
+      config.outlineOpen = false; setDrawerState();
+    });
+    $("detailsToggle").addEventListener("click", () => {
+      if (!config.focusId) return;
+      config.detailsOpen = !config.detailsOpen;
+      config.outlineOpen = false; renderDetails(); setDrawerState();
+    });
+    $("detailsClose").addEventListener("click", () => {
+      config.detailsOpen = false; setDrawerState();
+    });
+    $("search").addEventListener("input", event => {
+      config.query = String(event.target.value || "");
+      config.mode = "overview"; config.focusId = null; config.detailsOpen = false;
+      config.outlineOpen = !!config.query.trim();
+      if (window.location?.search?.includes("focus=")) setAddress(null, true);
+      render(true);
+    });
+    $("collapse").addEventListener("click", () => {
+      if (config.mode === "focus") return;
+      config.expanded = new Set(rootIds);
+      render(true);
+    });
+    $("expand").addEventListener("click", () => {
+      if (config.mode === "focus") return;
+      config.expanded = new Set(byId.keys());
+      render(true);
+    });
+    $("fit").addEventListener("click", () => {
+      config.zoom = fitZoom(); setScale();
+      if (config.mode === "focus") centerSelected();
+    });
+    $("zoomIn").addEventListener("click", () => {
+      config.zoom = Math.min(1.8, Math.round((config.zoom + 0.15) * 100) / 100);
+      setScale(); if (config.mode === "focus") centerSelected();
+    });
+    $("zoomOut").addEventListener("click", () => {
+      config.zoom = Math.max(0.45, Math.round((config.zoom - 0.15) * 100) / 100);
+      setScale(); if (config.mode === "focus") centerSelected();
+    });
+    $("diffFile").addEventListener("change", async event => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        const result = JSON.parse(await file.text());
+        if (result.kind !== "code_diff") throw new Error("Expected a code_diff JSON report");
+        config.diff = result;
+        if (config.view !== "code") {
+          if (window.location) window.location.href = "code.html";
+        } else render(true);
+      } catch (error) {
+        if (typeof alert === "function") alert("Cannot load code-tree diff: " + error.message);
+      }
+      event.target.value = "";
+    });
+    if (window.addEventListener) {
+      window.addEventListener("popstate", () => {
+        const next = getSearchFocus();
+        config.focusId = next && byId.has(next) ? next : null;
+        config.mode = config.focusId ? "focus" : "overview";
+        config.detailsOpen = false;
+        config.query = ""; $("search").value = "";
+        render(true);
+      });
+      window.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          if (config.detailsOpen || config.outlineOpen) {
+            config.detailsOpen = false; config.outlineOpen = false; setDrawerState();
+          } else if (config.mode === "focus") overview(true);
+        }
+      });
+      window.addEventListener("resize", () => {
+        const v = $("canvasWrap"), next = {
+          width: Number(v.clientWidth) || 0, height: Number(v.clientHeight) || 0
+        };
+        if (Math.abs(next.width - lastViewport.width) > 90 ||
+            Math.abs(next.height - lastViewport.height) > 90) {
+          lastViewport = next;
+          render(true);
+        }
+      });
+    }
+  }
+
+  init();
+})();
+
