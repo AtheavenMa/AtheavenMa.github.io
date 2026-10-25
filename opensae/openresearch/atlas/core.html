@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fafaf9">
+  <meta name="description" content="Explore OpenResearch project structure, scientific questions and source code through interactive node-centered trees.">
   <title>OpenResearch Atlas · Core</title>
   <link rel="stylesheet" href="./style.css">
   <script defer src="./data.js"></script>
@@ -11,69 +13,55 @@
 <body data-atlas-view="core">
   <div class="app">
     <header class="topbar">
-      <a class="brand" href="https://github.com/OpenSAE/OpenResearch" title="OpenResearch project"><span class="mark" aria-hidden="true">◈</span><span>OpenResearch <span class="muted">/ Atlas</span></span></a>
-      <div class="eyebrow" id="sourceState">Source-backed research infrastructure</div>
-      <a class="doclink" href="https://github.com/OpenSAE/OpenResearch/blob/main/harness/visualization/README.md">Harness guide <span aria-hidden="true">↗</span></a>
+      <a class="brand" href="https://github.com/OpenSAE/OpenResearch" title="OpenResearch project"><span class="brand-mark" aria-hidden="true">◈</span>OpenResearch <span class="brand-light">/ Atlas</span></a>
+      <nav class="tabs" aria-label="Atlas views">
+        <a class="tab active" data-graph="core" href="core.html">Core</a>
+        <a class="tab" data-graph="knowledge" href="knowledge.html">Knowledge</a>
+        <a class="tab" data-graph="code" href="code.html">Code</a>
+        <a class="tab" data-graph="environment" href="environment.html">Environment</a>
+        <a class="tab" data-graph="glossary" href="glossary.html">Glossary</a>
+      </nav>
+      <a class="guide-link" href="https://github.com/OpenSAE/OpenResearch/blob/main/harness/visualization/README.md">Guide ↗</a>
     </header>
-    <section class="intro">
-      <div>
-        <div class="overline">FOUR TREES · ONE SCIENTIFIC DICTIONARY</div>
-        <h1>Understand the system.</h1>
-        <p>Separate project architecture from scientific knowledge, inspect real source code and machine context, and explore a curated glossary without loading everything into one context.</p>
+    <div class="workspace">
+      <div class="toolbar">
+        <div class="navigation">
+          <button id="overviewBack" class="overview-back" title="Return to the full tree" aria-label="Return to overview">← <span>Overview</span></button>
+          <div id="breadcrumb" class="breadcrumb" aria-label="Current node path"></div>
+        </div>
+        <div class="tool-actions">
+          <label class="search-box"><span class="search-symbol" aria-hidden="true">⌕</span><input type="search" id="search" placeholder="Find a node…" aria-label="Find a node" autocomplete="off"></label>
+          <button class="icon-button" id="outlineToggle" aria-label="Toggle outline" title="Outline"><span aria-hidden="true">☷</span></button>
+          <button class="icon-button" id="detailsToggle" aria-label="Show node details and links" title="Details">Details</button>
+          <span class="toolbar-separator" aria-hidden="true"></span>
+          <button class="icon-button" id="collapse" aria-label="Collapse tree" title="Collapse tree">−</button>
+          <button class="icon-button" id="expand" aria-label="Expand tree" title="Expand tree">+</button>
+          <button class="icon-button" id="fit" aria-label="Fit visible tree" title="Fit visible tree">Fit</button>
+          <button class="icon-button" id="zoomOut" aria-label="Zoom out" title="Zoom out">⌁</button>
+          <span id="zoomValue" class="zoom-value">100%</span>
+          <button class="icon-button" id="zoomIn" aria-label="Zoom in" title="Zoom in">⌃</button>
+        </div>
       </div>
-      <div class="intro-stat"><div class="big-number" id="totalCount">—</div><div class="muted">nodes in view</div></div>
-    </section>
-    <nav class="tabs" aria-label="Tree selection">
-      <a class="tab active" data-graph="core" href="core.html"><span class="tab-no">01</span> Core</a>
-      <a class="tab" data-graph="knowledge" href="knowledge.html"><span class="tab-no">02</span> Knowledge</a>
-      <a class="tab" data-graph="code" href="code.html"><span class="tab-no">03</span> Code</a>
-      <a class="tab" data-graph="environment" href="environment.html"><span class="tab-no">04</span> Environment</a>
-      <a class="tab" data-graph="glossary" href="glossary.html"><span class="tab-no">05</span> Glossary</a>
-    </nav>
-    <section class="workspace">
-      <aside class="sidebar" aria-label="Tree outline">
-        <div class="side-head">
-          <span class="section-label">EXPLORER</span>
-          <span class="tiny" id="treeCount"></span>
-        </div>
-        <div class="search"><span aria-hidden="true">⌕</span><input type="search" id="search" placeholder="Find a concept or symbol…" aria-label="Search tree"></div>
-        <div class="outline" id="outline" role="tree"></div>
-        <div class="side-foot">
-          <span class="dot"></span><span id="dataNote">Select a node to inspect evidence.</span>
-        </div>
-      </aside>
-      <main class="graph-panel">
-        <div class="canvas-top">
-          <div>
-            <div class="section-label" id="graphSubtitle">KNOWLEDGE STRUCTURE</div>
-            <h2 id="graphTitle">Why we build.</h2>
+      <div class="visual-stage">
+        <aside id="sidebar" class="sidebar is-hidden" aria-label="Project tree outline">
+          <div class="drawer-top"><span>Outline</span><button id="outlineClose" aria-label="Close outline">×</button></div>
+          <div id="outline" class="outline" role="tree"></div>
+        </aside>
+        <main class="graph-panel">
+          <div id="canvasWrap" class="canvas-wrap" aria-label="Interactive node graph" tabindex="0">
+            <svg id="diagram" role="img" aria-label="Source-backed expandable project tree"></svg>
           </div>
-          <div class="toolbar">
-            <button title="Collapse to top level" id="collapse" aria-label="Collapse tree">Collapse</button>
-            <button title="Expand visible hierarchy" id="expand" aria-label="Expand tree">Expand</button>
-            <button title="Reset zoom" id="fit" aria-label="Reset zoom">Reset</button>
-            <button title="Zoom out" id="zoomOut" aria-label="Zoom out">−</button>
-            <span id="zoomValue" class="zoom-label">100%</span>
-            <button title="Zoom in" id="zoomIn" aria-label="Zoom in">+</button>
+          <div class="canvas-foot">
+            <span id="focusHint"></span>
+            <label class="import-diff" id="diffControl">Compare code changes<input id="diffFile" type="file" accept=".json,application/json"></label>
           </div>
-        </div>
-        <div class="canvas-wrap" id="canvasWrap">
-          <div id="canvas" class="canvas"><svg id="diagram" role="img" aria-label="Expandable project relationship tree"></svg></div>
-        </div>
-        <div class="canvas-bottom">
-          <div class="legend"><span class="legend-dot" aria-hidden="true"></span><span id="legendMain">Solid lines · primary hierarchy</span></div>
-          <label class="import-diff">Compare code changes <input id="diffFile" type="file" accept=".json,application/json"></label>
-        </div>
-      </main>
-      <aside class="detail" aria-live="polite">
-        <div class="section-label">INSPECTOR</div>
-        <div id="detailBody" class="detail-body"><div class="empty-detail">Select a node on the graph to see its purpose, evidence, status, and links.</div></div>
-      </aside>
-    </section>
-    <footer>
-      <span>OPENRESEARCH / CONTROLLED CONTEXT</span>
-      <span id="footerSource">Source: structured project data</span>
-    </footer>
+        </main>
+        <aside id="detailDrawer" class="detail is-hidden" aria-label="Detailed source and relationships">
+          <div class="drawer-top"><span>Context</span><button id="detailsClose" aria-label="Close details">×</button></div>
+          <div id="detailBody" class="detail-body"></div>
+        </aside>
+      </div>
+    </div>
   </div>
 </body>
 </html>
