@@ -11,6 +11,7 @@
     context: { root: "context:root", primary: ["contains"] }
   };
   const STATES = {
+    unchecked: "#8255b5", denied: "#78818b",
     not_implemented: "#c85b61",
     partial: "#d5a238",
     implemented: "#429669"
@@ -23,6 +24,187 @@
   };
 
   const $ = id => document.getElementById(id);
+
+  // Review is a mode inside Atlas. It reuses the real graph, cards and navigation.
+  // Proposal decisions are NOT implementation results: unchecked purple,
+  // approved red (still unimplemented), denied gray.
+  const REVIEW_PALETTE = {
+    unchecked: { fill: "#eadff8", stroke: "#8255b5" },
+    approved: { fill: "#f8e2e5", stroke: "#bb4656" },
+    denied: { fill: "#e5e7ea", stroke: "#78818b" }
+  };
+  let review = null, reviewGraphs = {}, reviewBusy = false, reviewError = "";
+
+  function requestedReview() {
+    const match = (window.location?.search || "").match(/[?&]review=([^&]+)/);
+    if (!match) return null;
+    try { return decodeURIComponent(match[1]); } catch (_) { return null; }
+  }
+  function reviewKey() {
+    const match = (window.location?.hash || "").match(/^#key=([^&]+)/);
+    try { return match ? decodeURIComponent(match[1]) : ""; }
+    catch (_) { return ""; }
+  }
+  function proposalState(item) {
+    return item?.proposal_review?.decision || "unchecked";
+  }
+  function itemFor(id, view=config.view) {
+    return review?.plan?.items?.find(x => x.node_id === id && x.view === view);
+  }
+  function overlayGraphs() {
+    reviewGraphs = {};
+    if (!review) return;
+    const anchor = review.context || { nodes:[], edges:[] };
+    for(const view of ["knowledge","code","environment","context"]) {
+      const base = DATA[view] || {nodes:[],edges:[]};
+      const nodes = new Map((base.nodes || []).map(n=>[n.id,n]));
+      const edges = [...(base.edges || [])];
+      const addEdge = edge => {
+        if (!edges.some(e => e.source === edge.source && e.target === edge.target &&
+             e.type === edge.type)) edges.push(edge);
+      };
+      if (view === "knowledge") {
+        for(const node of anchor.nodes || [])
+          if (!nodes.has(node.id)) nodes.set(node.id,node);
+        for(const edge of anchor.edges || []) addEdge(edge);
+      }
+      for(const item of review.plan.items.filter(x=>x.view===view)) {
+        const baseNode = nodes.get(item.node_id) || {};
+        const after = item.after || {};
+        const origin = item.before || {};
+        const displayed = {
+          ...baseNode,
+          id: item.node_id,
+          kind: baseNode.kind || after.type || origin.type || "goal",
+          title: after.title || origin.title || baseNode.title || item.node_id,
+          description: after.description || origin.description || baseNode.description || "",
+          summary: after.description || origin.description || baseNode.summary || "",
+          status: proposalState(item) === "approved" ? "not_implemented" :
+                  proposalState(item) === "denied" ? "denied" : "unchecked",
+          reader_explanation: after.description || origin.description || "",
+          context_term_ids: after.term_ids || baseNode.context_term_ids || [],
+          review_item: true
+        };
+        nodes.set(item.node_id,displayed);
+        const parent = item.parent_id;
+        if (parent && nodes.has(parent)) {
+          addEdge({source:parent,target:item.node_id,type:"contains"});
+        } else if (item.operation === "add" && nodes.has(VIEWS[view].root)) {
+          addEdge({source:VIEWS[view].root,target:item.node_id,type:"contains"});
+        }
+      }
+      reviewGraphs[view] = {...base,nodes:[...nodes.values()],edges};
+    }
+  }
+  function reviewPosition() {
+    return review?.plan.items.findIndex(item=>item.node_id===config.focusId &&
+      item.view===config.view) ?? -1;
+  }
+  function reviewGo(index) {
+    if(!review || index<0 || index>=review.plan.items.length) return;
+    reviewError="";
+    const item=review.plan.items[index];
+    navigate(item.node_id,item.view,false);
+  }
+  function updateReviewBar() {
+    if(!review) return;
+    const bar=$("atlasReviewBar");
+    bar.classList.remove("is-hidden");
+    const items=review.plan.items, current=reviewPosition();
+    $("atlasReviewCount").textContent = (current>=0?current+1:"–") + " / " + items.length;
+    $("atlasReviewPrev").disabled = reviewBusy || current<=0;
+    $("atlasReviewNext").disabled = reviewBusy || current===items.length-1;
+    $("atlasReviewApprove").disabled = reviewBusy || !review.editable || current<0;
+    $("atlasReviewDeny").disabled = reviewBusy || !review.editable || current<0;
+    const currentItem=items[current];
+    const status=proposalState(currentItem);
+    $("atlasReviewApprove").classList.toggle("chosen", status==="approved");
+    $("atlasReviewDeny").classList.toggle("chosen", status==="denied");
+    $("atlasReviewMessage").textContent = reviewBusy ? "Saving…" : reviewError ? reviewError :
+      (!review.editable ? "Preview" : (status === "unchecked" ? "Unchecked" :
+       status === "approved" ? "Not implemented" : "Denied"));
+  }
+  function applyReviewResponse(data,live) {
+    if (!data?.plan || !Array.isArray(data.plan.items) ||
+        data.plan.id !== requestedReview()) throw Error("Invalid Atlas plan");
+    review = {plan:data.plan,context:data.context || data.review_context ||
+              {nodes:[],edges:[]},editable:!!live && !!reviewKey()};
+    overlayGraphs();
+    rebuildHierarchy();
+    config.expanded = initialExpanded();
+    render(false);
+  }
+  async function loadReview() {
+    if(!requestedReview() || config.view==="core") return;
+    let payload,live=false;
+    try {
+      const response=await fetch("/api/review/state",{cache:"no-store"});
+      if(!response.ok) throw Error("Local review service unavailable");
+      payload=await response.json();
+      live=true;
+    } catch (_) {
+      // GitHub Pages is read-only. It cannot secretly persist human decisions.
+      if(requestedReview()!=="OR-Knowledge-Demo-20261026") {
+        $("focusHint").textContent="Local Atlas review service required";
+        return;
+      }
+      const response=await fetch("./demo-knowledge-plan.json",{cache:"no-store"});
+      if(!response.ok) throw Error("Preview JSON missing");
+      payload=await response.json();
+      if(!payload.plan) payload={plan:payload,context:payload.review_context};
+    }
+    applyReviewResponse(payload,live);
+    const key=getSearchFocus(), item=review.plan.items.find(x=>x.node_id===key && x.view===config.view);
+    if(item) navigate(item.node_id,item.view,true);
+    else {
+      const first=review.plan.items.find(x=>x.view===config.view) || review.plan.items[0];
+      if(first) navigate(first.node_id,first.view,true);
+    }
+    const bar=$("atlasReviewBar");
+    $("atlasReviewPrev").addEventListener("click",()=>reviewGo(reviewPosition()-1));
+    $("atlasReviewNext").addEventListener("click",()=>reviewGo(reviewPosition()+1));
+    $("atlasReviewApprove").addEventListener("click",()=>submitReview("approved"));
+    $("atlasReviewDeny").addEventListener("click",()=>submitReview("denied"));
+    bar.classList.remove("is-hidden");
+    updateReviewBar();
+  }
+  async function submitReview(decision) {
+    if(!review?.editable || reviewBusy) return;
+    const at=reviewPosition();
+    if(at<0) return;
+    const current=review.plan.items[at];
+    reviewError="";
+    reviewBusy=true;
+    updateReviewBar();
+    try {
+      // The server commits JSON and validates Knowledge/Glossary before 200.
+      const response=await fetch("/api/review/decision",{
+        method:"POST",credentials:"same-origin",keepalive:true,
+        headers:{"Content-Type":"application/json","X-Atlas-Review-Key":reviewKey()},
+        body:JSON.stringify({revision:review.plan.revision,key:current.key,decision})
+      });
+      const data=await response.json();
+      if(!response.ok) throw Error(data.error || "Review not saved");
+      const currentKey=current.key;
+      applyReviewResponse(data,true);
+      let next=-1;
+      for(let i=at+1;i<review.plan.items.length;i++){
+        if(proposalState(review.plan.items[i])==="unchecked"){next=i;break;}
+      }
+      if(next<0) for(let i=0;i<at;i++){
+        if(proposalState(review.plan.items[i])==="unchecked"){next=i;break;}
+      }
+      if(next>=0) reviewGo(next);
+      else reviewGo(review.plan.items.findIndex(x=>x.key===currentKey));
+    } catch(error) {
+      reviewError="Save failed";
+      $("atlasReviewMessage").title=error.message;
+    } finally {
+      reviewBusy=false;
+      updateReviewBar();
+    }
+  }
+
   const config = {
     view: document.body?.dataset?.atlasView || "core",
     focusId: null,
@@ -56,7 +238,7 @@
     return node;
   }
   function kind(node) { return node?.kind || node?.type || "goal"; }
-  function graph() { return DATA[config.view] || { nodes: [], edges: [], gates: [] }; }
+  function graph() { return reviewGraphs[config.view] || DATA[config.view] || { nodes: [], edges: [], gates: [] }; }
   function plain(text) {
     return String(text || "").replace(/^\s*(问题|方案|目标|定义|现状)[:：]\s*/, "").replace(/\s+/g, " ").trim();
   }
@@ -114,7 +296,11 @@
   function setAddress(focusId, replace) {
     if (!window.history?.pushState || !window.location?.pathname) return;
     const path = window.location.pathname;
-    const url = focusId ? path + "?focus=" + encodeURIComponent(focusId) : path;
+    const params=[];
+    if(requestedReview()) params.push("review="+encodeURIComponent(requestedReview()));
+    if(focusId) params.push("focus="+encodeURIComponent(focusId));
+    const url = path + (params.length?"?"+params.join("&"):"") +
+      (requestedReview()?window.location.hash||"":"");
     try {
       window.history[replace ? "replaceState" : "pushState"](
         { view: config.view, focusId: focusId || null }, "", url
@@ -124,30 +310,34 @@
   function locateView(id) {
     if (byId.has(id)) return config.view;
     for (const key of Object.keys(VIEWS)) {
-      if ((DATA[key]?.nodes || []).some(n => n.id === id)) return key;
+      if ((reviewGraphs[key]?.nodes || DATA[key]?.nodes || []).some(n => n.id === id)) return key;
     }
     return null;
   }
   function navigate(id, view, replace) {
     const target = view || locateView(id);
-    if (!target || !(DATA[target]?.nodes || []).some(n => n.id === id)) return false;
+    if (!target || !(reviewGraphs[target]?.nodes || DATA[target]?.nodes || []).some(n => n.id === id)) return false;
     if (target !== config.view) {
-      if (window.location) window.location.href = target + ".html?focus=" + encodeURIComponent(id);
+      if(window.location) window.location.href = target+".html?"+
+        (requestedReview()?"review="+encodeURIComponent(requestedReview())+"&":"")+
+        "focus="+encodeURIComponent(id)+(requestedReview()?window.location.hash||"":"");
       return true;
     }
     // Primary click expands this node in place. Existing branches stay open;
     // the graph becomes scrollable and never changes its current zoom.
-    config.mode = "overview";
+    config.mode = review ? "focus" : "overview";
+    if(review) config.expandedAttributes.clear();
     config.focusId = id;
     config.query = "";
     $("search").value = "";
     config.outlineOpen = false;
     config.detailsOpen = false;
     for (const key of ancestors(id)) config.expanded.add(key);
-    config.expandedAttributes.add(id);
+    if(!review) config.expandedAttributes.add(id);
     setAddress(id, !!replace);
     render(false);
     centerSelected();
+    if(review) updateReviewBar();
     return true;
   }
   function overview(push) {
@@ -169,6 +359,9 @@
     }
     bind();
     render(true);
+    if(requestedReview() && config.view!=="core") {
+      loadReview().catch(error=>{$("focusHint").textContent=error.message;});
+    }
   }
 
   // SVG text wrapping uses a conservative display-width estimate for CJK and Latin.
@@ -200,6 +393,12 @@
     return lines;
   }
   function measure(node, focused) {
+    if(review && itemFor(node.id)) {
+      const w=460;
+      return {w,h:176,title:wrap(node.title||node.id,w-42,16,2),
+              body:wrap(node.description,w-42,14,5),baseH:176,
+              extraH:0,expanded:false};
+    }
     const expanded = config.expandedAttributes.has(node.id);
     const w = expanded ? 490 : 290;
     const title = wrap(node.title || node.id, w - 45, 13.5, 2);
@@ -347,15 +546,18 @@
       class: classes, transform: "translate(" + p.x + "," + p.y + ")",
       role: "button", tabindex: "0",
       "aria-label": node.title + ": " + plain(node.description || ""),
-      "data-node-id": node.id, "data-status": node.status || "unknown"
+      "data-node-id": node.id, "data-status": node.status || "unknown",
+      "data-review": review && itemFor(node.id) ? proposalState(itemFor(node.id)) : ""
     });
     card.appendChild(svg("title", {}, (node.title || "") +
       (node.status ? " — " + node.status : "") + ". " + plain(node.description || "")));
     card.appendChild(svg("rect", {
       class: "node-surface", rx: 10, width: p.w, height: p.h,
-      fill: PALETTE[k] || "#fbfbfc"
+      fill: review && itemFor(node.id) ?
+        REVIEW_PALETTE[proposalState(itemFor(node.id))].fill : PALETTE[k] || "#fbfbfc"
     }));
-    const status = STATES[node.status];
+    const status = review && itemFor(node.id) ?
+      REVIEW_PALETTE[proposalState(itemFor(node.id))].stroke : STATES[node.status];
     if (status) card.appendChild(svg("rect", {
       class: "node-status", rx: 2, x: 0, y: 9,
       width: 4, height: p.h - 18, fill: status
@@ -865,8 +1067,10 @@
     $("focusHint").textContent = config.view === "environment" && graph().synthetic
       ? "演示环境 · 合成设备配置" : "";
     $("statusLegend").classList.toggle("implemented-only", config.view !== "environment");
+    $("statusLegend").classList.toggle("is-hidden", !!review);
     $("collapse").disabled = config.mode === "focus";
     $("expand").disabled = config.mode === "focus";
+    if (review) updateReviewBar();
     if (config.mode === "focus") centerSelected();
     else if (autoFit && typeof $("canvasWrap").scrollTo === "function") {
       $("canvasWrap").scrollTo({ left: 0, top: 0 });
