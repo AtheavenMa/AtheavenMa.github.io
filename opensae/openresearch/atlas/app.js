@@ -30,6 +30,7 @@
     expanded: new Set(),
     query: "",
     zoom: 1,
+    zoomInitialized: false,
     outlineOpen: false,
     detailsOpen: false,
     diff: null,
@@ -148,7 +149,7 @@
   function overview(push) {
     config.expandedAttributes.clear();
     config.mode = "overview"; config.focusId = null; config.query = "";
-    config.detailsOpen = false; config.zoom = 1;
+    config.detailsOpen = false;
     $("search").value = "";
     if (push) setAddress(null, false);
     render(true);
@@ -196,11 +197,11 @@
   }
   function measure(node, focused) {
     const expanded=config.expandedAttributes.has(node.id) && (node.attributes || []).length>0;
-    const w = expanded ? 490 : focused ? 320 : 270;
-    const title = wrap(node.title || node.id, w - 45, focused ? 15 : 13.5, focused ? 3 : 2);
-    const body = wrap(node.summary || node.description, w - 42, focused ? 12.4 : 11.8, focused ? 7 : 4);
-    const base = Math.max(85, 22 + title.length * (focused ? 21 : 19)
-      + (body.length ? 10 + body.length * (focused ? 19 : 17) : 0) + 18);
+    const w = expanded ? 490 : 290;
+    const title = wrap(node.title || node.id, w - 45, 13.5, 2);
+    const body = wrap(node.summary || node.description, w - 42, 11.8, 4);
+    const base = Math.max(108, 22 + title.length * 19
+      + (body.length ? 10 + body.length * 17 : 0) + 18);
     const isClass=(node.attributes||[]).some(x=>x.type==="class_methods");
     const count=(node.attributes||[]).length;
     const extraH = expanded ? Math.min(690, isClass ? 570 : Math.max(300,220+count*55)) : 0;
@@ -231,7 +232,7 @@
     const visible = visibleOverview();
     const allowed = new Set(visible.map(v => v.id));
     const sizes = new Map(), blocks = new Map(), positions = new Map();
-    const VERTICAL_GAP = 18, HORIZONTAL_GAP = 56, ORIGIN_X = 30;
+    const VERTICAL_GAP = 24, HORIZONTAL_GAP = 72, ORIGIN_X = 36;
     const columnWidths=new Map();
     for(const entry of visible){
       const width=measure(byId.get(entry.id),false).w;
@@ -282,7 +283,7 @@
     const kids = (children.get(id) || []).filter(x => byId.has(x));
     const ids = [...ancestorsShown, id, ...kids];
     const positions = new Map();
-    const horizontalGap = 58, xStart = 30;
+    const horizontalGap = 72, xStart = 36;
     const focusSize = measure(byId.get(id), true);
     const childSizes = kids.map(k => measure(byId.get(k), false));
     const childTotal = childSizes.reduce((sum, s) => sum + s.h, 0)
@@ -353,11 +354,11 @@
       class: "node-status", rx: 2, x: 0, y: 9,
       width: 4, height: p.h - 18, fill: status
     }));
-    const titleX = 17, top = 23, titleFont = chosen ? 15 : 13.5;
-    textLines(card, p.title, titleX, top, chosen ? 21 : 19, "node-title");
+    const titleX = 17, top = 23;
+    textLines(card, p.title, titleX, top, 19, "node-title");
     if (p.body.length) {
-      const contentY = top + p.title.length * (chosen ? 21 : 19) + 7;
-      textLines(card, p.body, titleX, contentY, chosen ? 19 : 17, "node-description");
+      const contentY = top + p.title.length * 19 + 7;
+      textLines(card, p.body, titleX, contentY, 17, "node-description");
     }
     if(p.expanded){
       const embedded=svg("foreignObject",{
@@ -381,6 +382,25 @@
       label.appendChild(svg("text", {
         x: p.w - 26.5, y: p.h - 12, "text-anchor": "middle"
       }, String(count)));
+      // The count badge expands this branch without changing zoom or focus.
+      label.setAttribute("role", "button");
+      label.setAttribute("tabindex", "0");
+      label.setAttribute("aria-label", "展开或收起子节点");
+      label.addEventListener("click", event => {
+        event.stopPropagation?.();
+        if (config.expanded.has(node.id)) config.expanded.delete(node.id);
+        else config.expanded.add(node.id);
+        render(false);
+      });
+      label.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault?.();
+          event.stopPropagation?.();
+          if (config.expanded.has(node.id)) config.expanded.delete(node.id);
+          else config.expanded.add(node.id);
+          render(false);
+        }
+      });
       card.appendChild(label);
     }
     if (Array.isArray(node.attributes) && node.attributes.length) {
@@ -460,7 +480,7 @@
     const h = Number(v.clientHeight) || 630;
     const { width, height } = config.scene;
     const a = (w - 56) / width, b = (h - 48) / height;
-    return Math.max(0.62, Math.min(config.mode === "focus" ? 1.10 : 1.02, a, b));
+    return Math.max(0.82, Math.min(1, a, b));
   }
   function centerSelected() {
     const v = $("canvasWrap");
@@ -717,7 +737,7 @@
   function toggleAttributes(id){
     if(config.expandedAttributes.has(id))config.expandedAttributes.delete(id);
     else config.expandedAttributes.add(id);
-    render(true);
+    render(false);
     const element=$("diagram");
     // Expanded card remains part of the same tree, with all surrounding
     // coordinates recomputed by the centered layout.
@@ -796,7 +816,12 @@
     const layout = normalizeLayout(config.mode === "focus" ? layoutFocus() : layoutOverview());
     config.visible = layout.visible;
     drawSVG(layout);
-    if (autoFit) config.zoom = fitZoom();
+    // Preserve the user’s visual scale across focus, expansion, and search.
+    // The tree grows in scrollable space rather than squeezing every card.
+    if (!config.zoomInitialized) {
+      config.zoom = 1;
+      config.zoomInitialized = true;
+    }
     setScale();
     updateBreadcrumb(); renderOutline(); renderDetails(); setDrawerState();
     $("canvasWrap").classList.toggle("in-focus", config.mode === "focus");
@@ -849,7 +874,7 @@
       render(true);
     });
     $("fit").addEventListener("click", () => {
-      config.zoom = fitZoom(); setScale();
+      config.zoom = fitZoom(); config.zoomInitialized = true; setScale();
       if (config.mode === "focus") centerSelected();
     });
     $("zoomIn").addEventListener("click", () => {
@@ -902,7 +927,7 @@
         if (Math.abs(next.width - lastViewport.width) > 90 ||
             Math.abs(next.height - lastViewport.height) > 90) {
           lastViewport = next;
-          render(true);
+          render(false);
         }
       });
     }
