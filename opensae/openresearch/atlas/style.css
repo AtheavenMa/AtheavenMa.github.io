@@ -133,3 +133,43 @@ button:focus-visible,a:focus-visible,input:focus-visible,.graph-node:focus-visib
 
 /* Only the existing green state is relevant outside Environment. */
 .status-legend.implemented-only .legend-item:not(:last-child){display:none}
+
+/* Node-local attribute affordance: details float over canvas rather than
+   resizing the entire tree or requiring the permanent Inspector. */
+.attribute-trigger{cursor:pointer}
+.attribute-trigger .attr-hit{fill:#edf1f3;stroke:#dfe4e8;stroke-width:0.7}
+.attribute-trigger:hover .attr-hit,.attribute-trigger:focus .attr-hit{fill:#dde8e4;stroke:#9bb5ac}
+.attribute-trigger text{font-size:10.5px;font-weight:620;fill:#505d63}
+.attribute-popover{position:absolute;z-index:15;width:min(450px,calc(100% - 24px));
+  max-height:min(560px,calc(100% - 70px));background:#fff;border:1px solid #d6dce0;
+  border-radius:12px;box-shadow:0 16px 48px rgba(23,35,41,.18);
+  display:flex;flex-direction:column;overflow:hidden}
+.attribute-head{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 16px;border-bottom:1px solid #e9edef;gap:8px;flex:none}
+.attribute-title{font-weight:680;font-size:14px;line-height:1.3;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.attribute-close{width:28px;height:28px;border:0;border-radius:7px;
+  background:transparent;color:#77808a;font-size:22px;cursor:pointer}
+.attribute-close:hover{background:#f0f2f3;color:#222}
+.attribute-body{padding:4px 17px 17px;overflow:auto;flex:1;min-height:0}
+.attribute-section{padding:12px 0 11px;border-bottom:1px solid #eef0f1}
+.attribute-section:last-child{border-bottom:0}
+.attribute-label{color:#82909a;font-size:10px;font-weight:720;letter-spacing:.45px;margin:0 0 8px}
+.attribute-prose{font-size:12.4px;line-height:1.8;color:#3f4952;margin:0;overflow-wrap:anywhere}
+.attribute-formula{font:600 19px/1.5 "Cambria Math",Cambria,"Noto Serif",serif;
+  background:#f5f7f8;border:1px solid #e6e9ed;color:#26333e;border-radius:7px;
+  padding:12px 13px;overflow-x:auto;white-space:nowrap}
+.attribute-code{margin:0;padding:12px;background:#f4f6f7;border-radius:7px;
+  color:#313b44;font:11.5px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;
+  overflow:auto;tab-size:4;white-space:pre}
+.attribute-reference{display:inline-block;font-size:11.5px;color:#407d77;
+  text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.attribute-note{font-size:11px;color:#78828b;line-height:1.6;margin-top:7px}
+.attribute-diagram{display:block;width:100%;max-width:390px;
+  background:#f8fafb;border:1px solid #e7ebed;border-radius:7px}
+.attribute-diagram text{font-family:Inter,"Noto Sans SC",sans-serif;font-size:11px;fill:#34424c}
+.attribute-diagram .diagram-box{fill:#fff;stroke:#c5d2d8}
+.attribute-diagram .diagram-edge{fill:none;stroke:#7d9098;stroke-width:1.5}
+.attribute-diagram .diagram-sum{fill:#deede8;stroke:#93b3a8}
+@media(max-width:730px){.attribute-popover{width:calc(100% - 16px);max-height:min(520px,65vh)}
+.attribute-head{padding:11px 13px}.attribute-body{padding:4px 13px 14px}
+.attribute-formula{font-size:16px}}

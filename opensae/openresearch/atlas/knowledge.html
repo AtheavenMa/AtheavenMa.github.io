@@ -19,7 +19,7 @@
         <a class="tab active" data-graph="knowledge" href="knowledge.html">Knowledge</a>
         <a class="tab" data-graph="code" href="code.html">Code</a>
         <a class="tab" data-graph="environment" href="environment.html">Environment</a>
-        <a class="tab" data-graph="glossary" href="glossary.html">Glossary</a>
+        <a class="tab" data-graph="context" href="context.html">Context</a>
       </nav>
       <a class="guide-link" href="https://github.com/OpenSAE/OpenResearch/blob/main/harness/visualization/README.md">Guide ↗</a>
     </header>
@@ -55,6 +55,13 @@
             <span class="legend-item"><i class="legend-swatch not-implemented" aria-hidden="true"></i>Not Implemented</span>
             <span class="legend-item"><i class="legend-swatch partial" aria-hidden="true"></i>Partial</span>
             <span class="legend-item"><i class="legend-swatch implemented" aria-hidden="true"></i>Implemented</span>
+          </div>
+          <div id="attributePopover" class="attribute-popover is-hidden" role="dialog" aria-label="节点属性详情">
+            <div class="attribute-head">
+              <span id="attributeTitle" class="attribute-title"></span>
+              <button id="attributeClose" class="attribute-close" aria-label="关闭节点属性">×</button>
+            </div>
+            <div id="attributeBody" class="attribute-body"></div>
           </div>
           <div class="canvas-foot">
             <span id="focusHint"></span>
