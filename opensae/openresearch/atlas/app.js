@@ -1,1 +1,1178 @@
-!function(){"use strict";function e(e,t,n){const i=document.createElement(e);return t&&(i.className=t),void 0!==n&&(i.textContent=String(n)),i}function t(e,t,n){const i=document.createElementNS("http://www.w3.org/2000/svg",e);for(const[e,n]of Object.entries(t||{}))i.setAttribute(e,String(n));return void 0!==n&&(i.textContent=String(n)),i}function n(e){return e?.kind||e?.type||"goal"}function i(){return G[Z.view]||{nodes:[],edges:[],gates:[]}}function o(e){return String(e||"").replace(/^\s*(\u95ee\u9898|\u65b9\u6848|\u76ee\u6807|\u5b9a\u4e49|\u73b0\u72b6)[:\uff1a]\s*/,"").replace(/\s+/g," ").trim()}function d(e){const t=Z.query.trim().toLocaleLowerCase();return!t||[e.id,e.title,e.source_symbol,e.description,e.signature,e.path,...e.aliases||[],...e.term_ids||[],...e.context_ids||[]].join(" ").toLocaleLowerCase().includes(t)}function a(){ne=new Map((i().nodes||[]).map(e=>[e.id,e])),ee=new Map,te=new Map;for(const e of i().edges||[])K[Z.view].primary.includes(e.type)&&ne.has(e.source)&&ne.has(e.target)&&!ee.has(e.target)&&(ee.set(e.target,e.source),te.has(e.source)||te.set(e.source,[]),te.get(e.source).push(e.target));const e=K[Z.view].root;ie=ne.has(e)?[e]:[...ne.keys()].filter(e=>!ee.has(e))}function s(e){const t=[],n=new Set;let i=e;for(;ne.has(i)&&!n.has(i)&&t.length<=16;)n.add(i),t.push(i),i=ee.get(i);return t.reverse()}function r(){const e=new Set(ie);if(["core","knowledge"].includes(Z.view))for(const t of ie)for(const n of te.get(t)||[])e.add(n);if("environment"===Z.view)for(const t of ne.values())"group"===n(t)&&e.add(t.id);return e}function c(){const e=(window.location?.search||"").match(/[?&]focus=([^&]+)/);if(!e)return null;try{return decodeURIComponent(e[1].replace(/\+/g,"%20"))}catch(e){return null}}function l(e,t){if(!window.history?.pushState||!window.location?.pathname)return;const n=window.location.pathname,i=e?n+"?focus="+encodeURIComponent(e):n;try{window.history[t?"replaceState":"pushState"]({view:Z.view,focusId:e||null},"",i)}catch(e){}}function p(e){if(ne.has(e))return Z.view;for(const t of Object.keys(K))if((G[t]?.nodes||[]).some(t=>t.id===e))return t;return null}function u(e,t,n){const i=t||p(e);if(!i||!(G[i]?.nodes||[]).some(t=>t.id===e))return!1;if(i!==Z.view)return window.location&&(window.location.href=i+".html?focus="+encodeURIComponent(e)),!0;Z.mode="overview",Z.focusId=e,Z.query="",Y("search").value="",Z.outlineOpen=!1,Z.detailsOpen=!1;for(const t of s(e))Z.expanded.add(t);return Z.expandedAttributes.add(e),l(e,!!n),V(!1),O(),!0}function h(e){Z.expandedAttributes.clear(),Z.mode="overview",Z.focusId=null,Z.query="",Z.detailsOpen=!1,Y("search").value="",e&&l(null,!1),V(!0)}function f(e){u(e,p(e),!1)}function m(){K[Z.view]&&G[Z.view]||(Z.view="core"),a(),Z.expanded=r();const e=c();e&&ne.has(e)&&(Z.mode="focus",Z.focusId=e),$(),V(!0)}function g(e,t){const n=e.codePointAt(0)||0;return n>=11904||n>=4352&&n<=4607?t:" "===e?.3*t:"il.,:;'!|".includes(e)?.32*t:"MW@%".includes(e)?.83*t:.56*t}function x(e,t,n,i){const d=Array.from(o(e));if(!d.length)return[];const a=[];let s="",r=0,c=0;for(;c<d.length&&a.length<i;){const e=d[c],i=g(e,n);s&&r+i>t?(a.push(s.trim()),s="",r=0):(s+=e,r+=i,c++)}if(s&&a.length<i&&a.push(s.trim()),c<d.length&&a.length){const e=a.length-1;a[e]=a[e].replace(/.{1,2}$/u,"")+"\u2026"}return a}function w(e){const t=Z.expandedAttributes.has(e.id),n=t?490:290,i=x(e.title||e.id,n-45,13.5,2),o=x(e.summary||e.description,n-42,11.8,4),d=Math.max(108,22+19*i.length+(o.length?10+17*o.length:0)+18),a=(e.attributes||[]).some(e=>"class_methods"===e.type),s=(e.attributes||[]).length,r=(e.context_term_ids||[]).length,c=t?Math.min(760,Math.max(340,170+65*r+46*Math.min(s,5)+(a?180:0))):0;return{w:n,h:d+c,title:i,body:o,baseH:d,extraH:c,expanded:t}}function b(){function e(o,d){if(!(!ne.has(o)||n.has(o)||d>13)&&(!Z.query||t.has(o))&&(n.add(o),i.push({id:o,depth:d,role:"overview"}),Z.query||Z.expanded.has(o)))for(const t of te.get(o)||[])e(t,d+1)}const t=new Set;if(Z.query.trim())for(const e of ne.values())if(d(e))for(const n of s(e.id))t.add(n);const n=new Set,i=[];for(const t of ie)e(t,0);return i}function v(){function e(t){if(d.has(t))return d.get(t);const n=(te.get(t)||[]).filter(e=>i.has(e));let a=n.reduce((t,n)=>t+e(n),0)+Math.max(0,n.length-1)*s;const r=o.get(t)||w(ne.get(t),!1);o.set(t,r);const c=Math.max(r.h,a);return d.set(t,c),c}function t(e,n,r){const c=o.get(e),l=d.get(e),u=r+l/2;a.set(e,{x:p[n],y:u-c.h/2,...c,depth:n});const h=(te.get(e)||[]).filter(e=>i.has(e));let f=r+(l-(h.reduce((e,t)=>e+d.get(t),0)+Math.max(0,h.length-1)*s))/2;for(const e of h)t(e,n+1,f),f+=d.get(e)+s}const n=b(),i=new Set(n.map(e=>e.id)),o=new Map,d=new Map,a=new Map,s=24,r=72,c=36,l=new Map;for(const e of n){const t=w(ne.get(e.id),!1).w;l.set(e.depth,Math.max(l.get(e.depth)||270,t))}const p=[c],u=Math.max(0,...n.map(e=>e.depth));for(let e=1;e<=u;e++)p[e]=p[e-1]+(l.get(e-1)||270)+r;let h=34;for(const n of ie)if(i.has(n)){const i=e(n);t(n,0,h),h+=i+28}return{visible:n,positions:a}}function y(){const e=Z.focusId;if(!ne.has(e))return v();const t=s(e),n=t.slice(Math.max(0,t.length-3),-1),i=(te.get(e)||[]).filter(e=>ne.has(e)),o=[...n,e,...i],d=new Map,a=72,r=36,c=w(ne.get(e),!0),l=i.map(e=>w(ne.get(e),!1)),p=l.reduce((e,t)=>e+t.h,0)+20*Math.max(0,l.length-1),u=38+Math.max(c.h,p)/2,h=n.length,f=n.map(e=>w(ne.get(e),!1)),m=[r];for(let e=1;e<=h;e++)m[e]=m[e-1]+f[e-1].w+a;const g=m[h];d.set(e,{x:g,y:u-c.h/2,...c,depth:h,role:"focus"}),n.forEach((e,t)=>{const n=f[t];d.set(e,{x:m[t],y:u-n.h/2,...n,depth:t,role:"ancestor"})});let x=u-p/2;return i.forEach((e,t)=>{const n=l[t];d.set(e,{x:g+c.w+a,y:x,...n,depth:h+1,role:"child"}),x+=n.h+20}),{visible:o.map(e=>({id:e,depth:d.get(e).depth,role:d.get(e).role})),positions:d}}function C(e){let t=0,n=0;for(const i of e.positions.values())t=Math.max(t,i.x+i.w),n=Math.max(n,i.y+i.h);return{...e,width:Math.max(600,t+35),height:Math.max(300,n+35)}}function k(e,n,i,o,d,a){for(let s=0;s<n.length;s++)e.appendChild(t("text",{x:i,y:o+s*d,class:a},n[s]))}function M(i,d,a){const s=n(i),r=t("g",{class:["graph-node","node-"+s,i.id===Z.focusId?"node-selected":"",d.expanded?"node-expanded":"",Z.diff&&"code"===Z.view&&(Z.diff.added_ids||[]).includes(i.id)?"node-added":"",Z.diff&&"code"===Z.view&&(Z.diff.changed||[]).some(e=>e.id===i.id)?"node-changed":""].filter(Boolean).join(" "),transform:"translate("+d.x+","+d.y+")",role:"button",tabindex:"0","aria-label":i.title+": "+o(i.description||""),"data-node-id":i.id,"data-status":i.status||"unknown"});r.appendChild(t("title",{},(i.title||"")+(i.status?" \u2014 "+i.status:"")+". "+o(i.description||""))),r.appendChild(t("rect",{class:"node-surface",rx:10,width:d.w,height:d.h,fill:X[s]||"#fbfbfc"}));const c=Q[i.status];c&&r.appendChild(t("rect",{class:"node-status",rx:2,x:0,y:9,width:4,height:d.h-18,fill:c}));const l=17,p=23;if(k(r,d.title,l,p,19,"node-title"),d.body.length){const e=p+19*d.title.length+7;k(r,d.body,l,e,17,"node-description")}if(d.expanded){const n=t("foreignObject",{x:10,y:d.baseH+8,width:d.w-20,height:d.extraH-41,class:"node-attributes-foreign"}),a=e("div","node-attributes-inner");a.setAttribute("aria-label",i.title+" \u7684\u5b8c\u6574\u89e3\u91ca\u4e0e\u8bc1\u636e");R(a,"\u8fd9\u4e2a\u8282\u70b9\u5728\u505a\u4ec0\u4e48").appendChild(e("p","node-attribute-text",i.reader_explanation||o(i.description||i.summary||"")));const s=i.context_term_ids||[];if(s.length){const t=R(a,"\u4e13\u4e1a\u8bcd\u6c47 \xb7 Context");for(const n of s){const i=(G.context?.nodes||[]).find(e=>e.id===n);if(!i)continue;const d=e("div","node-term-row"),a=e("a","node-term-link",i.title);a.href="context.html?focus="+encodeURIComponent(n),a.title="\u5728 Context \u4e2d\u67e5\u770b\u201c"+i.title+"\u201d",d.appendChild(a),d.appendChild(e("p","node-term-definition",o(i.description))),t.appendChild(d)}}for(const e of i.attributes||[])D(a,e,i);n.appendChild(a),n.addEventListener("click",e=>e.stopPropagation?.()),n.addEventListener("keydown",e=>e.stopPropagation?.()),r.appendChild(n)}const h=(te.get(i.id)||[]).length;if(h){const e=t("g",{class:"child-count"});e.appendChild(t("rect",{x:d.w-41,y:d.h-25,width:29,height:18,rx:9})),e.appendChild(t("text",{x:d.w-26.5,y:d.h-12,"text-anchor":"middle"},String(h))),e.setAttribute("role","button"),e.setAttribute("tabindex","0"),e.setAttribute("aria-label","\u5c55\u5f00\u6216\u6536\u8d77\u5b50\u8282\u70b9"),e.addEventListener("click",e=>{e.stopPropagation?.(),Z.expanded.has(i.id)?Z.expanded.delete(i.id):Z.expanded.add(i.id),V(!1)}),e.addEventListener("keydown",e=>{"Enter"!==e.key&&" "!==e.key||(e.preventDefault?.(),e.stopPropagation?.(),Z.expanded.has(i.id)?Z.expanded.delete(i.id):Z.expanded.add(i.id),V(!1))}),r.appendChild(e)}{const e=t("g",{class:"attribute-trigger",role:"button",tabindex:"0","data-attribute-toggle":i.id,"aria-label":"\u5c55\u5f00 "+i.title+" \u7684\u5c5e\u6027"}),n=(te.get(i.id)||[]).length?48:13,o=d.w-n-14;e.appendChild(t("rect",{class:"attr-hit",x:11,y:d.h-28,width:o,height:22,rx:6}));const a=i.key_function?i.key_function.split(".").slice(-1)[0]:null;e.appendChild(t("text",{x:20,y:d.h-13},d.expanded?"\u6536\u8d77\u8282\u70b9\u5c5e\u6027":a?"\u5173\u952e\u51fd\u6570 "+a+" \xb7 \u5c55\u5f00\u5c5e\u6027":"\u5c55\u5f00\u8282\u70b9\u8bf4\u660e\u4e0e\u4f9d\u636e"));const s=e=>{e.preventDefault?.(),e.stopPropagation?.(),F(i.id)};e.addEventListener("click",s),e.addEventListener("keydown",e=>{"Enter"!==e.key&&" "!==e.key||s(e)}),r.appendChild(e)}const f=()=>u(i.id,Z.view,!1);r.addEventListener("click",f),r.addEventListener("keydown",e=>{"Enter"!==e.key&&" "!==e.key||(e.preventDefault(),f())}),a.appendChild(r)}function L(e){function n(e,n){const i=a.get(e),d=a.get(n);if(!i||!d)return;const s=i.x+i.w,r=d.x,c=i.y+i.h/2,l=d.y+d.h/2;if(r<=s)return;const p=(s+r)/2;o.appendChild(t("path",{class:"edge-main",d:"M "+s+" "+c+" C "+p+" "+c+", "+p+" "+l+", "+r+" "+l}))}const i=Y("diagram");i.replaceChildren();const o=t("g",{class:"edges"}),d=t("g",{class:"cards"}),a=e.positions;for(const t of e.visible){const e=ee.get(t.id);e&&n(e,t.id)}for(const t of e.visible){const e=ne.get(t.id),n=a.get(t.id);e&&n&&M(e,n,d,a,"focus"===Z.mode)}i.append(o,d),i.setAttribute("viewBox","0 0 "+e.width+" "+e.height),Z.positions=a,Z.scene={width:e.width,height:e.height}}function E(){const e=Y("canvasWrap"),t=Number(e.clientWidth)||1150,n=Number(e.clientHeight)||630,{width:i,height:o}=Z.scene,d=(t-56)/i,a=(n-48)/o;return Math.max(.82,Math.min(1,d,a))}function O(){const e=Y("canvasWrap"),t=Z.positions.get(Z.focusId);if(!t)return;const n=Number(e.clientWidth)||1150,i=Number(e.clientHeight)||630,o=Z.zoom*(t.x+t.w/2)-n/2,d=Z.zoom*(t.y+t.h/2)-i/2;"function"==typeof e.scrollTo&&e.scrollTo({left:Math.max(0,o),top:Math.max(0,d),behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches?"auto":"smooth"})}function _(){const e=Y("diagram");e.setAttribute("width",Math.round(Z.scene.width*Z.zoom)),e.setAttribute("height",Math.round(Z.scene.height*Z.zoom)),Y("zoomValue").textContent=Math.round(100*Z.zoom)+"%"}function I(t,n,i){const o=e("button","outline-item"+(Z.focusId===t?" selected":""),n);return o.style.paddingLeft=13+12*i+"px",o.title=ne.get(t)?.description||n,o.addEventListener("click",()=>u(t,Z.view,!1)),o}function S(){const t=Y("outline");t.replaceChildren();const n=b();if("focus"===Z.mode&&Z.focusId){const e=s(Z.focusId),n=new Set([...e,...te.get(Z.focusId)||[]]);for(const i of n)t.appendChild(I(i,ne.get(i).title,Math.min(4,e.indexOf(i)>=0?e.indexOf(i):e.length)))}else for(const e of n)t.appendChild(I(e.id,ne.get(e.id).title,e.depth));t.children.length||t.appendChild(e("p","empty-message","\u5c1d\u8bd5\u5176\u4ed6\u68c0\u7d22\u8bcd"))}function A(){Y("sidebar").classList.toggle("is-hidden",!Z.outlineOpen),Y("detailDrawer").classList.toggle("is-hidden",!Z.detailsOpen),Y("detailsToggle").disabled=!Z.focusId,Y("overviewBack").classList.toggle("is-hidden",!Z.focusId)}function z(){const t=Y("breadcrumb");if(t.replaceChildren(),!Z.focusId)return void t.appendChild(e("span","crumb-current",Z.view[0].toUpperCase()+Z.view.slice(1)));const n=s(Z.focusId),i=n.slice(-3);n.length>3&&t.appendChild(e("span","crumb-ellipsis","\u2026"));for(let n=0;n<i.length;n++){n&&t.appendChild(e("span","crumb-divider","/"));const o=i[n],d=ne.get(o);if(o===Z.focusId)t.appendChild(e("span","crumb-current",d.title));else{const n=e("button","crumb-link",d.title);n.addEventListener("click",()=>u(o,Z.view,!1)),t.appendChild(n)}}}function W(t,n){const i=e("section","context-section");return i.appendChild(e("h4","",n)),t.appendChild(i),i}function j(t,n){const i=p(t),o=e("button","context-link",n);return o.addEventListener("click",()=>f(t)),o.title=i?i+" \xb7 "+t:"Unknown node",o}function N(e,t){if("string"!=typeof e||!e||e.startsWith("/")||e.includes("..")||e.includes("\\"))return null;const n="number"==typeof t&&t>0?"#L"+t:"";return"https://github.com/OpenSAE/OpenResearch/blob/main/"+e.split("/").map(encodeURIComponent).join("/")+n}function q(e,n,i,o){const d=t(n,i,o);return e.appendChild(d),d}function B(e){const n=t("svg",{viewBox:"0 0 390 128",class:"attribute-diagram",role:"img","aria-label":"residual"===e?"\u6b8b\u5dee\u8def\u5f84 F(x) \u4e0e\u6377\u5f84 x \u76f8\u52a0\u7684\u7ed3\u6784\u793a\u610f":"CUB \u5b98\u65b9\u8bad\u7ec3\u4e0e\u6d4b\u8bd5\u5206\u5f00\u7684\u7ed3\u6784\u793a\u610f"});return"residual"===e?(q(n,"rect",{x:10,y:46,width:62,height:34,rx:7,class:"diagram-box"}),q(n,"text",{x:41,y:67,"text-anchor":"middle"},"\u8f93\u5165 x"),q(n,"path",{d:"M72 63 L106 63 L106 31 L128 31",class:"diagram-edge"}),q(n,"rect",{x:128,y:14,width:129,height:36,rx:7,class:"diagram-box"}),q(n,"text",{x:192,y:36,"text-anchor":"middle"},"\u6b8b\u5dee\u53d8\u6362 F(x)"),q(n,"path",{d:"M257 32 L288 32 L288 63",class:"diagram-edge"}),q(n,"path",{d:"M72 63 L288 63",class:"diagram-edge"}),q(n,"rect",{x:275,y:52,width:28,height:24,rx:12,class:"diagram-sum"}),q(n,"text",{x:289,y:68,"text-anchor":"middle"},"+"),q(n,"path",{d:"M303 64 L329 64",class:"diagram-edge"}),q(n,"text",{x:356,y:67,"text-anchor":"middle"},"\u8f93\u51fa"),q(n,"text",{x:185,y:89,"text-anchor":"middle"},"\u6377\u5f84\u8fde\u63a5")):"cub_split"===e&&(q(n,"text",{x:195,y:23,"text-anchor":"middle"},"CUB-200-2011 \u5b98\u65b9\u6570\u636e"),q(n,"rect",{x:16,y:42,width:166,height:62,rx:8,class:"diagram-box"}),q(n,"rect",{x:208,y:42,width:166,height:62,rx:8,class:"diagram-box"}),q(n,"text",{x:99,y:67,"text-anchor":"middle"},"\u8bad\u7ec3\u6570\u636e"),q(n,"text",{x:99,y:84,"text-anchor":"middle"},"Official Train"),q(n,"text",{x:291,y:67,"text-anchor":"middle"},"\u6d4b\u8bd5\u6570\u636e"),q(n,"text",{x:291,y:84,"text-anchor":"middle"},"Official Test")),n}function R(t,n){const i=e("section","node-attribute-section");return i.appendChild(e("h4","node-attribute-heading",n)),t.appendChild(i),i}function T(t,n){const i=e("pre","node-attribute-code",n||"");return t.appendChild(i),i}function U(t,n,i,o){const d=N(n,i);if(!d)return;const a=e("a","node-attribute-link",o||"\u67e5\u770b\u5b9e\u4f53\u6e90\u7801");a.href=d,a.target="_blank",a.rel="noopener noreferrer",t.appendChild(a)}function H(t,n){if(!n?.length)return;const i=R(t,"\u53c2\u6570\u4e0e\u4f5c\u7528"),o=e("div","node-parameter-list");for(const t of n){const n=e("div","node-parameter-row"),i=e("code","node-parameter-name",t.name);n.appendChild(i);const d=e("div","node-parameter-info");d.appendChild(e("p","node-parameter-meaning",t.meaning||"\u8f93\u5165\u53c2\u6570"));const a=[t.annotation,null!==t.default&&void 0!==t.default?"\u9ed8\u8ba4\u503c "+t.default:""].filter(Boolean);a.length&&d.appendChild(e("p","node-parameter-extra",a.join(" \xb7 "))),n.appendChild(d),o.appendChild(n)}i.appendChild(o)}function P(t,n,i){if(n){if(R(t,"\u4e3b\u8981\u4f5c\u7528").appendChild(e("p","node-attribute-text",n.purpose||"\u73b0\u6709\u6e90\u4ee3\u7801\u5b9e\u73b0\u7684\u5904\u7406\u6d41\u7a0b\u3002")),R(t,"\u51fd\u6570\u7b7e\u540d").appendChild(e("code","node-attribute-signature",n.signature||"")),H(t,n.parameters),n.returns){const i=R(t,"\u8fd4\u56de\u503c"),o=(n.returns.name||"return")+" \xb7 "+(n.returns.annotation||"\u6e90\u4ee3\u7801\u8868\u8fbe\u5f0f");i.appendChild(e("code","node-attribute-signature",o)),i.appendChild(e("p","node-attribute-text",n.returns.meaning||"")),n.returns.expressions?.length&&T(i,n.returns.expressions.join("\n"))}if(n.code){const e=R(t,"\u5b9e\u9645\u4ee3\u7801\u4e3b\u8981\u90e8\u5206");T(e,n.code),U(e,i,n.line,"\u67e5\u770b\u5b8c\u6574\u51fd\u6570\u6e90\u7801")}}}function D(t,n,i){if(!n||"string"!=typeof n.label)return;if("class_methods"===n.type){const o=R(t,n.label);for(const t of n.methods||[]){const n=e("details","node-method-details"),d=e("summary","node-method-summary",t.name);n.appendChild(d);const a=e("div","node-method-body");P(a,t,i.path),n.appendChild(a),o.appendChild(n)}return}if("fields"===n.type){const i=R(t,n.label);for(const t of n.fields||[]){const n=e("div","node-field-row");n.appendChild(e("code","node-parameter-name",t.name)),n.appendChild(e("span","node-attribute-text",t.meaning||"\u6210\u5458\u6570\u636e")),t.assignment&&n.appendChild(e("code","node-field-assignment",t.assignment)),i.appendChild(n)}return}if("module_contents"===n.type){const i=R(t,n.label);for(const[t,o]of[["\u7c7b",n.classes||[]],["\u51fd\u6570",n.functions||[]]])o.length&&i.appendChild(e("p","node-attribute-text",t+"\uff1a"+o.join(" \xb7 ")));return}if("interface"===n.type)return void P(t,n.interface,i.path);if("code_reference"===n.type){const i=R(t,n.label);if(n.interface?P(i,n.interface,n.path):n.code&&T(i,n.code),U(i,n.path,n.line,"\u67e5\u770b\u6e90\u6587\u4ef6"),n.symbol_id){const t=e("a","node-attribute-link","\u5728 Code Tree \u4e2d\u67e5\u770b\u5bf9\u5e94\u5b9e\u73b0");t.href="code.html?focus="+encodeURIComponent(n.symbol_id),i.appendChild(t)}return}const o=R(t,n.label);"diagram"===n.type?(o.appendChild(B(n.diagram)),n.caption&&o.appendChild(e("p","node-attribute-note",n.caption))):"formula"===n.type?(o.appendChild(e("div","node-attribute-formula",n.value||"")),n.note&&o.appendChild(e("p","node-attribute-note",n.note))):"code"===n.type?T(o,n.value||""):"function"===n.type?o.appendChild(e("code","node-attribute-signature",n.signature||n.value||"")):"reference"===n.type?U(o,n.path,n.line,"\u67e5\u770b\u5b8c\u6574\u6765\u6e90"):o.appendChild(e("p","node-attribute-text",n.value||"")),n.source&&U(o,n.source,n.line,"\u67e5\u770b\u4f9d\u636e")}function F(e){Z.expandedAttributes.has(e)?Z.expandedAttributes.delete(e):Z.expandedAttributes.add(e),V(!1);const t=Y("diagram");return Z.focusId===e&&O(),t}function J(){const t=Y("detailBody");t.replaceChildren();const d=ne.get(Z.focusId);if(!d)return void t.appendChild(e("p","empty-message","\u9009\u62e9\u8282\u70b9\u67e5\u770b\u8bc1\u636e\u4e0e\u6765\u6e90"));t.appendChild(e("h2","detail-title",d.title));const a=e("div","detail-status"),s=e("span","detail-status-swatch");if(s.style.background=Q[d.status]||"#adb2b9",a.appendChild(s),a.appendChild(e("span","","environment"===Z.view&&i().synthetic?"\u6f14\u793a\u6570\u636e\uff08\u672a\u5b9e\u6d4b\uff09":{not_implemented:"Not Implemented",partial:"Partial",implemented:"Implemented"}[d.status]||"Unknown")),t.appendChild(a),t.appendChild(e("p","detail-description",d.reader_explanation||o(d.description||""))),d.context_term_ids?.length){const n=W(t,"\u4e13\u4e1a\u8bcd\u6c47 \xb7 Context");for(const t of d.context_term_ids){const i=(G.context?.nodes||[]).find(e=>e.id===t);if(!i)continue;const d=e("div","node-term-row");d.appendChild(j(t,i.title)),d.appendChild(e("p","node-term-definition",o(i.description))),n.appendChild(d)}}if(d.source_symbol&&["module","class","method","function"].includes(n(d))){W(t,"\u6e90\u4ee3\u7801\u6807\u8bc6").appendChild(e("code","signature",d.source_symbol))}if(d.signature&&W(t,"\u65b9\u6cd5\u7b7e\u540d").appendChild(e("code","signature",d.signature)),d.facts){const n=W(t,"\u8bbe\u5907\u4e0e\u6267\u884c\u4fe1\u606f");for(const[t,i]of Object.entries(d.facts))n.appendChild(e("p","",t+"\uff1a"+i))}d.why_it_matters&&W(t,"Why this matters").appendChild(e("p","",d.why_it_matters)),d.aliases?.length&&W(t,"Also known as").appendChild(e("p","",d.aliases.join(" \xb7 "))),d.next&&W(t,"Next step").appendChild(e("p","",d.next));for(const[e,n]of[["Scientific knowledge",d.context_ids],["Project context",d.core_ids],["Scientific terms",d.term_ids]])if(n?.length){const i=W(t,e);for(const e of n){const t=p(e),n=(G[t]?.nodes||[]).find(t=>t.id===e);i.appendChild(j(e,n?.title||e))}}if(d.foundation){const n=W(t,"Background"),i=e("a","context-link",d.foundation);i.href="https://github.com/OpenSAE/OpenResearch/blob/main/"+d.foundation,i.target="_blank",i.rel="noopener noreferrer",n.appendChild(i)}if(d.evidence?.length){const n=W(t,"Evidence");for(const t of d.evidence.slice(0,12)){const i=e("a","context-link",t),o=t.split(":")[0];o.startsWith("https://")?i.href=o:o.startsWith("/")||o.includes("..")||(i.href="https://github.com/OpenSAE/OpenResearch/blob/main/"+o),i.target="_blank",i.rel="noopener noreferrer",n.appendChild(i)}}if("code"===Z.view&&Z.diff){const n=Z.diff.changed?.find(e=>e.id===d.id);n&&W(t,"Observed change").appendChild(e("p","",n.fields.join(", ")))}}function V(e){const t=C("focus"===Z.mode?y():v());Z.visible=t.visible,L(t),Z.zoomInitialized||(Z.zoom=1,Z.zoomInitialized=!0),_(),z(),S(),J(),A(),Y("canvasWrap").classList.toggle("in-focus","focus"===Z.mode),Y("diffControl").classList.toggle("is-hidden","code"!==Z.view),Y("focusHint").textContent="environment"===Z.view&&i().synthetic?"\u6f14\u793a\u73af\u5883 \xb7 \u5408\u6210\u8bbe\u5907\u914d\u7f6e":"",Y("statusLegend").classList.toggle("implemented-only","environment"!==Z.view),Y("collapse").disabled="focus"===Z.mode,Y("expand").disabled="focus"===Z.mode,"focus"===Z.mode?O():e&&"function"==typeof Y("canvasWrap").scrollTo&&Y("canvasWrap").scrollTo({left:0,top:0})}function $(){Y("overviewBack").addEventListener("click",()=>h(!0)),Y("outlineToggle").addEventListener("click",()=>{Z.outlineOpen=!Z.outlineOpen,Z.detailsOpen=!1,A()}),Y("outlineClose").addEventListener("click",()=>{Z.outlineOpen=!1,A()}),Y("detailsToggle").addEventListener("click",()=>{Z.focusId&&(Z.detailsOpen=!Z.detailsOpen,Z.outlineOpen=!1,J(),A())}),Y("detailsClose").addEventListener("click",()=>{Z.detailsOpen=!1,A()}),Y("search").addEventListener("input",e=>{Z.query=String(e.target.value||""),Z.expandedAttributes.clear(),Z.mode="overview",Z.focusId=null,Z.detailsOpen=!1,Z.outlineOpen=!!Z.query.trim(),window.location?.search?.includes("focus=")&&l(null,!0),V(!0)}),Y("collapse").addEventListener("click",()=>{"focus"!==Z.mode&&(Z.expanded=new Set(ie),V(!0))}),Y("expand").addEventListener("click",()=>{"focus"!==Z.mode&&(Z.expanded=new Set(ne.keys()),V(!0))}),Y("fit").addEventListener("click",()=>{Z.zoom=E(),Z.zoomInitialized=!0,_(),"focus"===Z.mode&&O()}),Y("zoomIn").addEventListener("click",()=>{Z.zoom=Math.min(1.8,Math.round(100*(Z.zoom+.15))/100),_(),"focus"===Z.mode&&O()}),Y("zoomOut").addEventListener("click",()=>{Z.zoom=Math.max(.45,Math.round(100*(Z.zoom-.15))/100),_(),"focus"===Z.mode&&O()}),Y("diffFile").addEventListener("change",async e=>{const t=e.target.files?.[0];if(t){try{const e=JSON.parse(await t.text());if("code_diff"!==e.kind)throw new Error("Expected a code_diff JSON report");Z.diff=e,"code"!==Z.view?window.location&&(window.location.href="code.html"):V(!0)}catch(e){"function"==typeof alert&&alert("Cannot load code-tree diff: "+e.message)}e.target.value=""}}),window.addEventListener&&(window.addEventListener("popstate",()=>{const e=c();Z.expandedAttributes.clear(),Z.focusId=e&&ne.has(e)?e:null,Z.mode=Z.focusId?"focus":"overview",Z.detailsOpen=!1,Z.query="",Y("search").value="",V(!0)}),window.addEventListener("keydown",e=>{if("Escape"===e.key){if(Z.expandedAttributes.size)return Z.expandedAttributes.clear(),void V(!0);Z.detailsOpen||Z.outlineOpen?(Z.detailsOpen=!1,Z.outlineOpen=!1,A()):"focus"===Z.mode&&h(!0)}}),window.addEventListener("resize",()=>{const e=Y("canvasWrap"),t={width:Number(e.clientWidth)||0,height:Number(e.clientHeight)||0};(Math.abs(t.width-oe.width)>90||Math.abs(t.height-oe.height)>90)&&(oe=t,V(!1))}))}const G=window.OPENRESEARCH_ATLAS||{},K={core:{root:"core:existing",primary:["contains","refines","addresses","decomposes"]},knowledge:{root:"knowledge:existing",primary:["contains","refines","addresses","decomposes"]},code:{root:"code:root",primary:["contains"]},environment:{root:"env:root",primary:["contains"]},context:{root:"context:root",primary:["contains"]}},Q={not_implemented:"#c85b61",partial:"#d5a238",implemented:"#429669"},X={root:"#e0e4e9",question:"#e6eaef",solve:"#f1f3f5",goal:"#fbfcfd",group:"#e8ebef",term:"#fbfcfd",module:"#f4f5f6",class:"#edf0f3",method:"#fcfcfc",function:"#fafbfc",device:"#f7f8fa",capability:"#fcfcfc"},Y=e=>document.getElementById(e),Z={view:document.body?.dataset?.atlasView||"core",focusId:null,mode:"overview",expanded:new Set,query:"",zoom:1,zoomInitialized:!1,outlineOpen:!1,detailsOpen:!1,diff:null,expandedAttributes:new Set,positions:new Map,scene:{width:700,height:440},visible:[]};let ee=new Map,te=new Map,ne=new Map,ie=[],oe={width:0,height:0};m()}();
+/* OpenResearch Atlas: centered, source-backed trees with node focus navigation. */
+(function () {
+  "use strict";
+
+  const DATA = window.OPENRESEARCH_ATLAS || {};
+  const VIEWS = {
+    core: { root: "core:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
+    knowledge: { root: "knowledge:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
+    code: { root: "code:root", primary: ["contains"] },
+    environment: { root: "env:root", primary: ["contains"] },
+    context: { root: "context:root", primary: ["contains"] }
+  };
+  const STATES = {
+    unchecked: "#8255b5", denied: "#78818b",
+    not_implemented: "#c85b61",
+    partial: "#d5a238",
+    implemented: "#429669"
+  };
+  const PALETTE = {
+    root: "#e0e4e9", question: "#e6eaef", solve: "#f1f3f5",
+    goal: "#fbfcfd", group: "#e8ebef", term: "#fbfcfd",
+    module: "#f4f5f6", class: "#edf0f3", method: "#fcfcfc",
+    function: "#fafbfc", device: "#f7f8fa", capability: "#fcfcfc"
+  };
+
+  const $ = id => document.getElementById(id);
+
+  // Review is a mode inside Atlas. It reuses the real graph, cards and navigation.
+  // Proposal decisions are NOT implementation results: unchecked purple,
+  // approved red (still unimplemented), denied gray.
+  const REVIEW_PALETTE = {
+    unchecked: { fill: "#eadff8", stroke: "#8255b5" },
+    approved: { fill: "#f8e2e5", stroke: "#bb4656" },
+    denied: { fill: "#e5e7ea", stroke: "#78818b" }
+  };
+  let review = null, reviewGraphs = {}, reviewBusy = false, reviewError = "";
+
+  function requestedReview() {
+    const match = (window.location?.search || "").match(/[?&]review=([^&]+)/);
+    if (!match) return null;
+    try { return decodeURIComponent(match[1]); } catch (_) { return null; }
+  }
+  function reviewKey() {
+    const match = (window.location?.hash || "").match(/^#key=([^&]+)/);
+    try { return match ? decodeURIComponent(match[1]) : ""; }
+    catch (_) { return ""; }
+  }
+  function proposalState(item) {
+    return item?.proposal_review?.decision || "unchecked";
+  }
+  function itemFor(id, view=config.view) {
+    return review?.plan?.items?.find(x => x.node_id === id && x.view === view);
+  }
+  function overlayGraphs() {
+    reviewGraphs = {};
+    if (!review) return;
+    const anchor = review.context || { nodes:[], edges:[] };
+    for(const view of ["knowledge","code","environment","context"]) {
+      const base = DATA[view] || {nodes:[],edges:[]};
+      const nodes = new Map((base.nodes || []).map(n=>[n.id,n]));
+      const edges = [...(base.edges || [])];
+      const addEdge = edge => {
+        if (!edges.some(e => e.source === edge.source && e.target === edge.target &&
+             e.type === edge.type)) edges.push(edge);
+      };
+      if (view === "knowledge") {
+        for(const node of anchor.nodes || [])
+          if (!nodes.has(node.id)) nodes.set(node.id,node);
+        for(const edge of anchor.edges || []) addEdge(edge);
+      }
+      for(const item of review.plan.items.filter(x=>x.view===view)) {
+        const baseNode = nodes.get(item.node_id) || {};
+        const after = item.after || {};
+        const origin = item.before || {};
+        const displayed = {
+          ...baseNode,
+          id: item.node_id,
+          kind: baseNode.kind || after.type || origin.type || "goal",
+          title: after.title || origin.title || baseNode.title || item.node_id,
+          description: after.description || origin.description || baseNode.description || "",
+          summary: after.description || origin.description || baseNode.summary || "",
+          status: proposalState(item) === "approved" ? "not_implemented" :
+                  proposalState(item) === "denied" ? "denied" : "unchecked",
+          reader_explanation: after.description || origin.description || "",
+          context_term_ids: after.term_ids || baseNode.context_term_ids || [],
+          review_item: true
+        };
+        nodes.set(item.node_id,displayed);
+        const parent = item.parent_id;
+        if (parent && nodes.has(parent)) {
+          addEdge({source:parent,target:item.node_id,type:"contains"});
+        } else if (item.operation === "add" && nodes.has(VIEWS[view].root)) {
+          addEdge({source:VIEWS[view].root,target:item.node_id,type:"contains"});
+        }
+      }
+      reviewGraphs[view] = {...base,nodes:[...nodes.values()],edges};
+    }
+  }
+  function reviewPosition() {
+    return review?.plan.items.findIndex(item=>item.node_id===config.focusId &&
+      item.view===config.view) ?? -1;
+  }
+  function reviewGo(index) {
+    if(!review || index<0 || index>=review.plan.items.length) return;
+    reviewError="";
+    const item=review.plan.items[index];
+    navigate(item.node_id,item.view,false);
+  }
+  function updateReviewBar() {
+    if(!review) return;
+    const bar=$("atlasReviewBar");
+    bar.classList.remove("is-hidden");
+    const items=review.plan.items, current=reviewPosition();
+    $("atlasReviewCount").textContent = (current>=0?current+1:"–") + " / " + items.length;
+    $("atlasReviewPrev").disabled = reviewBusy || current<=0;
+    $("atlasReviewNext").disabled = reviewBusy || current===items.length-1;
+    $("atlasReviewApprove").disabled = reviewBusy || !review.editable || current<0;
+    $("atlasReviewDeny").disabled = reviewBusy || !review.editable || current<0;
+    const currentItem=items[current];
+    const status=proposalState(currentItem);
+    $("atlasReviewApprove").classList.toggle("chosen", status==="approved");
+    $("atlasReviewDeny").classList.toggle("chosen", status==="denied");
+    $("atlasReviewMessage").textContent = reviewBusy ? "Saving…" : reviewError ? reviewError :
+      (!review.editable ? "Preview" : (status === "unchecked" ? "Unchecked" :
+       status === "approved" ? "Not implemented" : "Denied"));
+  }
+  function applyReviewResponse(data,live) {
+    if (!data?.plan || !Array.isArray(data.plan.items) ||
+        data.plan.id !== requestedReview()) throw Error("Invalid Atlas plan");
+    review = {plan:data.plan,context:data.context || data.review_context ||
+              {nodes:[],edges:[]},editable:!!live && !!reviewKey()};
+    overlayGraphs();
+    rebuildHierarchy();
+    config.expanded = initialExpanded();
+    render(false);
+  }
+  async function loadReview() {
+    if(!requestedReview() || config.view==="core") return;
+    let payload,live=false;
+    try {
+      const response=await fetch("/api/review/state",{cache:"no-store"});
+      if(!response.ok) throw Error("Local review service unavailable");
+      payload=await response.json();
+      live=true;
+    } catch (_) {
+      // GitHub Pages is read-only. It cannot secretly persist human decisions.
+      if(requestedReview()!=="OR-Knowledge-Demo-20261026") {
+        $("focusHint").textContent="Local Atlas review service required";
+        return;
+      }
+      const response=await fetch("./demo-knowledge-plan.json",{cache:"no-store"});
+      if(!response.ok) throw Error("Preview JSON missing");
+      payload=await response.json();
+      if(!payload.plan) payload={plan:payload,context:payload.review_context};
+    }
+    applyReviewResponse(payload,live);
+    const key=getSearchFocus(), item=review.plan.items.find(x=>x.node_id===key && x.view===config.view);
+    if(item) navigate(item.node_id,item.view,true);
+    else {
+      const first=review.plan.items.find(x=>x.view===config.view) || review.plan.items[0];
+      if(first) navigate(first.node_id,first.view,true);
+    }
+    const bar=$("atlasReviewBar");
+    $("atlasReviewPrev").addEventListener("click",()=>reviewGo(reviewPosition()-1));
+    $("atlasReviewNext").addEventListener("click",()=>reviewGo(reviewPosition()+1));
+    $("atlasReviewApprove").addEventListener("click",()=>submitReview("approved"));
+    $("atlasReviewDeny").addEventListener("click",()=>submitReview("denied"));
+    bar.classList.remove("is-hidden");
+    updateReviewBar();
+  }
+  async function submitReview(decision) {
+    if(!review?.editable || reviewBusy) return;
+    const at=reviewPosition();
+    if(at<0) return;
+    const current=review.plan.items[at];
+    reviewError="";
+    reviewBusy=true;
+    updateReviewBar();
+    try {
+      // The server commits JSON and validates Knowledge/Glossary before 200.
+      const response=await fetch("/api/review/decision",{
+        method:"POST",credentials:"same-origin",keepalive:true,
+        headers:{"Content-Type":"application/json","X-Atlas-Review-Key":reviewKey()},
+        body:JSON.stringify({revision:review.plan.revision,key:current.key,decision})
+      });
+      const data=await response.json();
+      if(!response.ok) throw Error(data.error || "Review not saved");
+      const currentKey=current.key;
+      applyReviewResponse(data,true);
+      let next=-1;
+      for(let i=at+1;i<review.plan.items.length;i++){
+        if(proposalState(review.plan.items[i])==="unchecked"){next=i;break;}
+      }
+      if(next<0) for(let i=0;i<at;i++){
+        if(proposalState(review.plan.items[i])==="unchecked"){next=i;break;}
+      }
+      if(next>=0) reviewGo(next);
+      else reviewGo(review.plan.items.findIndex(x=>x.key===currentKey));
+    } catch(error) {
+      reviewError="Save failed";
+      $("atlasReviewMessage").title=error.message;
+    } finally {
+      reviewBusy=false;
+      updateReviewBar();
+    }
+  }
+
+  const config = {
+    view: document.body?.dataset?.atlasView || "core",
+    focusId: null,
+    mode: "overview",
+    expanded: new Set(),
+    query: "",
+    zoom: 1,
+    zoomInitialized: false,
+    outlineOpen: false,
+    detailsOpen: false,
+    diff: null,
+    expandedAttributes: new Set(),
+    positions: new Map(),
+    scene: { width: 700, height: 440 },
+    visible: []
+  };
+  let parents = new Map(), children = new Map(), byId = new Map();
+  let rootIds = [];
+  let lastViewport = { width: 0, height: 0 };
+
+  function el(tag, className, value) {
+    const item = document.createElement(tag);
+    if (className) item.className = className;
+    if (value !== undefined) item.textContent = String(value);
+    return item;
+  }
+  function svg(tag, attrs, text) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [key, value] of Object.entries(attrs || {})) node.setAttribute(key, String(value));
+    if (text !== undefined) node.textContent = String(text);
+    return node;
+  }
+  function kind(node) { return node?.kind || node?.type || "goal"; }
+  function graph() { return reviewGraphs[config.view] || DATA[config.view] || { nodes: [], edges: [], gates: [] }; }
+  function plain(text) {
+    return String(text || "").replace(/^\s*(问题|方案|目标|定义|现状)[:：]\s*/, "").replace(/\s+/g, " ").trim();
+  }
+  function matches(node) {
+    const q = config.query.trim().toLocaleLowerCase();
+    return !q || [node.id, node.title, node.source_symbol, node.description, node.signature, node.path,
+      ...(node.aliases || []), ...(node.term_ids || []), ...(node.context_ids || [])]
+      .join(" ").toLocaleLowerCase().includes(q);
+  }
+  function order(a, b) {
+    const weights = { question: 0, solve: 1, goal: 2, root: 0,
+      group: 1, module: 2, class: 3, function: 4, method: 5, term: 3 };
+    return (weights[kind(a)] ?? 6) - (weights[kind(b)] ?? 6)
+      || String(a.title).localeCompare(String(b.title), "zh");
+  }
+  function rebuildHierarchy() {
+    byId = new Map((graph().nodes || []).map(n => [n.id, n]));
+    parents = new Map(); children = new Map();
+    for (const edge of graph().edges || []) {
+      if (!VIEWS[config.view].primary.includes(edge.type)) continue;
+      if (!byId.has(edge.source) || !byId.has(edge.target) || parents.has(edge.target)) continue;
+      parents.set(edge.target, edge.source);
+      if (!children.has(edge.source)) children.set(edge.source, []);
+      children.get(edge.source).push(edge.target);
+    }
+    // Child edges are intentionally rendered in stored top-to-bottom order.
+    const preferred = VIEWS[config.view].root;
+    rootIds = byId.has(preferred) ? [preferred] : [...byId.keys()].filter(id => !parents.has(id));
+  }
+  function ancestors(id) {
+    const result = []; const seen = new Set();
+    let cursor = id;
+    while (byId.has(cursor) && !seen.has(cursor) && result.length <= 16) {
+      seen.add(cursor); result.push(cursor);
+      cursor = parents.get(cursor);
+    }
+    return result.reverse();
+  }
+  function initialExpanded() {
+    const result = new Set(rootIds);
+    if (["core", "knowledge"].includes(config.view)) {
+      for (const id of rootIds) for (const c of children.get(id) || []) result.add(c);
+    }
+    if (config.view === "environment") {
+      for (const n of byId.values()) if (kind(n) === "group") result.add(n.id);
+    }
+    return result;
+  }
+  function getSearchFocus() {
+    const raw = (window.location?.search || "").match(/[?&]focus=([^&]+)/);
+    if (!raw) return null;
+    try { return decodeURIComponent(raw[1].replace(/\+/g, "%20")); }
+    catch (_) { return null; }
+  }
+  function setAddress(focusId, replace) {
+    if (!window.history?.pushState || !window.location?.pathname) return;
+    const path = window.location.pathname;
+    const params=[];
+    if(requestedReview()) params.push("review="+encodeURIComponent(requestedReview()));
+    if(focusId) params.push("focus="+encodeURIComponent(focusId));
+    const url = path + (params.length?"?"+params.join("&"):"") +
+      (requestedReview()?window.location.hash||"":"");
+    try {
+      window.history[replace ? "replaceState" : "pushState"](
+        { view: config.view, focusId: focusId || null }, "", url
+      );
+    } catch (_) { /* file:// mode may reject history; still allow local navigation */ }
+  }
+  function locateView(id) {
+    if (byId.has(id)) return config.view;
+    for (const key of Object.keys(VIEWS)) {
+      if ((reviewGraphs[key]?.nodes || DATA[key]?.nodes || []).some(n => n.id === id)) return key;
+    }
+    return null;
+  }
+  function navigate(id, view, replace) {
+    const target = view || locateView(id);
+    if (!target || !(reviewGraphs[target]?.nodes || DATA[target]?.nodes || []).some(n => n.id === id)) return false;
+    if (target !== config.view) {
+      if(window.location) window.location.href = target+".html?"+
+        (requestedReview()?"review="+encodeURIComponent(requestedReview())+"&":"")+
+        "focus="+encodeURIComponent(id)+(requestedReview()?window.location.hash||"":"");
+      return true;
+    }
+    // Primary click expands this node in place. Existing branches stay open;
+    // the graph becomes scrollable and never changes its current zoom.
+    config.mode = review ? "focus" : "overview";
+    if(review) config.expandedAttributes.clear();
+    config.focusId = id;
+    config.query = "";
+    $("search").value = "";
+    config.outlineOpen = false;
+    config.detailsOpen = false;
+    for (const key of ancestors(id)) config.expanded.add(key);
+    if(!review) config.expandedAttributes.add(id);
+    setAddress(id, !!replace);
+    render(false);
+    centerSelected();
+    if(review) updateReviewBar();
+    return true;
+  }
+  function overview(push) {
+    config.expandedAttributes.clear();
+    config.mode = "overview"; config.focusId = null; config.query = "";
+    config.detailsOpen = false;
+    $("search").value = "";
+    if (push) setAddress(null, false);
+    render(true);
+  }
+  function openCross(id) { navigate(id, locateView(id), false); }
+  function init() {
+    if (!VIEWS[config.view] || !DATA[config.view]) config.view = "core";
+    rebuildHierarchy();
+    config.expanded = initialExpanded();
+    const deep = getSearchFocus();
+    if (deep && byId.has(deep)) {
+      config.mode = "focus"; config.focusId = deep;
+    }
+    bind();
+    render(true);
+    if(requestedReview() && config.view!=="core") {
+      loadReview().catch(error=>{$("focusHint").textContent=error.message;});
+    }
+  }
+
+  // SVG text wrapping uses a conservative display-width estimate for CJK and Latin.
+  function charWidth(character, fontSize) {
+    const code = character.codePointAt(0) || 0;
+    if (code >= 0x2e80 || code >= 0x1100 && code <= 0x11ff) return fontSize;
+    if (character === " ") return fontSize * .30;
+    if ("il.,:;'!|".includes(character)) return fontSize * .32;
+    if ("MW@%".includes(character)) return fontSize * .83;
+    return fontSize * .56;
+  }
+  function wrap(text, width, fontSize, maxLines) {
+    const chars = Array.from(plain(text));
+    if (!chars.length) return [];
+    const lines = []; let line = "", used = 0, at = 0;
+    while (at < chars.length && lines.length < maxLines) {
+      const ch = chars[at], w = charWidth(ch, fontSize);
+      if (line && used + w > width) {
+        lines.push(line.trim()); line = ""; used = 0;
+      } else {
+        line += ch; used += w; at++;
+      }
+    }
+    if (line && lines.length < maxLines) lines.push(line.trim());
+    if (at < chars.length && lines.length) {
+      const i = lines.length - 1;
+      lines[i] = lines[i].replace(/.{1,2}$/u, "") + "…";
+    }
+    return lines;
+  }
+  function measure(node, focused) {
+    if(review && itemFor(node.id)) {
+      const w=460;
+      return {w,h:176,title:wrap(node.title||node.id,w-42,16,2),
+              body:wrap(node.description,w-42,14,5),baseH:176,
+              extraH:0,expanded:false};
+    }
+    const expanded = config.expandedAttributes.has(node.id);
+    const w = expanded ? 490 : 290;
+    const title = wrap(node.title || node.id, w - 45, 13.5, 2);
+    const body = wrap(node.summary || node.description, w - 42, 11.8, 4);
+    const base = Math.max(108, 22 + title.length * 19
+      + (body.length ? 10 + body.length * 17 : 0) + 18);
+    const isClass=(node.attributes||[]).some(x=>x.type==="class_methods");
+    const count=(node.attributes||[]).length;
+    const terms = (node.context_term_ids || []).length;
+    const extraH = expanded ? Math.min(760, Math.max(340, 170 + terms * 65 +
+      Math.min(count, 5) * 46 + (isClass ? 180 : 0))) : 0;
+    return { w, h:base + extraH, title, body, baseH:base,
+      extraH, expanded };
+  }
+  function visibleOverview() {
+    const needed = new Set();
+    if (config.query.trim()) {
+      for (const n of byId.values()) if (matches(n)) {
+        for (const id of ancestors(n.id)) needed.add(id);
+      }
+    }
+    const seen = new Set(), list = [];
+    function visit(id, depth) {
+      if (!byId.has(id) || seen.has(id) || depth > 13) return;
+      if (config.query && !needed.has(id)) return;
+      seen.add(id); list.push({ id, depth, role: "overview" });
+      if (config.query || config.expanded.has(id)) {
+        for (const child of children.get(id) || []) visit(child, depth + 1);
+      }
+    }
+    for (const id of rootIds) visit(id, 0);
+    return list;
+  }
+
+  function layoutOverview() {
+    const visible = visibleOverview();
+    const allowed = new Set(visible.map(v => v.id));
+    const sizes = new Map(), blocks = new Map(), positions = new Map();
+    const VERTICAL_GAP = 24, HORIZONTAL_GAP = 72, ORIGIN_X = 36;
+    const columnWidths=new Map();
+    for(const entry of visible){
+      const width=measure(byId.get(entry.id),false).w;
+      columnWidths.set(entry.depth,Math.max(columnWidths.get(entry.depth)||270,width));
+    }
+    const xColumns=[ORIGIN_X];
+    const maxDepth=Math.max(0,...visible.map(x=>x.depth));
+    for(let depth=1;depth<=maxDepth;depth++){
+      xColumns[depth]=xColumns[depth-1]+(columnWidths.get(depth-1)||270)+HORIZONTAL_GAP;
+    }
+    function height(id) {
+      if (blocks.has(id)) return blocks.get(id);
+      const kids = (children.get(id) || []).filter(x => allowed.has(x));
+      let total = kids.reduce((sum, child) => sum + height(child), 0)
+        + Math.max(0, kids.length - 1) * VERTICAL_GAP;
+      const own = sizes.get(id) || measure(byId.get(id), false);
+      sizes.set(id, own);
+      const result = Math.max(own.h, total);
+      blocks.set(id, result);
+      return result;
+    }
+    function place(id, depth, top) {
+      const size = sizes.get(id), block = blocks.get(id);
+      const centerY = top + block / 2;
+      positions.set(id, { x: xColumns[depth],
+        y: centerY - size.h / 2, ...size, depth });
+      const kids = (children.get(id) || []).filter(x => allowed.has(x));
+      const total = kids.reduce((sum, child) => sum + blocks.get(child), 0)
+        + Math.max(0, kids.length - 1) * VERTICAL_GAP;
+      let childTop = top + (block - total) / 2;
+      for (const child of kids) {
+        place(child, depth + 1, childTop);
+        childTop += blocks.get(child) + VERTICAL_GAP;
+      }
+    }
+    let y = 34;
+    for (const id of rootIds) if (allowed.has(id)) {
+      const h = height(id); place(id, 0, y); y += h + 28;
+    }
+    return { visible, positions };
+  }
+
+  function layoutFocus() {
+    const id = config.focusId;
+    if (!byId.has(id)) return layoutOverview();
+    const chain = ancestors(id);
+    const ancestorsShown = chain.slice(Math.max(0, chain.length - 3), -1);
+    const kids = (children.get(id) || []).filter(x => byId.has(x));
+    const ids = [...ancestorsShown, id, ...kids];
+    const positions = new Map();
+    const horizontalGap = 72, xStart = 36;
+    const focusSize = measure(byId.get(id), true);
+    const childSizes = kids.map(k => measure(byId.get(k), false));
+    const childTotal = childSizes.reduce((sum, s) => sum + s.h, 0)
+      + Math.max(0, childSizes.length - 1) * 20;
+    const center = 38 + Math.max(focusSize.h, childTotal) / 2;
+    const depthOffset = ancestorsShown.length;
+    const ancestorSizes=ancestorsShown.map(key=>measure(byId.get(key),false));
+    const columns=[xStart];
+    for(let i=1;i<=depthOffset;i++){
+      columns[i]=columns[i-1]+ancestorSizes[i-1].w+horizontalGap;
+    }
+    const ownX=columns[depthOffset];
+    positions.set(id, { x: ownX, y: center - focusSize.h / 2,
+      ...focusSize, depth: depthOffset, role: "focus" });
+    ancestorsShown.forEach((key, i) => {
+      const size=ancestorSizes[i];
+      positions.set(key, { x: columns[i],
+        y: center - size.h / 2, ...size, depth: i, role: "ancestor" });
+    });
+    let y = center - childTotal / 2;
+    kids.forEach((child, index) => {
+      const size = childSizes[index];
+      positions.set(child, { x: ownX + focusSize.w + horizontalGap,
+        y, ...size, depth: depthOffset + 1, role: "child" });
+      y += size.h + 20;
+    });
+    return { visible: ids.map(key => ({
+      id: key, depth: positions.get(key).depth, role: positions.get(key).role
+    })), positions };
+  }
+  function normalizeLayout(layout) {
+    let maxX = 0, maxY = 0;
+    for (const p of layout.positions.values()) {
+      maxX = Math.max(maxX, p.x + p.w); maxY = Math.max(maxY, p.y + p.h);
+    }
+    return { ...layout, width: Math.max(600, maxX + 35),
+      height: Math.max(300, maxY + 35) };
+  }
+  function textLines(group, lines, x, startY, lineHeight, className) {
+    for (let i = 0; i < lines.length; i++) {
+      group.appendChild(svg("text", { x, y: startY + i * lineHeight,
+        class: className }, lines[i]));
+    }
+  }
+  function drawCard(node, p, layer, positions, focus) {
+    const k = kind(node), chosen = node.id === config.focusId;
+    const classes = ["graph-node", "node-" + k, chosen ? "node-selected" : "",
+      p.expanded ? "node-expanded" : "",
+      config.diff && config.view === "code" &&
+        (config.diff.added_ids || []).includes(node.id) ? "node-added" : "",
+      config.diff && config.view === "code" &&
+        (config.diff.changed || []).some(x => x.id === node.id) ? "node-changed" : ""
+    ].filter(Boolean).join(" ");
+    const card = svg("g", {
+      class: classes, transform: "translate(" + p.x + "," + p.y + ")",
+      role: "button", tabindex: "0",
+      "aria-label": node.title + ": " + plain(node.description || ""),
+      "data-node-id": node.id, "data-status": node.status || "unknown",
+      "data-review": review && itemFor(node.id) ? proposalState(itemFor(node.id)) : ""
+    });
+    card.appendChild(svg("title", {}, (node.title || "") +
+      (node.status ? " — " + node.status : "") + ". " + plain(node.description || "")));
+    card.appendChild(svg("rect", {
+      class: "node-surface", rx: 10, width: p.w, height: p.h,
+      fill: review && itemFor(node.id) ?
+        REVIEW_PALETTE[proposalState(itemFor(node.id))].fill : PALETTE[k] || "#fbfbfc"
+    }));
+    const status = review && itemFor(node.id) ?
+      REVIEW_PALETTE[proposalState(itemFor(node.id))].stroke : STATES[node.status];
+    if (status) card.appendChild(svg("rect", {
+      class: "node-status", rx: 2, x: 0, y: 9,
+      width: 4, height: p.h - 18, fill: status
+    }));
+    const titleX = 17, top = 23;
+    textLines(card, p.title, titleX, top, 19, "node-title");
+    if (p.body.length) {
+      const contentY = top + p.title.length * 19 + 7;
+      textLines(card, p.body, titleX, contentY, 17, "node-description");
+    }
+    if(p.expanded){
+      const embedded=svg("foreignObject",{
+        x:10,y:p.baseH+8,width:p.w-20,height:p.extraH-41,
+        class:"node-attributes-foreign"
+      });
+      const content=el("div","node-attributes-inner");
+      content.setAttribute("aria-label",node.title+" 的完整解释与证据");
+      const intro=attributeSection(content,"这个节点在做什么");
+      intro.appendChild(el("p","node-attribute-text",
+        node.reader_explanation || plain(node.description || node.summary || "")));
+      const termIds=node.context_term_ids || [];
+      if(termIds.length){
+        const terms=attributeSection(content,"专业词汇 · Context");
+        for(const id of termIds){
+          const term=(DATA.context?.nodes || []).find(x=>x.id===id);
+          if(!term)continue;
+          const row=el("div","node-term-row");
+          const link=el("a","node-term-link",term.title);
+          link.href="context.html?focus="+encodeURIComponent(id);
+          link.title="在 Context 中查看“"+term.title+"”";
+          row.appendChild(link);
+          row.appendChild(el("p","node-term-definition",plain(term.description)));
+          terms.appendChild(row);
+        }
+      }
+      for(const block of node.attributes||[])renderAttributeBlock(content,block,node);
+      embedded.appendChild(content);
+      embedded.addEventListener("click",event=>event.stopPropagation?.());
+      embedded.addEventListener("keydown",event=>event.stopPropagation?.());
+      card.appendChild(embedded);
+    }
+    const count = (children.get(node.id) || []).length;
+    if (count) {
+      const label = svg("g", { class: "child-count" });
+      label.appendChild(svg("rect", {
+        x: p.w - 41, y: p.h - 25, width: 29, height: 18, rx: 9
+      }));
+      label.appendChild(svg("text", {
+        x: p.w - 26.5, y: p.h - 12, "text-anchor": "middle"
+      }, String(count)));
+      // The count badge expands this branch without changing zoom or focus.
+      label.setAttribute("role", "button");
+      label.setAttribute("tabindex", "0");
+      label.setAttribute("aria-label", "展开或收起子节点");
+      label.addEventListener("click", event => {
+        event.stopPropagation?.();
+        if (config.expanded.has(node.id)) config.expanded.delete(node.id);
+        else config.expanded.add(node.id);
+        render(false);
+      });
+      label.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault?.();
+          event.stopPropagation?.();
+          if (config.expanded.has(node.id)) config.expanded.delete(node.id);
+          else config.expanded.add(node.id);
+          render(false);
+        }
+      });
+      card.appendChild(label);
+    }
+    {
+      const toggle = svg("g", {
+        class: "attribute-trigger", role: "button", tabindex: "0",
+        "data-attribute-toggle": node.id,
+        "aria-label": "展开 " + node.title + " 的属性",
+      });
+      const countWidth = (children.get(node.id) || []).length ? 48 : 13;
+      const buttonWidth = p.w - countWidth - 14;
+      toggle.appendChild(svg("rect",{
+        class:"attr-hit",x:11,y:p.h-28,width:buttonWidth,height:22,rx:6
+      }));
+      const shortFunction = node.key_function ?
+        node.key_function.split(".").slice(-1)[0] : null;
+      toggle.appendChild(svg("text",{
+        x:20,y:p.h-13
+      },p.expanded ? "收起节点属性" :
+         shortFunction ? "关键函数 " + shortFunction + " · 展开属性" :
+         "展开节点说明与依据"));
+      const show = event => {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+        toggleAttributes(node.id);
+      };
+      toggle.addEventListener("click",show);
+      toggle.addEventListener("keydown",event=>{
+        if (event.key==="Enter" || event.key===" ") show(event);
+      });
+      card.appendChild(toggle);
+    }
+    const onOpen = () => navigate(node.id, config.view, false);
+    card.addEventListener("click", onOpen);
+    card.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault(); onOpen();
+      }
+    });
+    layer.appendChild(card);
+  }
+
+  function drawSVG(layout) {
+    const drawing = $("diagram");
+    drawing.replaceChildren();
+    const lines = svg("g", { class: "edges" });
+    const cards = svg("g", { class: "cards" });
+    const position = layout.positions;
+    function link(source, target) {
+      const a = position.get(source), b = position.get(target);
+      if (!a || !b) return;
+      const x1 = a.x + a.w, x2 = b.x;
+      const y1 = a.y + a.h / 2, y2 = b.y + b.h / 2;
+      if (x2 <= x1) return;
+      const mid = (x1 + x2) / 2;
+      lines.appendChild(svg("path", {
+        class: "edge-main",
+        d: "M " + x1 + " " + y1 + " C " + mid + " " + y1 +
+          ", " + mid + " " + y2 + ", " + x2 + " " + y2
+      }));
+    }
+    for (const item of layout.visible) {
+      const p = parents.get(item.id);
+      if (p) link(p, item.id);
+    }
+    for (const item of layout.visible) {
+      const n = byId.get(item.id), p = position.get(item.id);
+      if (n && p) drawCard(n, p, cards, position, config.mode === "focus");
+    }
+    drawing.append(lines, cards);
+    drawing.setAttribute("viewBox", "0 0 " + layout.width + " " + layout.height);
+    config.positions = position;
+    config.scene = { width: layout.width, height: layout.height };
+  }
+  function fitZoom() {
+    const v = $("canvasWrap");
+    const w = Number(v.clientWidth) || 1150;
+    const h = Number(v.clientHeight) || 630;
+    const { width, height } = config.scene;
+    const a = (w - 56) / width, b = (h - 48) / height;
+    return Math.max(0.82, Math.min(1, a, b));
+  }
+  function centerSelected() {
+    const v = $("canvasWrap");
+    const p = config.positions.get(config.focusId);
+    if (!p) return;
+    const width = Number(v.clientWidth) || 1150;
+    const height = Number(v.clientHeight) || 630;
+    const x = config.zoom * (p.x + p.w / 2) - width / 2;
+    const y = config.zoom * (p.y + p.h / 2) - height / 2;
+    if (typeof v.scrollTo === "function") {
+      v.scrollTo({ left: Math.max(0, x), top: Math.max(0, y),
+        behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth" });
+    }
+  }
+  function setScale() {
+    const drawing = $("diagram");
+    drawing.setAttribute("width", Math.round(config.scene.width * config.zoom));
+    drawing.setAttribute("height", Math.round(config.scene.height * config.zoom));
+    $("zoomValue").textContent = Math.round(config.zoom * 100) + "%";
+  }
+  function rowButton(id, label, indent) {
+    const button = el("button", "outline-item" +
+      (config.focusId === id ? " selected" : ""), label);
+    button.style.paddingLeft = (13 + indent * 12) + "px";
+    button.title = byId.get(id)?.description || label;
+    button.addEventListener("click", () => navigate(id, config.view, false));
+    return button;
+  }
+  function renderOutline() {
+    const output = $("outline");
+    output.replaceChildren();
+    const list = visibleOverview();
+    if (config.mode === "focus" && config.focusId) {
+      const path = ancestors(config.focusId);
+      const ids = new Set([...path, ...(children.get(config.focusId) || [])]);
+      for (const id of ids) output.appendChild(rowButton(id, byId.get(id).title,
+        Math.min(4, path.indexOf(id) >= 0 ? path.indexOf(id) : path.length)));
+    } else {
+      for (const item of list) output.appendChild(rowButton(item.id, byId.get(item.id).title, item.depth));
+    }
+    if (!output.children.length) output.appendChild(el("p", "empty-message", "尝试其他检索词"));
+  }
+  function setDrawerState() {
+    $("sidebar").classList.toggle("is-hidden", !config.outlineOpen);
+    $("detailDrawer").classList.toggle("is-hidden", !config.detailsOpen);
+    $("detailsToggle").disabled = !config.focusId;
+    $("overviewBack").classList.toggle("is-hidden", !config.focusId);
+  }
+  function updateBreadcrumb() {
+    const area = $("breadcrumb");
+    area.replaceChildren();
+    if (!config.focusId) {
+      area.appendChild(el("span", "crumb-current", config.view[0].toUpperCase() + config.view.slice(1)));
+      return;
+    }
+    const path = ancestors(config.focusId);
+    const visiblePath = path.slice(-3);
+    if (path.length > 3) area.appendChild(el("span", "crumb-ellipsis", "…"));
+    for (let i = 0; i < visiblePath.length; i++) {
+      if (i) area.appendChild(el("span", "crumb-divider", "/"));
+      const id = visiblePath[i], n = byId.get(id);
+      if (id === config.focusId) area.appendChild(el("span", "crumb-current", n.title));
+      else {
+        const button = el("button", "crumb-link", n.title);
+        button.addEventListener("click", () => navigate(id, config.view, false));
+        area.appendChild(button);
+      }
+    }
+  }
+  function section(area, label) {
+    const block = el("section", "context-section");
+    block.appendChild(el("h4", "", label));
+    area.appendChild(block);
+    return block;
+  }
+  function refLink(id, label) {
+    const target = locateView(id);
+    const button = el("button", "context-link", label);
+    button.addEventListener("click", () => openCross(id));
+    button.title = target ? target + " · " + id : "Unknown node";
+    return button;
+  }
+  function sourceHref(path, line) {
+    if (typeof path !== "string" || !path ||
+        path.startsWith("/") || path.includes("..") || path.includes("\\"))
+      return null;
+    const suffix = typeof line === "number" && line > 0 ? "#L" + line : "";
+    return "https://github.com/OpenSAE/OpenResearch/blob/main/" +
+      path.split("/").map(encodeURIComponent).join("/") + suffix;
+  }
+  function diagramShape(group, tag, attributes, value) {
+    const element = svg(tag,attributes,value);
+    group.appendChild(element);
+    return element;
+  }
+  function attributeDiagram(type) {
+    const diagram = svg("svg",{viewBox:"0 0 390 128",class:"attribute-diagram",
+      role:"img", "aria-label":type==="residual"?
+      "残差路径 F(x) 与捷径 x 相加的结构示意":"CUB 官方训练与测试分开的结构示意"});
+    if (type==="residual") {
+      diagramShape(diagram,"rect",{x:10,y:46,width:62,height:34,rx:7,class:"diagram-box"});
+      diagramShape(diagram,"text",{x:41,y:67,"text-anchor":"middle"},"输入 x");
+      diagramShape(diagram,"path",{d:"M72 63 L106 63 L106 31 L128 31",class:"diagram-edge"});
+      diagramShape(diagram,"rect",{x:128,y:14,width:129,height:36,rx:7,class:"diagram-box"});
+      diagramShape(diagram,"text",{x:192,y:36,"text-anchor":"middle"},"残差变换 F(x)");
+      diagramShape(diagram,"path",{d:"M257 32 L288 32 L288 63",class:"diagram-edge"});
+      diagramShape(diagram,"path",{d:"M72 63 L288 63",class:"diagram-edge"});
+      diagramShape(diagram,"rect",{x:275,y:52,width:28,height:24,rx:12,class:"diagram-sum"});
+      diagramShape(diagram,"text",{x:289,y:68,"text-anchor":"middle"},"+");
+      diagramShape(diagram,"path",{d:"M303 64 L329 64",class:"diagram-edge"});
+      diagramShape(diagram,"text",{x:356,y:67,"text-anchor":"middle"},"输出");
+      diagramShape(diagram,"text",{x:185,y:89,"text-anchor":"middle"},"捷径连接");
+    } else if(type==="cub_split") {
+      diagramShape(diagram,"text",{x:195,y:23,"text-anchor":"middle"},"CUB-200-2011 官方数据");
+      diagramShape(diagram,"rect",{x:16,y:42,width:166,height:62,rx:8,class:"diagram-box"});
+      diagramShape(diagram,"rect",{x:208,y:42,width:166,height:62,rx:8,class:"diagram-box"});
+      diagramShape(diagram,"text",{x:99,y:67,"text-anchor":"middle"},"训练数据");
+      diagramShape(diagram,"text",{x:99,y:84,"text-anchor":"middle"},"Official Train");
+      diagramShape(diagram,"text",{x:291,y:67,"text-anchor":"middle"},"测试数据");
+      diagramShape(diagram,"text",{x:291,y:84,"text-anchor":"middle"},"Official Test");
+    }
+    return diagram;
+  }
+
+  function attributeSection(parent,title) {
+    const group=el("section","node-attribute-section");
+    group.appendChild(el("h4","node-attribute-heading",title));
+    parent.appendChild(group);
+    return group;
+  }
+  function attributeCode(parent,value) {
+    const pre=el("pre","node-attribute-code",value||"");
+    parent.appendChild(pre);
+    return pre;
+  }
+  function sourceAnchor(parent,path,line,title) {
+    const href=sourceHref(path,line);
+    if(!href)return;
+    const a=el("a","node-attribute-link",title||"查看实体源码");
+    a.href=href;a.target="_blank";a.rel="noopener noreferrer";
+    parent.appendChild(a);
+  }
+  function renderParameterList(parent,parameters) {
+    if(!parameters?.length) return;
+    const section=attributeSection(parent,"参数与作用");
+    const list=el("div","node-parameter-list");
+    for(const parameter of parameters) {
+      const row=el("div","node-parameter-row");
+      const name=el("code","node-parameter-name",parameter.name);
+      row.appendChild(name);
+      const body=el("div","node-parameter-info");
+      body.appendChild(el("p","node-parameter-meaning",parameter.meaning||"输入参数"));
+      const tech=[parameter.annotation,parameter.default!==null&&parameter.default!==undefined?
+        "默认值 "+parameter.default:""].filter(Boolean);
+      if(tech.length)body.appendChild(el("p","node-parameter-extra",tech.join(" · ")));
+      row.appendChild(body);list.appendChild(row);
+    }
+    section.appendChild(list);
+  }
+  function renderInterface(parent,info,sourcePath) {
+    if(!info)return;
+    attributeSection(parent,"主要作用").appendChild(
+      el("p","node-attribute-text",info.purpose||"现有源代码实现的处理流程。"));
+    attributeSection(parent,"函数签名").appendChild(
+      el("code","node-attribute-signature",info.signature||""));
+    renderParameterList(parent,info.parameters);
+    if(info.returns){
+      const ret=attributeSection(parent,"返回值");
+      const description=(info.returns.name||"return")+" · "+
+        (info.returns.annotation||"源代码表达式");
+      ret.appendChild(el("code","node-attribute-signature",description));
+      ret.appendChild(el("p","node-attribute-text",info.returns.meaning||""));
+      if(info.returns.expressions?.length){
+        attributeCode(ret,info.returns.expressions.join("\n"));
+      }
+    }
+    if(info.code){
+      const block=attributeSection(parent,"实际代码主要部分");
+      attributeCode(block,info.code);
+      sourceAnchor(block,sourcePath,info.line,"查看完整函数源码");
+    }
+  }
+  function renderAttributeBlock(parent,attr,node) {
+    if(!attr || typeof attr.label!=="string")return;
+    if(attr.type==="class_methods") {
+      const section=attributeSection(parent,attr.label);
+      for(const item of attr.methods||[]) {
+        const details=el("details","node-method-details");
+        const heading=el("summary","node-method-summary",item.name);
+        details.appendChild(heading);
+        const body=el("div","node-method-body");
+        renderInterface(body,item,node.path);
+        details.appendChild(body);
+        section.appendChild(details);
+      }
+      return;
+    }
+    if(attr.type==="fields") {
+      const section=attributeSection(parent,attr.label);
+      for(const field of attr.fields||[]){
+        const row=el("div","node-field-row");
+        row.appendChild(el("code","node-parameter-name",field.name));
+        row.appendChild(el("span","node-attribute-text",field.meaning||"成员数据"));
+        if(field.assignment)row.appendChild(
+          el("code","node-field-assignment",field.assignment));
+        section.appendChild(row);
+      }
+      return;
+    }
+    if(attr.type==="module_contents") {
+      const section=attributeSection(parent,attr.label);
+      for(const [label,values] of [
+        ["类",attr.classes||[]],["函数",attr.functions||[]]]){
+        if(values.length)section.appendChild(
+          el("p","node-attribute-text",label+"："+values.join(" · ")));
+      }
+      return;
+    }
+    if(attr.type==="interface"){
+      renderInterface(parent,attr.interface,node.path);
+      return;
+    }
+    if(attr.type==="code_reference"){
+      const section=attributeSection(parent,attr.label);
+      if(attr.interface)renderInterface(section,attr.interface,attr.path);
+      else if(attr.code)attributeCode(section,attr.code);
+      sourceAnchor(section,attr.path,attr.line,"查看源文件");
+      if(attr.symbol_id){
+        const link=el("a","node-attribute-link","在 Code Tree 中查看对应实现");
+        link.href="code.html?focus="+encodeURIComponent(attr.symbol_id);
+        section.appendChild(link);
+      }
+      return;
+    }
+    const section=attributeSection(parent,attr.label);
+    if(attr.type==="diagram"){
+      section.appendChild(attributeDiagram(attr.diagram));
+      if(attr.caption)section.appendChild(
+        el("p","node-attribute-note",attr.caption));
+    } else if(attr.type==="formula") {
+      section.appendChild(el("div","node-attribute-formula",attr.value||""));
+      if(attr.note)section.appendChild(el("p","node-attribute-note",attr.note));
+    } else if(attr.type==="code") {
+      attributeCode(section,attr.value||"");
+    } else if(attr.type==="function") {
+      section.appendChild(el("code","node-attribute-signature",attr.signature||attr.value||""));
+    } else if(attr.type==="reference"){
+      sourceAnchor(section,attr.path,attr.line,"查看完整来源");
+    } else {
+      section.appendChild(el("p","node-attribute-text",attr.value||""));
+    }
+    if(attr.source)sourceAnchor(section,attr.source,attr.line,"查看依据");
+  }
+  function toggleAttributes(id){
+    if(config.expandedAttributes.has(id))config.expandedAttributes.delete(id);
+    else config.expandedAttributes.add(id);
+    render(false);
+    const element=$("diagram");
+    // Expanded card remains part of the same tree, with all surrounding
+    // coordinates recomputed by the centered layout.
+    if(config.focusId===id)centerSelected();
+    return element;
+  }
+
+  function renderDetails() {
+    const area = $("detailBody"); area.replaceChildren();
+    const n = byId.get(config.focusId);
+    if (!n) {
+      area.appendChild(el("p", "empty-message", "选择节点查看证据与来源"));
+      return;
+    }
+    area.appendChild(el("h2", "detail-title", n.title));
+    const status = el("div", "detail-status");
+    const swatch = el("span", "detail-status-swatch");
+    swatch.style.background = STATES[n.status] || "#adb2b9";
+    status.appendChild(swatch);
+    status.appendChild(el("span", "", config.view==="environment" && graph().synthetic
+      ? "演示数据（未实测）"
+      : ({not_implemented:"Not Implemented",partial:"Partial",implemented:"Implemented"})[n.status] || "Unknown"));
+    area.appendChild(status);
+    area.appendChild(el("p", "detail-description",
+      n.reader_explanation || plain(n.description || "")));
+    if(n.context_term_ids?.length){
+      const context=section(area,"专业词汇 · Context");
+      for(const id of n.context_term_ids){
+        const term=(DATA.context?.nodes || []).find(x=>x.id===id);
+        if(!term)continue;
+        const row=el("div","node-term-row");
+        row.appendChild(refLink(id,term.title));
+        row.appendChild(el("p","node-term-definition",plain(term.description)));
+        context.appendChild(row);
+      }
+    }
+    if (n.source_symbol && ["module","class","method","function"].includes(kind(n))) {
+      const technical = section(area, "源代码标识");
+      technical.appendChild(el("code", "signature", n.source_symbol));
+    }
+    if (n.signature) section(area, "方法签名").appendChild(el("code", "signature", n.signature));
+    if (n.facts) {
+      const details = section(area, "设备与执行信息");
+      for (const [key,value] of Object.entries(n.facts)) {
+        details.appendChild(el("p", "", key + "：" + value));
+      }
+    }
+    if (n.why_it_matters) section(area, "Why this matters").appendChild(el("p", "", n.why_it_matters));
+    if (n.aliases?.length) section(area, "Also known as").appendChild(el("p", "", n.aliases.join(" · ")));
+    if (n.next) section(area, "Next step").appendChild(el("p", "", n.next));
+    for (const [title, keys] of [
+      ["Scientific knowledge", n.context_ids], ["Project context", n.core_ids],
+      ["Scientific terms", n.term_ids]
+    ]) {
+      if (keys?.length) {
+        const block = section(area, title);
+        for (const key of keys) {
+          const targetView = locateView(key);
+          const source = (DATA[targetView]?.nodes || []).find(x => x.id === key);
+          block.appendChild(refLink(key, source?.title || key));
+        }
+      }
+    }
+    if (n.foundation) {
+      const block = section(area, "Background");
+      const a = el("a", "context-link", n.foundation);
+      a.href = "https://github.com/OpenSAE/OpenResearch/blob/main/" + n.foundation;
+      a.target = "_blank"; a.rel = "noopener noreferrer"; block.appendChild(a);
+    }
+    if (n.evidence?.length) {
+      const block = section(area, "Evidence");
+      for (const source of n.evidence.slice(0, 12)) {
+        const a = el("a", "context-link", source);
+        const path = source.split(":")[0];
+        if (path.startsWith("https://")) a.href = path;
+        else if (!path.startsWith("/") && !path.includes("..")) {
+          a.href = "https://github.com/OpenSAE/OpenResearch/blob/main/" + path;
+        }
+        a.target = "_blank"; a.rel = "noopener noreferrer"; block.appendChild(a);
+      }
+    }
+    if (config.view === "code" && config.diff) {
+      const changed = config.diff.changed?.find(x => x.id === n.id);
+      if (changed) section(area, "Observed change").appendChild(el("p", "", changed.fields.join(", ")));
+    }
+  }
+  function render(autoFit) {
+    const layout = normalizeLayout(config.mode === "focus" ? layoutFocus() : layoutOverview());
+    config.visible = layout.visible;
+    drawSVG(layout);
+    // Preserve the user’s visual scale across focus, expansion, and search.
+    // The tree grows in scrollable space rather than squeezing every card.
+    if (!config.zoomInitialized) {
+      config.zoom = 1;
+      config.zoomInitialized = true;
+    }
+    setScale();
+    updateBreadcrumb(); renderOutline(); renderDetails(); setDrawerState();
+    $("canvasWrap").classList.toggle("in-focus", config.mode === "focus");
+    $("diffControl").classList.toggle("is-hidden", config.view !== "code");
+    $("focusHint").textContent = config.view === "environment" && graph().synthetic
+      ? "演示环境 · 合成设备配置" : "";
+    $("statusLegend").classList.toggle("implemented-only", config.view !== "environment");
+    $("statusLegend").classList.toggle("is-hidden", !!review);
+    $("collapse").disabled = config.mode === "focus";
+    $("expand").disabled = config.mode === "focus";
+    if (review) updateReviewBar();
+    if (config.mode === "focus") centerSelected();
+    else if (autoFit && typeof $("canvasWrap").scrollTo === "function") {
+      $("canvasWrap").scrollTo({ left: 0, top: 0 });
+    }
+  }
+
+  function bind() {
+    // Each public HTML is a genuine URL; same-view focus changes use browser history.
+    $("overviewBack").addEventListener("click", () => overview(true));
+    $("outlineToggle").addEventListener("click", () => {
+      config.outlineOpen = !config.outlineOpen;
+      config.detailsOpen = false; setDrawerState();
+    });
+    $("outlineClose").addEventListener("click", () => {
+      config.outlineOpen = false; setDrawerState();
+    });
+    $("detailsToggle").addEventListener("click", () => {
+      if (!config.focusId) return;
+      config.detailsOpen = !config.detailsOpen;
+      config.outlineOpen = false; renderDetails(); setDrawerState();
+    });
+    $("detailsClose").addEventListener("click", () => {
+      config.detailsOpen = false; setDrawerState();
+    });
+    $("search").addEventListener("input", event => {
+      config.query = String(event.target.value || "");
+      config.expandedAttributes.clear();
+      config.mode = "overview"; config.focusId = null; config.detailsOpen = false;
+      config.outlineOpen = !!config.query.trim();
+      if (window.location?.search?.includes("focus=")) setAddress(null, true);
+      render(true);
+    });
+    $("collapse").addEventListener("click", () => {
+      if (config.mode === "focus") return;
+      config.expanded = new Set(rootIds);
+      render(true);
+    });
+    $("expand").addEventListener("click", () => {
+      if (config.mode === "focus") return;
+      config.expanded = new Set(byId.keys());
+      render(true);
+    });
+    $("fit").addEventListener("click", () => {
+      config.zoom = fitZoom(); config.zoomInitialized = true; setScale();
+      if (config.mode === "focus") centerSelected();
+    });
+    $("zoomIn").addEventListener("click", () => {
+      config.zoom = Math.min(1.8, Math.round((config.zoom + 0.15) * 100) / 100);
+      setScale(); if (config.mode === "focus") centerSelected();
+    });
+    $("zoomOut").addEventListener("click", () => {
+      config.zoom = Math.max(0.45, Math.round((config.zoom - 0.15) * 100) / 100);
+      setScale(); if (config.mode === "focus") centerSelected();
+    });
+    $("diffFile").addEventListener("change", async event => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        const result = JSON.parse(await file.text());
+        if (result.kind !== "code_diff") throw new Error("Expected a code_diff JSON report");
+        config.diff = result;
+        if (config.view !== "code") {
+          if (window.location) window.location.href = "code.html";
+        } else render(true);
+      } catch (error) {
+        if (typeof alert === "function") alert("Cannot load code-tree diff: " + error.message);
+      }
+      event.target.value = "";
+    });
+    if (window.addEventListener) {
+      window.addEventListener("popstate", () => {
+        const next = getSearchFocus();
+        config.expandedAttributes.clear();
+        config.focusId = next && byId.has(next) ? next : null;
+        config.mode = config.focusId ? "focus" : "overview";
+        config.detailsOpen = false;
+        config.query = ""; $("search").value = "";
+        render(true);
+      });
+      window.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          if(config.expandedAttributes.size) {
+            config.expandedAttributes.clear();render(true);return;
+          }
+          if (config.detailsOpen || config.outlineOpen) {
+            config.detailsOpen = false; config.outlineOpen = false; setDrawerState();
+          } else if (config.mode === "focus") overview(true);
+        }
+      });
+      window.addEventListener("resize", () => {
+        const v = $("canvasWrap"), next = {
+          width: Number(v.clientWidth) || 0, height: Number(v.clientHeight) || 0
+        };
+        if (Math.abs(next.width - lastViewport.width) > 90 ||
+            Math.abs(next.height - lastViewport.height) > 90) {
+          lastViewport = next;
+          render(false);
+        }
+      });
+    }
+  }
+
+  init();
+})();
+
