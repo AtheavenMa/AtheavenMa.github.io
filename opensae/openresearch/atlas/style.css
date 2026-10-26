@@ -364,3 +364,32 @@ button:focus-visible,a:focus-visible,input:focus-visible,.graph-node:focus-visib
 /* Edge resistance: a short rubber-band return, never a color-depth effect. */
 .canvas-wrap.is-bouncing #diagram{transition:transform .32s cubic-bezier(.2,.85,.2,1.13)}
 @media(prefers-reduced-motion:reduce){.canvas-wrap.is-bouncing #diagram{transition:none}}
+
+/* Shared status tint across card chrome and all expanded components. */
+.graph-node .attr-hit{fill:rgba(var(--node-rgb),.13);stroke:rgba(var(--node-rgb),.48)}
+.graph-node .attribute-trigger:hover .attr-hit{fill:rgba(var(--node-rgb),.23);stroke:var(--node-accent)}
+.graph-node .attribute-trigger text,.graph-node .node-attribute-heading,
+.graph-node .node-parameter-name,.graph-node .node-term-link,
+.graph-node .node-attribute-link{color:var(--node-ink);fill:var(--node-ink)}
+.graph-node .node-attributes-inner{border-color:rgba(var(--node-rgb),.35);background:rgba(var(--node-rgb),.045)}
+.graph-node .node-attribute-section,.graph-node .node-parameter-row,
+.graph-node .node-method-details,.graph-node .node-field-row,
+.graph-node .node-term-row,.graph-node .attribute-diagram{border-color:rgba(var(--node-rgb),.22)}
+.graph-node .node-attribute-code,.graph-node .node-attribute-signature,
+.graph-node .node-attribute-formula,.graph-node .node-field-assignment,
+.graph-node .node-method-summary,.graph-node .node-method-details,
+.graph-node .node-method-details[open]>.node-method-summary{background:rgba(var(--node-rgb),.095)}
+.graph-node .node-attribute-formula,.graph-node .node-attribute-signature{color:var(--node-ink)}
+.graph-node .child-count rect{fill:rgba(var(--node-rgb),.17)}
+.graph-node .child-count text{fill:var(--node-ink)}
+.graph-node.node-selected .node-surface{stroke:var(--node-accent);filter:drop-shadow(0 12px 19px rgba(23,27,29,.18))}
+.graph-node.node-sibling-preview{opacity:.32;filter:blur(.5px)}
+.graph-node.node-sibling-preview:hover{opacity:.76;filter:none}
+.graph-node.node-selected{opacity:1;filter:none}
+.canvas-wrap.in-focus .graph-node:not(.node-selected):not(.node-sibling-preview){opacity:.63}
+.canvas-wrap.in-focus .graph-node{transition:opacity .36s ease,filter .36s ease}
+.edge-sibling{opacity:.53}
+.graph-node .node-attributes-foreign{opacity:1}
+@media(prefers-reduced-motion:reduce){
+ .canvas-wrap.in-focus .graph-node,.graph-node{transition:none!important}
+}
