@@ -17,14 +17,17 @@
     implemented: "#429669"
   };
   // Node kind never dictates shading. State alone defines the surface.
-  const STATE_FILL = {
-    implemented: "rgba(66,150,105,.14)",
-    not_implemented: "rgba(200,91,97,.14)",
-    partial: "rgba(213,162,56,.14)",
-    unchecked: "rgba(130,85,181,.14)",
-    denied: "rgba(120,129,139,.14)",
-    unknown: "rgba(120,129,139,.07)"
+  const NODE_THEME = {
+    implemented: {rgb:"66,150,105",accent:"#429669",ink:"#246445"},
+    not_implemented: {rgb:"200,91,97",accent:"#c85b61",ink:"#903840"},
+    partial: {rgb:"213,162,56",accent:"#d5a238",ink:"#806019"},
+    unchecked: {rgb:"130,85,181",accent:"#8255b5",ink:"#623c88"},
+    denied: {rgb:"120,129,139",accent:"#78818b",ink:"#46515c"},
+    unknown: {rgb:"120,129,139",accent:"#78818b",ink:"#46515c"}
   };
+  const STATE_FILL = Object.fromEntries(Object.entries(NODE_THEME).map(
+    ([status,color])=>[status,"rgba("+color.rgb+","+
+      (status==="unknown"?".07":".14")+")"]));
 
   const $ = id => document.getElementById(id);
 
@@ -564,11 +567,14 @@
     expandedAttributes: new Set(),
     positions: new Map(),
     scene: { width: 700, height: 440 },
-    visible: []
+    visible: [],
+    animateNextRender: false,
+    renderedView: null
   };
   let parents = new Map(), children = new Map(), byId = new Map();
   let rootIds = [];
   let drag = null, bounceFrame = null, wheelStamp = 0;
+  let outgoingScene = null;
   let lastViewport = { width: 0, height: 0 };
 
   function el(tag, className, value) {
@@ -702,9 +708,13 @@
     }
     return moveSibling(direction);
   }
-  function navigate(id, view, replace) {
+  // Navigation selects a compact node. Only an explicit card click toggles
+  // its explanation; wheel, keyboard and review arrows never expand it.
+  function navigate(id, view, replace, options={}) {
     const target = view || locateView(id);
     if (!target || !(reviewGraphs[target]?.nodes || DATA[target]?.nodes || []).some(n => n.id === id)) return false;
+    const sameFocus = target===config.view && config.focusId===id;
+    const wasExpanded = sameFocus && config.expandedAttributes.has(id);
     if (target !== config.view) {
       if (review) {
         // Fast cross-tree page turn: preserve scroll/zoom and shared draft state.
@@ -716,27 +726,25 @@
         return true;
       }
     }
-    // Primary click expands this node in place. Existing branches stay open;
-    // the graph becomes scrollable and never changes its current zoom.
     config.mode = "focus";
-    if(review) config.expandedAttributes.clear();
     config.focusId = id;
     config.query = "";
     $("search").value = "";
     config.outlineOpen = false;
     config.detailsOpen = false;
     for (const key of ancestors(id)) config.expanded.add(key);
-    // Focus opens the exact same attribute panel as an ordinary Atlas node.
-    // Only one review node is expanded at a time for rapid page turns.
-    config.expandedAttributes.add(id);
-    setAddress(id, !!replace);
+    // A selected node is the only one permitted to hold open attributes.
+    config.expandedAttributes.clear();
+    if (options.toggle && !wasExpanded) config.expandedAttributes.add(id);
+    config.animateNextRender = true;
+    setAddress(id, !!replace || sameFocus);
     render(false);
-    centerSelected();
     if(review) updateReviewBar();
     return true;
   }
   function overview(push) {
     config.expandedAttributes.clear();
+    config.animateNextRender = true;
     config.mode = "overview"; config.focusId = null; config.query = "";
     config.detailsOpen = false;
     $("search").value = "";
@@ -933,6 +941,22 @@
       for(const p of layout.positions.values()){p.x+=dx;p.y+=dy;}
       maxX+=dx;maxY+=dy;
     }
+    // Give the selected card enough scene padding to be exactly centered,
+    // even for the first/last node or a tree narrower than the viewport.
+    if(config.mode==="focus" && layout.positions.has(config.focusId)){
+      const v=$("canvasWrap"),zoom=config.zoom||1;
+      const halfW=(Number(v.clientWidth)||1150)/(2*zoom);
+      const halfH=(Number(v.clientHeight)||630)/(2*zoom);
+      const focus=layout.positions.get(config.focusId);
+      const dx=Math.max(0,halfW-focus.x-focus.w/2);
+      const dy=Math.max(0,halfH-focus.y-focus.h/2);
+      if(dx||dy){
+        for(const p of layout.positions.values()){p.x+=dx;p.y+=dy;}
+        maxX+=dx;maxY+=dy;
+      }
+      maxX=Math.max(maxX,focus.x+focus.w/2+halfW);
+      maxY=Math.max(maxY,focus.y+focus.h/2+halfH);
+    }
     return { ...layout,width:Math.max(600,maxX+35),
       height:Math.max(300,maxY+35) };
   }
@@ -962,6 +986,11 @@
     // nodes may have it; normal Atlas cards must keep their original font size.
     if (review && itemFor(node.id)) attrs["data-review"] = proposalState(itemFor(node.id));
     const card = svg("g", attrs);
+    const state=review && itemFor(node.id) ? proposalState(itemFor(node.id)) : node.status || "unknown";
+    const theme=NODE_THEME[state==="approved"?"not_implemented":state] || NODE_THEME.unknown;
+    card.style.setProperty?.("--node-rgb",theme.rgb);
+    card.style.setProperty?.("--node-accent",theme.accent);
+    card.style.setProperty?.("--node-ink",theme.ink);
     card.appendChild(svg("title", {}, (node.title || "") +
       (node.status ? " — " + node.status : "") + ". " + plain(node.description || "")));
     card.appendChild(svg("rect", {
@@ -1081,7 +1110,7 @@
       });
       card.appendChild(toggle);
     }
-    const onOpen = () => navigate(node.id, config.view, false);
+    const onOpen = () => navigate(node.id, config.view, false,{toggle:true});
     card.addEventListener("click", onOpen);
     // Wheel on a compact node turns actual siblings. Expanded HTML content
     // retains its native scroll; blank canvas keeps native scrolling.
@@ -1108,6 +1137,14 @@
 
   function drawSVG(layout) {
     const drawing = $("diagram");
+    const prior = new Map();
+    const oldCards=drawing.children?.[1]?.children || [];
+    for(const old of oldCards){
+      const id=old.getAttribute?.("data-node-id")||old.attributes?.["data-node-id"];
+      if(id)prior.set(id,old.getBoundingClientRect?.()||null);
+    }
+    const transition=!!config.animateNextRender && config.renderedView===config.view &&
+      !window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
     drawing.replaceChildren();
     const lines = svg("g", { class: "edges" });
     const cards = svg("g", { class: "cards" });
@@ -1145,6 +1182,29 @@
     }
     drawing.append(lines, cards);
     drawing.setAttribute("viewBox", "0 0 " + layout.width + " " + layout.height);
+    // Stable-card FLIP: move existing identities from their previous screen
+    // location without scaling text or sacrificing native card interactions.
+    if(transition && typeof window.requestAnimationFrame==="function"){
+      const moved=[];
+      for(const node of cards.children){
+        const id=node.getAttribute?.("data-node-id")||node.attributes?.["data-node-id"];
+        const a=prior.get(id), b=node.getBoundingClientRect?.();
+        if(!a||!b||!Number.isFinite(a.left)||!Number.isFinite(b.left))continue;
+        const dx=a.left-b.left,dy=a.top-b.top;
+        if(Math.abs(dx)<1&&Math.abs(dy)<1)continue;
+        node.style.transition="none";
+        node.style.translate=dx+"px "+dy+"px";
+        moved.push(node);
+      }
+      window.requestAnimationFrame(()=>{
+        for(const node of moved){
+          node.style.transition="translate 380ms cubic-bezier(.22,1,.36,1), opacity 280ms ease";
+          node.style.translate="0px 0px";
+        }
+      });
+    }
+    config.renderedView=config.view;
+    config.animateNextRender=false;
     config.positions = position;
     config.scene = { width: layout.width, height: layout.height };
   }
@@ -1409,14 +1469,8 @@
     if(attr.source)sourceAnchor(section,attr.source,attr.line,"查看依据");
   }
   function toggleAttributes(id){
-    if(config.expandedAttributes.has(id))config.expandedAttributes.delete(id);
-    else config.expandedAttributes.add(id);
-    render(false);
-    const element=$("diagram");
-    // Expanded card remains part of the same tree, with all surrounding
-    // coordinates recomputed by the centered layout.
-    if(config.focusId===id)centerSelected();
-    return element;
+    navigate(id,config.view,false,{toggle:true});
+    return $("diagram");
   }
 
   function renderDetails() {
@@ -1632,16 +1686,15 @@
       render(true);
     });
     $("fit").addEventListener("click", () => {
-      config.zoom = fitZoom(); config.zoomInitialized = true; setScale();
-      if (config.mode === "focus") centerSelected();
+      config.zoom = fitZoom(); config.zoomInitialized = true; render(false);
     });
     $("zoomIn").addEventListener("click", () => {
       config.zoom = Math.min(1.8, Math.round((config.zoom + 0.15) * 100) / 100);
-      setScale(); if (config.mode === "focus") centerSelected();
+      render(false);
     });
     $("zoomOut").addEventListener("click", () => {
       config.zoom = Math.max(0.45, Math.round((config.zoom - 0.15) * 100) / 100);
-      setScale(); if (config.mode === "focus") centerSelected();
+      render(false);
     });
     $("diffFile").addEventListener("change", async event => {
       const file = event.target.files?.[0];
