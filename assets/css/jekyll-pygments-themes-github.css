@@ -133,7 +133,10 @@
 } /* Literal.String.Escape */
 .highlight .sh {
   color: #d01040;
-} /* Literal.String.Heredoc */ /* Literal.String.Interpol */
+} /* Literal.String.Heredoc */
+.highlight .si {
+  color: #d01040;
+} /* Literal.String.Interpol */
 .highlight .sx {
   color: #d01040;
 } /* Literal.String.Other */ /* Literal.String.Regex */
