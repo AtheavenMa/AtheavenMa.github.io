@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#fafaf9">
   <meta name="description" content="Explore OpenResearch project structure, scientific questions and source code through interactive node-centered trees.">
   <title>OpenResearch Atlas · Context</title>
-  <link rel="stylesheet" href="./style.css?v=native-proposals-20261026">
+  <link rel="stylesheet" href="./style.css?v=review-dfs-20261026">
   <script defer src="./data.js"></script>
-  <script defer src="./app.js?v=native-proposals-20261026"></script>
+  <script defer src="./app.js?v=review-dfs-20261026"></script>
 </head>
 <body data-atlas-view="context">
   <div class="app">
@@ -52,12 +52,27 @@
             <svg id="diagram" role="img" aria-label="Source-backed expandable project tree"></svg>
           </div>
           <div id="atlasReviewBar" class="atlas-review-bar is-hidden" role="group" aria-label="Review nodes">
-            <button id="atlasReviewPrev" class="review-arrow" aria-label="Previous node" title="Previous node">‹</button>
-            <span id="atlasReviewCount" class="review-count">1 / 1</span>
-            <button id="atlasReviewNext" class="review-arrow" aria-label="Next node" title="Next node">›</button>
-            <button id="atlasReviewApprove" class="review-approve">Approve</button>
-            <button id="atlasReviewDeny" class="review-deny">Deny</button>
-            <button id="atlasReviewExport" class="review-export is-hidden" title="Export saved browser review as JSON">JSON ↓</button>
+            <div id="atlasReviewCategory" class="review-category">
+              <button id="atlasReviewFilter" class="review-filter" type="button" aria-expanded="false" aria-controls="atlasReviewMenu" title="Review category: All / Tree / Parent / Node">
+                <span id="atlasReviewFilterLabel" class="review-filter-label">All</span>
+                <span id="atlasReviewFilterRing" class="review-filter-progress"></span>
+                <span class="review-filter-caret" aria-hidden="true">⌄</span>
+              </button>
+              <div id="atlasReviewMenu" class="review-menu is-hidden" role="tree" aria-label="Select review Tree, parent and child node"></div>
+            </div>
+            <div class="review-nav">
+              <button id="atlasReviewPrevUnchecked" class="review-arrow review-skip" aria-label="Previous unchecked node" title="Previous unchecked · ←">«</button>
+              <button id="atlasReviewPrev" class="review-arrow" aria-label="Previous node (force)" title="Previous any · Shift+←">‹</button>
+              <span id="atlasReviewCount" class="review-count">1 / 1</span>
+              <button id="atlasReviewNext" class="review-arrow" aria-label="Next node (force)" title="Next any · Shift+→">›</button>
+              <button id="atlasReviewNextUnchecked" class="review-arrow review-skip" aria-label="Next unchecked node" title="Next unchecked · →">»</button>
+            </div>
+            <div class="review-decisions">
+              <button id="atlasReviewApprove" class="review-approve" title="Approve · Enter">Approve <kbd>↵</kbd></button>
+              <button id="atlasReviewDeny" class="review-deny" title="Deny · Backspace">Deny <kbd>⌫</kbd></button>
+              <button id="atlasReviewUnchecked" class="review-unchecked" title="Reset to Unchecked · U">Unchecked <kbd>U</kbd></button>
+            </div>
+            <button id="atlasReviewExport" class="review-export is-hidden" title="Export browser-only review JSON">JSON ↓</button>
             <span id="atlasReviewMessage" class="review-message" aria-live="polite">Unchecked</span>
           </div>
           <div class="status-legend" id="statusLegend" role="note" aria-label="Node status colors: Not Implemented red, Partial yellow, Implemented green">
