@@ -129,21 +129,25 @@
     return null;
   }
   function navigate(id, view, replace) {
-    config.expandedAttributes.clear();
     const target = view || locateView(id);
     if (!target || !(DATA[target]?.nodes || []).some(n => n.id === id)) return false;
     if (target !== config.view) {
       if (window.location) window.location.href = target + ".html?focus=" + encodeURIComponent(id);
       return true;
     }
-    config.mode = "focus";
+    // Primary click expands this node in place. Existing branches stay open;
+    // the graph becomes scrollable and never changes its current zoom.
+    config.mode = "overview";
     config.focusId = id;
     config.query = "";
     $("search").value = "";
     config.outlineOpen = false;
     config.detailsOpen = false;
+    for (const key of ancestors(id)) config.expanded.add(key);
+    config.expandedAttributes.add(id);
     setAddress(id, !!replace);
-    render(true);
+    render(false);
+    centerSelected();
     return true;
   }
   function overview(push) {
@@ -196,7 +200,7 @@
     return lines;
   }
   function measure(node, focused) {
-    const expanded=config.expandedAttributes.has(node.id) && (node.attributes || []).length>0;
+    const expanded = config.expandedAttributes.has(node.id);
     const w = expanded ? 490 : 290;
     const title = wrap(node.title || node.id, w - 45, 13.5, 2);
     const body = wrap(node.summary || node.description, w - 42, 11.8, 4);
@@ -204,7 +208,9 @@
       + (body.length ? 10 + body.length * 17 : 0) + 18);
     const isClass=(node.attributes||[]).some(x=>x.type==="class_methods");
     const count=(node.attributes||[]).length;
-    const extraH = expanded ? Math.min(690, isClass ? 570 : Math.max(300,220+count*55)) : 0;
+    const terms = (node.context_term_ids || []).length;
+    const extraH = expanded ? Math.min(760, Math.max(340, 170 + terms * 65 +
+      Math.min(count, 5) * 46 + (isClass ? 180 : 0))) : 0;
     return { w, h:base + extraH, title, body, baseH:base,
       extraH, expanded };
   }
@@ -329,7 +335,7 @@
     }
   }
   function drawCard(node, p, layer, positions, focus) {
-    const k = kind(node), chosen = focus && node.id === config.focusId;
+    const k = kind(node), chosen = node.id === config.focusId;
     const classes = ["graph-node", "node-" + k, chosen ? "node-selected" : "",
       p.expanded ? "node-expanded" : "",
       config.diff && config.view === "code" &&
@@ -366,7 +372,25 @@
         class:"node-attributes-foreign"
       });
       const content=el("div","node-attributes-inner");
-      content.setAttribute("aria-label",node.title+" 的接口与研究资料");
+      content.setAttribute("aria-label",node.title+" 的完整解释与证据");
+      const intro=attributeSection(content,"这个节点在做什么");
+      intro.appendChild(el("p","node-attribute-text",
+        node.reader_explanation || plain(node.description || node.summary || "")));
+      const termIds=node.context_term_ids || [];
+      if(termIds.length){
+        const terms=attributeSection(content,"专业词汇 · Context");
+        for(const id of termIds){
+          const term=(DATA.context?.nodes || []).find(x=>x.id===id);
+          if(!term)continue;
+          const row=el("div","node-term-row");
+          const link=el("a","node-term-link",term.title);
+          link.href="context.html?focus="+encodeURIComponent(id);
+          link.title="在 Context 中查看“"+term.title+"”";
+          row.appendChild(link);
+          row.appendChild(el("p","node-term-definition",plain(term.description)));
+          terms.appendChild(row);
+        }
+      }
       for(const block of node.attributes||[])renderAttributeBlock(content,block,node);
       embedded.appendChild(content);
       embedded.addEventListener("click",event=>event.stopPropagation?.());
@@ -375,7 +399,7 @@
     }
     const count = (children.get(node.id) || []).length;
     if (count) {
-      const label = svg("g", { class: "child-count", "aria-hidden": "true" });
+      const label = svg("g", { class: "child-count" });
       label.appendChild(svg("rect", {
         x: p.w - 41, y: p.h - 25, width: 29, height: 18, rx: 9
       }));
@@ -403,7 +427,7 @@
       });
       card.appendChild(label);
     }
-    if (Array.isArray(node.attributes) && node.attributes.length) {
+    {
       const toggle = svg("g", {
         class: "attribute-trigger", role: "button", tabindex: "0",
         "data-attribute-toggle": node.id,
@@ -420,7 +444,7 @@
         x:20,y:p.h-13
       },p.expanded ? "收起节点属性" :
          shortFunction ? "关键函数 " + shortFunction + " · 展开属性" :
-         "展开节点属性与依据"));
+         "展开节点说明与依据"));
       const show = event => {
         event.preventDefault?.();
         event.stopPropagation?.();
@@ -527,12 +551,12 @@
     $("sidebar").classList.toggle("is-hidden", !config.outlineOpen);
     $("detailDrawer").classList.toggle("is-hidden", !config.detailsOpen);
     $("detailsToggle").disabled = !config.focusId;
-    $("overviewBack").classList.toggle("is-hidden", config.mode !== "focus");
+    $("overviewBack").classList.toggle("is-hidden", !config.focusId);
   }
   function updateBreadcrumb() {
     const area = $("breadcrumb");
     area.replaceChildren();
-    if (config.mode !== "focus" || !config.focusId) {
+    if (!config.focusId) {
       area.appendChild(el("span", "crumb-current", config.view[0].toUpperCase() + config.view.slice(1)));
       return;
     }
@@ -741,7 +765,7 @@
     const element=$("diagram");
     // Expanded card remains part of the same tree, with all surrounding
     // coordinates recomputed by the centered layout.
-    if(config.mode==="focus")centerSelected();
+    if(config.focusId===id)centerSelected();
     return element;
   }
 
@@ -761,7 +785,19 @@
       ? "演示数据（未实测）"
       : ({not_implemented:"Not Implemented",partial:"Partial",implemented:"Implemented"})[n.status] || "Unknown"));
     area.appendChild(status);
-    area.appendChild(el("p", "detail-description", plain(n.description || "")));
+    area.appendChild(el("p", "detail-description",
+      n.reader_explanation || plain(n.description || "")));
+    if(n.context_term_ids?.length){
+      const context=section(area,"专业词汇 · Context");
+      for(const id of n.context_term_ids){
+        const term=(DATA.context?.nodes || []).find(x=>x.id===id);
+        if(!term)continue;
+        const row=el("div","node-term-row");
+        row.appendChild(refLink(id,term.title));
+        row.appendChild(el("p","node-term-definition",plain(term.description)));
+        context.appendChild(row);
+      }
+    }
     if (n.source_symbol && ["module","class","method","function"].includes(kind(n))) {
       const technical = section(area, "源代码标识");
       technical.appendChild(el("code", "signature", n.source_symbol));
