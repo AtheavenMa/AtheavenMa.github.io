@@ -237,8 +237,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,.graph-node:focus-visib
 .graph-node[data-review="unchecked"] .node-surface{stroke:#8255b5;stroke-width:2}
 .graph-node[data-review="approved"] .node-surface{stroke:#bb4656;stroke-width:2}
 .graph-node[data-review="denied"] .node-surface{stroke:#78818b;stroke-width:2}
-.graph-node[data-review] .node-title{font-size:16px}
-.graph-node[data-review] .node-description{font-size:14px}
+/* Review never changes the card typography: normal Atlas node CSS applies. */
 .atlas-review-bar .review-export{border:0;background:transparent;
  min-width:62px;padding:0 8px;color:#536a7f;font-weight:600;font-size:12px}
 .atlas-review-bar .review-export:hover{background:#f0f2f4;color:#233e54}

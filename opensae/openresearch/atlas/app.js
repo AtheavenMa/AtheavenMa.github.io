@@ -1,2 +1,1304 @@
-!function(){"use strict";function e(){const e=(window.location?.search||"").match(/[?&]review=([^&]+)/);if(!e)return null;try{return decodeURIComponent(e[1])}catch(e){return null}}function t(){const e=(window.location?.hash||"").match(/^#key=([^&]+)/);try{return e?decodeURIComponent(e[1]):""}catch(e){return""}}function n(e){return e?.proposal_review?.decision||"unchecked"}function i(e,t=Ce.view){return we?.plan?.items?.find(n=>n.node_id===e&&n.view===t)}function o(){if(ve={},!we)return;const e=we.context||{nodes:[],edges:[]};for(const t of["knowledge","code","environment","context"]){const i=pe[t]||{nodes:[],edges:[]},o=new Map((i.nodes||[]).map(e=>[e.id,e])),d=[...i.edges||[]],a=e=>{d.some(t=>t.source===e.source&&t.target===e.target&&t.type===e.type)||d.push(e)};if("knowledge"===t){for(const t of e.nodes||[])o.has(t.id)||o.set(t.id,t);for(const t of e.edges||[])a(t)}for(const e of we.plan.items.filter(e=>e.view===t)){const i=o.get(e.node_id)||{},d=e.after||{},s=e.before||{},r={...i,...d,id:e.node_id,kind:i.kind||d.type||s.type||"goal",title:d.title||s.title||i.title||e.node_id,description:d.description||s.description||i.description||"",summary:d.summary||d.description||s.description||i.summary||"",status:"approved"===n(e)?"not_implemented":"denied"===n(e)?"denied":"unchecked",reader_explanation:d.reader_explanation||d.description||s.description||"",context_term_ids:d.context_term_ids||d.term_ids||i.context_term_ids||[],review_item:!0};o.set(e.node_id,r);const c=e.parent_id;c&&o.has(c)?a({source:c,target:e.node_id,type:"contains"}):"add"===e.operation&&o.has(ue[t].root)&&a({source:ue[t].root,target:e.node_id,type:"contains"})}ve[t]={...i,nodes:[...o.values()],edges:d}}}function d(){return we?.plan.items.findIndex(e=>e.node_id===Ce.focusId&&e.view===Ce.view)??-1}function a(e){if(!we||e<0||e>=we.plan.items.length)return;be="";const t=we.plan.items[e];I(t.node_id,t.view,!1)}function s(e){return"openresearch:atlas:proposal:v1:"+e.id+":"+e.preview_sha256}function r(){try{return window.localStorage||null}catch(e){return null}}function c(e){const t=r();if(t)try{const n=t.getItem(s(e));if(!n)return;const i=JSON.parse(n);if("openresearch.atlas.proposal-draft.v1"!==i.schema||i.plan_id!==e.id||i.preview_sha256!==e.preview_sha256)return;for(const t of e.items){const e=i.decisions?.[t.key];["approved","denied"].includes(e)&&(t.proposal_review={decision:e,actor:"Browser draft"})}}catch(e){ye="Could not load saved draft"}}function l(e,t){const i=r();if(!i)throw Error("Browser storage unavailable. Use local Atlas to save JSON.");const o={};for(const i of we.plan.items){const d=i.key===e?t:n(i);"approved"!==d&&"denied"!==d||(o[i.key]=d)}const d={schema:"openresearch.atlas.proposal-draft.v1",plan_id:we.plan.id,preview_sha256:we.plan.preview_sha256,decisions:o,updated_at:(new Date).toISOString(),authority_applied:!1};i.setItem(s(we.plan),JSON.stringify(d)),we.plan.items.find(t=>t.key===e).proposal_review={decision:t,actor:"Browser draft",at:d.updated_at},ye="Saved in browser"}function p(){if(!we||we.editable)return;const e=r(),t=e?.getItem(s(we.plan));if(!t)return be="Nothing saved",void u();const n=JSON.parse(t),i=JSON.stringify(n,null,2)+"\n",o=URL.createObjectURL(new Blob([i],{type:"application/json"})),d=g("a");d.href=o,d.download=we.plan.id+".proposal-draft.json",document.body.appendChild(d),d.click(),d.remove(),setTimeout(()=>URL.revokeObjectURL(o),0)}function u(){if(!we)return;me("atlasReviewBar").classList.remove("is-hidden");const e=we.plan.items,t=d();me("atlasReviewCount").textContent=(t>=0?t+1:"\u2013")+" / "+e.length,me("atlasReviewPrev").disabled=xe||t<=0,me("atlasReviewNext").disabled=xe||t===e.length-1,me("atlasReviewApprove").disabled=xe||t<0,me("atlasReviewDeny").disabled=xe||t<0,me("atlasReviewExport").classList.toggle("is-hidden",!!we.editable),me("atlasReviewExport").disabled=xe;const i=n(e[t]);me("atlasReviewApprove").classList.toggle("chosen","approved"===i),me("atlasReviewDeny").classList.toggle("chosen","denied"===i),me("atlasReviewMessage").textContent=xe?"Saving\u2026":be||(we.editable?"unchecked"===i?"Unchecked":"approved"===i?"Not implemented":"Denied":ye||"Browser draft")}function f(n,i){if(!n?.plan||!Array.isArray(n.plan.items)||n.plan.id!==e())throw Error("Invalid Atlas plan");i||c(n.plan),we={plan:n.plan,context:n.context||n.review_context||{nodes:[],edges:[]},editable:!!i&&!!t()},o(),C(),Ce.expanded=_(),ce(!1)}async function h(){if(!e()||"core"===Ce.view)return;let t,n=!1;try{const e=await fetch("/api/review/state",{cache:"no-store"});if(!e.ok)throw Error("Local review service unavailable");t=await e.json(),n=!0}catch(n){if(!["OR-Knowledge-Demo-20261026","OR-Atlas-MultiTree-Demo-20261026"].includes(e()))return void(me("focusHint").textContent="Local Atlas review service required");const i=await fetch("./demo-knowledge-plan.json",{cache:"no-store"});if(!i.ok)throw Error("Preview JSON missing");t=await i.json(),t.plan||(t={plan:t,context:t.review_context})}f(t,n);const i=L(),o=we.plan.items.find(e=>e.node_id===i&&e.view===Ce.view);if(o)I(o.node_id,o.view,!0);else{const e=we.plan.items.find(e=>e.view===Ce.view)||we.plan.items[0];e&&I(e.node_id,e.view,!0)}const s=me("atlasReviewBar");if(me("atlasReviewPrev").addEventListener("click",()=>a(d()-1)),me("atlasReviewNext").addEventListener("click",()=>a(d()+1)),me("atlasReviewApprove").addEventListener("click",()=>m("approved")),me("atlasReviewDeny").addEventListener("click",()=>m("denied")),me("atlasReviewExport").addEventListener("click",p),"function"==typeof document.querySelectorAll)for(const e of document.querySelectorAll(".tabs [data-graph]"))e.addEventListener("click",t=>{if(!we||"core"===e.dataset.graph)return;t.preventDefault();const n=we.plan.items.find(t=>t.view===e.dataset.graph);n&&I(n.node_id,n.view,!1)});s.classList.remove("is-hidden"),u()}async function m(e){if(!we||xe)return;const i=d();if(i<0)return;const s=we.plan.items[i];be="",xe=!0,u();try{if(we.editable){const n=await fetch("/api/review/decision",{method:"POST",credentials:"same-origin",keepalive:!0,headers:{"Content-Type":"application/json","X-Atlas-Review-Key":t()},body:JSON.stringify({revision:we.plan.revision,key:s.key,decision:e})}),i=await n.json();if(!n.ok)throw Error(i.error||"Review not saved");f(i,!0)}else l(s.key,e),o(),C(),ce(!1);const d=s.key;let r=-1;for(let e=i+1;e<we.plan.items.length;e++)if("unchecked"===n(we.plan.items[e])){r=e;break}if(r<0)for(let e=0;e<i;e++)if("unchecked"===n(we.plan.items[e])){r=e;break}a(r>=0?r:we.plan.items.findIndex(e=>e.key===d))}catch(e){be=we.editable?"Save failed":"Draft not saved",me("atlasReviewMessage").title=e.message}finally{xe=!1,u()}}function g(e,t,n){const i=document.createElement(e);return t&&(i.className=t),void 0!==n&&(i.textContent=String(n)),i}function w(e,t,n){const i=document.createElementNS("http://www.w3.org/2000/svg",e);for(const[e,n]of Object.entries(t||{}))i.setAttribute(e,String(n));return void 0!==n&&(i.textContent=String(n)),i}function v(e){return e?.kind||e?.type||"goal"}function x(){return ve[Ce.view]||pe[Ce.view]||{nodes:[],edges:[],gates:[]}}function b(e){return String(e||"").replace(/^\s*(\u95ee\u9898|\u65b9\u6848|\u76ee\u6807|\u5b9a\u4e49|\u73b0\u72b6)[:\uff1a]\s*/,"").replace(/\s+/g," ").trim()}function y(e){const t=Ce.query.trim().toLocaleLowerCase();return!t||[e.id,e.title,e.source_symbol,e.description,e.signature,e.path,...e.aliases||[],...e.term_ids||[],...e.context_ids||[]].join(" ").toLocaleLowerCase().includes(t)}function C(){Le=new Map((x().nodes||[]).map(e=>[e.id,e])),ke=new Map,_e=new Map;for(const e of x().edges||[])ue[Ce.view].primary.includes(e.type)&&Le.has(e.source)&&Le.has(e.target)&&!ke.has(e.target)&&(ke.set(e.target,e.source),_e.has(e.source)||_e.set(e.source,[]),_e.get(e.source).push(e.target));const e=ue[Ce.view].root;Ee=Le.has(e)?[e]:[...Le.keys()].filter(e=>!ke.has(e))}function k(e){const t=[],n=new Set;let i=e;for(;Le.has(i)&&!n.has(i)&&t.length<=16;)n.add(i),t.push(i),i=ke.get(i);return t.reverse()}function _(){const e=new Set(Ee);if(["core","knowledge"].includes(Ce.view))for(const t of Ee)for(const n of _e.get(t)||[])e.add(n);if("environment"===Ce.view)for(const t of Le.values())"group"===v(t)&&e.add(t.id);return e}function L(){const e=(window.location?.search||"").match(/[?&]focus=([^&]+)/);if(!e)return null;try{return decodeURIComponent(e[1].replace(/\+/g,"%20"))}catch(e){return null}}function E(t,n){if(!window.history?.pushState||!window.location?.pathname)return;const i=we?Ce.view+".html":window.location.pathname,o=[];e()&&o.push("review="+encodeURIComponent(e())),t&&o.push("focus="+encodeURIComponent(t));const d=i+(o.length?"?"+o.join("&"):"")+(e()&&window.location.hash||"");try{window.history[n?"replaceState":"pushState"]({view:Ce.view,focusId:t||null},"",d)}catch(e){}}function M(e){if(Le.has(e))return Ce.view;for(const t of Object.keys(ue))if((ve[t]?.nodes||pe[t]?.nodes||[]).some(t=>t.id===e))return t;return null}function O(e){if(!we||"core"===e||!ue[e]||!pe[e])return!1;if(Ce.view=e,document.body?.dataset&&(document.body.dataset.atlasView=e),C(),Ce.expanded=_(),Ce.expandedAttributes.clear(),"function"==typeof document.querySelectorAll)for(const t of document.querySelectorAll(".tabs [data-graph]"))t.classList.toggle("active",t.dataset.graph===e);return!0}function I(t,n,i){const o=n||M(t);if(!o||!(ve[o]?.nodes||pe[o]?.nodes||[]).some(e=>e.id===t))return!1;if(o!==Ce.view){if(!we)return window.location&&(window.location.href=o+".html?"+(e()?"review="+encodeURIComponent(e())+"&":"")+"focus="+encodeURIComponent(t)+(e()&&window.location.hash||"")),!0;if(!O(o))return!1}Ce.mode=we?"focus":"overview",we&&Ce.expandedAttributes.clear(),Ce.focusId=t,Ce.query="",me("search").value="",Ce.outlineOpen=!1,Ce.detailsOpen=!1;for(const e of k(t))Ce.expanded.add(e);return we||Ce.expandedAttributes.add(t),E(t,!!i),ce(!1),J(),we&&u(),!0}function S(e){Ce.expandedAttributes.clear(),Ce.mode="overview",Ce.focusId=null,Ce.query="",Ce.detailsOpen=!1,me("search").value="",e&&E(null,!1),ce(!0)}function A(e){I(e,M(e),!1)}function R(){ue[Ce.view]&&pe[Ce.view]||(Ce.view="core"),C(),Ce.expanded=_();const t=L();t&&Le.has(t)&&(Ce.mode="focus",Ce.focusId=t),le(),ce(!0),e()&&"core"!==Ce.view&&h().catch(e=>{me("focusHint").textContent=e.message})}function z(e,t){const n=e.codePointAt(0)||0;return n>=11904||n>=4352&&n<=4607?t:" "===e?.36*t:"il.,:;'!|".includes(e)?.42*t:"MW@%".includes(e)?.91*t:.65*t}function N(e,t,n,i){const o=Array.from(b(e));if(!o.length)return[];const d=[];let a="",s=0,r=0;for(;r<o.length&&d.length<i;){const e=o[r],i=z(e,n);a&&s+i>t?(d.push(a.trim()),a="",s=0):(a+=e,s+=i,r++)}if(a&&d.length<i&&d.push(a.trim()),r<o.length&&d.length){const e=d.length-1;d[e]=d[e].replace(/.{1,2}$/u,"")+"\u2026"}return d}function j(e){if(we&&i(e.id)){const t=480,n=N(e.title||e.id,t-80,16,3),i=N(e.description,t-82,14,9),o=Math.max(142,42+27*n.length+(i.length?10+24*i.length:0)+30);return{w:t,h:o,title:n,body:i,baseH:o,extraH:0,expanded:!1}}const t=Ce.expandedAttributes.has(e.id),n=t?490:290,o=N(e.title||e.id,n-45,13.5,2),d=N(e.summary||e.description,n-42,11.8,4),a=Math.max(108,22+19*o.length+(d.length?10+17*d.length:0)+18),s=(e.attributes||[]).some(e=>"class_methods"===e.type),r=(e.attributes||[]).length,c=(e.context_term_ids||[]).length,l=t?Math.min(760,Math.max(340,170+65*c+46*Math.min(r,5)+(s?180:0))):0;return{w:n,h:a+l,title:o,body:d,baseH:a,extraH:l,expanded:t}}function U(){function e(o,d){if(!(!Le.has(o)||n.has(o)||d>13)&&(!Ce.query||t.has(o))&&(n.add(o),i.push({id:o,depth:d,role:"overview"}),Ce.query||Ce.expanded.has(o)))for(const t of _e.get(o)||[])e(t,d+1)}const t=new Set;if(Ce.query.trim())for(const e of Le.values())if(y(e))for(const n of k(e.id))t.add(n);const n=new Set,i=[];for(const t of Ee)e(t,0);return i}function B(){function e(t){if(d.has(t))return d.get(t);const n=(_e.get(t)||[]).filter(e=>i.has(e));let a=n.reduce((t,n)=>t+e(n),0)+Math.max(0,n.length-1)*s;const r=o.get(t)||j(Le.get(t),!1);o.set(t,r);const c=Math.max(r.h,a);return d.set(t,c),c}function t(e,n,r){const c=o.get(e),l=d.get(e),u=r+l/2;a.set(e,{x:p[n],y:u-c.h/2,...c,depth:n});const f=(_e.get(e)||[]).filter(e=>i.has(e));let h=r+(l-(f.reduce((e,t)=>e+d.get(t),0)+Math.max(0,f.length-1)*s))/2;for(const e of f)t(e,n+1,h),h+=d.get(e)+s}const n=U(),i=new Set(n.map(e=>e.id)),o=new Map,d=new Map,a=new Map,s=24,r=72,c=36,l=new Map;for(const e of n){const t=j(Le.get(e.id),!1).w;l.set(e.depth,Math.max(l.get(e.depth)||270,t))}const p=[c],u=Math.max(0,...n.map(e=>e.depth));for(let e=1;e<=u;e++)p[e]=p[e-1]+(l.get(e-1)||270)+r;let f=34;for(const n of Ee)if(i.has(n)){const i=e(n);t(n,0,f),f+=i+28}return{visible:n,positions:a}}function q(){const e=Ce.focusId;if(!Le.has(e))return B();const t=k(e),n=t.slice(Math.max(0,t.length-3),-1),i=(_e.get(e)||[]).filter(e=>Le.has(e)),o=[...n,e,...i],d=new Map,a=72,s=36,r=j(Le.get(e),!0),c=i.map(e=>j(Le.get(e),!1)),l=c.reduce((e,t)=>e+t.h,0)+20*Math.max(0,c.length-1),p=38+Math.max(r.h,l)/2,u=n.length,f=n.map(e=>j(Le.get(e),!1)),h=[s];for(let e=1;e<=u;e++)h[e]=h[e-1]+f[e-1].w+a;const m=h[u];d.set(e,{x:m,y:p-r.h/2,...r,depth:u,role:"focus"}),n.forEach((e,t)=>{const n=f[t];d.set(e,{x:h[t],y:p-n.h/2,...n,depth:t,role:"ancestor"})});let g=p-l/2;return i.forEach((e,t)=>{const n=c[t];d.set(e,{x:m+r.w+a,y:g,...n,depth:u+1,role:"child"}),g+=n.h+20}),{visible:o.map(e=>({id:e,depth:d.get(e).depth,role:d.get(e).role})),positions:d}}function T(e){let t=0,n=0;for(const i of e.positions.values())t=Math.max(t,i.x+i.w),n=Math.max(n,i.y+i.h);return{...e,width:Math.max(600,t+35),height:Math.max(300,n+35)}}function W(e,t,n,i,o,d){for(let a=0;a<t.length;a++)e.appendChild(w("text",{x:n,y:i+a*o,class:d},t[a]))}function D(e,t,o){const d=v(e),a={class:["graph-node","node-"+d,e.id===Ce.focusId?"node-selected":"",t.expanded?"node-expanded":"",Ce.diff&&"code"===Ce.view&&(Ce.diff.added_ids||[]).includes(e.id)?"node-added":"",Ce.diff&&"code"===Ce.view&&(Ce.diff.changed||[]).some(t=>t.id===e.id)?"node-changed":""].filter(Boolean).join(" "),transform:"translate("+t.x+","+t.y+")",role:"button",tabindex:"0","aria-label":e.title+": "+b(e.description||""),"data-node-id":e.id,"data-status":e.status||"unknown"};we&&i(e.id)&&(a["data-review"]=n(i(e.id)));const s=w("g",a);s.appendChild(w("title",{},(e.title||"")+(e.status?" \u2014 "+e.status:"")+". "+b(e.description||""))),s.appendChild(w("rect",{class:"node-surface",rx:10,width:t.w,height:t.h,fill:we&&i(e.id)?ge[n(i(e.id))].fill:he[d]||"#fbfbfc"}));const r=we?i(e.id)?ge[n(i(e.id))].stroke:null:fe[e.status];r&&s.appendChild(w("rect",{class:"node-status",rx:2,x:0,y:9,width:4,height:t.h-18,fill:r}));const c=!(!we||!i(e.id)),l=c?25:17,p=c?39:23,u=c?27:19,f=c?24:17;if(W(s,t.title,l,p,u,"node-title"),t.body.length){const e=p+t.title.length*u+(c?12:7);W(s,t.body,l,e,f,"node-description")}if(t.expanded){const n=w("foreignObject",{x:10,y:t.baseH+8,width:t.w-20,height:t.extraH-41,class:"node-attributes-foreign"}),i=g("div","node-attributes-inner");i.setAttribute("aria-label",e.title+" \u7684\u5b8c\u6574\u89e3\u91ca\u4e0e\u8bc1\u636e");te(i,"\u8fd9\u4e2a\u8282\u70b9\u5728\u505a\u4ec0\u4e48").appendChild(g("p","node-attribute-text",e.reader_explanation||b(e.description||e.summary||"")));const o=e.context_term_ids||[];if(o.length){const e=te(i,"\u4e13\u4e1a\u8bcd\u6c47 \xb7 Context");for(const t of o){const n=(pe.context?.nodes||[]).find(e=>e.id===t);if(!n)continue;const i=g("div","node-term-row"),o=g("a","node-term-link",n.title);o.href="context.html?focus="+encodeURIComponent(t),o.title="\u5728 Context \u4e2d\u67e5\u770b\u201c"+n.title+"\u201d",i.appendChild(o),i.appendChild(g("p","node-term-definition",b(n.description))),e.appendChild(i)}}for(const t of e.attributes||[])ae(i,t,e);n.appendChild(i),n.addEventListener("click",e=>e.stopPropagation?.()),n.addEventListener("keydown",e=>e.stopPropagation?.()),s.appendChild(n)}if(!c){const n=(_e.get(e.id)||[]).length;if(n){const i=w("g",{class:"child-count"});i.appendChild(w("rect",{x:t.w-41,y:t.h-25,width:29,height:18,rx:9})),i.appendChild(w("text",{x:t.w-26.5,y:t.h-12,"text-anchor":"middle"},String(n))),i.setAttribute("role","button"),i.setAttribute("tabindex","0"),i.setAttribute("aria-label","\u5c55\u5f00\u6216\u6536\u8d77\u5b50\u8282\u70b9"),i.addEventListener("click",t=>{t.stopPropagation?.(),Ce.expanded.has(e.id)?Ce.expanded.delete(e.id):Ce.expanded.add(e.id),ce(!1)}),i.addEventListener("keydown",t=>{"Enter"!==t.key&&" "!==t.key||(t.preventDefault?.(),t.stopPropagation?.(),Ce.expanded.has(e.id)?Ce.expanded.delete(e.id):Ce.expanded.add(e.id),ce(!1))}),s.appendChild(i)}{const n=w("g",{class:"attribute-trigger",role:"button",tabindex:"0","data-attribute-toggle":e.id,"aria-label":"\u5c55\u5f00 "+e.title+" \u7684\u5c5e\u6027"}),i=(_e.get(e.id)||[]).length?48:13,o=t.w-i-14;n.appendChild(w("rect",{class:"attr-hit",x:11,y:t.h-28,width:o,height:22,rx:6}));const d=e.key_function?e.key_function.split(".").slice(-1)[0]:null;n.appendChild(w("text",{x:20,y:t.h-13},t.expanded?"\u6536\u8d77\u8282\u70b9\u5c5e\u6027":d?"\u5173\u952e\u51fd\u6570 "+d+" \xb7 \u5c55\u5f00\u5c5e\u6027":"\u5c55\u5f00\u8282\u70b9\u8bf4\u660e\u4e0e\u4f9d\u636e"));const a=t=>{t.preventDefault?.(),t.stopPropagation?.(),se(e.id)};n.addEventListener("click",a),n.addEventListener("keydown",e=>{"Enter"!==e.key&&" "!==e.key||a(e)}),s.appendChild(n)}}const h=()=>I(e.id,Ce.view,!1);s.addEventListener("click",h),s.addEventListener("keydown",e=>{"Enter"!==e.key&&" "!==e.key||(e.preventDefault(),h())}),o.appendChild(s)}function H(e){function t(e,t){const n=d.get(e),o=d.get(t);if(!n||!o)return;const a=n.x+n.w,s=o.x,r=n.y+n.h/2,c=o.y+o.h/2;if(s<=a)return;const l=(a+s)/2;i.appendChild(w("path",{class:"edge-main",d:"M "+a+" "+r+" C "+l+" "+r+", "+l+" "+c+", "+s+" "+c}))}const n=me("diagram");n.replaceChildren();const i=w("g",{class:"edges"}),o=w("g",{class:"cards"}),d=e.positions;for(const n of e.visible){const e=ke.get(n.id);e&&t(e,n.id)}for(const t of e.visible){const e=Le.get(t.id),n=d.get(t.id);e&&n&&D(e,n,o,d,"focus"===Ce.mode)}n.append(i,o),n.setAttribute("viewBox","0 0 "+e.width+" "+e.height),Ce.positions=d,Ce.scene={width:e.width,height:e.height}}function P(){const e=me("canvasWrap"),t=Number(e.clientWidth)||1150,n=Number(e.clientHeight)||630,{width:i,height:o}=Ce.scene,d=(t-56)/i,a=(n-48)/o;return Math.max(.82,Math.min(1,d,a))}function J(){const e=me("canvasWrap"),t=Ce.positions.get(Ce.focusId);if(!t)return;const n=Number(e.clientWidth)||1150,i=Number(e.clientHeight)||630,o=Ce.zoom*(t.x+t.w/2)-n/2,d=Ce.zoom*(t.y+t.h/2)-i/2;"function"==typeof e.scrollTo&&e.scrollTo({left:Math.max(0,o),top:Math.max(0,d),behavior:window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches?"auto":"smooth"})}function F(){const e=me("diagram");e.setAttribute("width",Math.round(Ce.scene.width*Ce.zoom)),e.setAttribute("height",Math.round(Ce.scene.height*Ce.zoom)),me("zoomValue").textContent=Math.round(100*Ce.zoom)+"%"}function V(e,t,n){const i=g("button","outline-item"+(Ce.focusId===e?" selected":""),t);return i.style.paddingLeft=13+12*n+"px",i.title=Le.get(e)?.description||t,i.addEventListener("click",()=>I(e,Ce.view,!1)),i}function K(){const e=me("outline");e.replaceChildren();const t=U();if("focus"===Ce.mode&&Ce.focusId){const t=k(Ce.focusId),n=new Set([...t,..._e.get(Ce.focusId)||[]]);for(const i of n)e.appendChild(V(i,Le.get(i).title,Math.min(4,t.indexOf(i)>=0?t.indexOf(i):t.length)))}else for(const n of t)e.appendChild(V(n.id,Le.get(n.id).title,n.depth));e.children.length||e.appendChild(g("p","empty-message","\u5c1d\u8bd5\u5176\u4ed6\u68c0\u7d22\u8bcd"))}function $(){me("sidebar").classList.toggle("is-hidden",!Ce.outlineOpen),me("detailDrawer").classList.toggle("is-hidden",!Ce.detailsOpen),me("detailsToggle").disabled=!Ce.focusId,me("overviewBack").classList.toggle("is-hidden",!Ce.focusId)}function X(){const e=me("breadcrumb");if(e.replaceChildren(),!Ce.focusId)return void e.appendChild(g("span","crumb-current",Ce.view[0].toUpperCase()+Ce.view.slice(1)));const t=k(Ce.focusId),n=t.slice(-3);t.length>3&&e.appendChild(g("span","crumb-ellipsis","\u2026"));for(let t=0;t<n.length;t++){t&&e.appendChild(g("span","crumb-divider","/"));const i=n[t],o=Le.get(i);if(i===Ce.focusId)e.appendChild(g("span","crumb-current",o.title));else{const t=g("button","crumb-link",o.title);t.addEventListener("click",()=>I(i,Ce.view,!1)),e.appendChild(t)}}}function G(e,t){const n=g("section","context-section");return n.appendChild(g("h4","",t)),e.appendChild(n),n}function Q(e,t){const n=M(e),i=g("button","context-link",t);return i.addEventListener("click",()=>A(e)),i.title=n?n+" \xb7 "+e:"Unknown node",i}function Y(e,t){if("string"!=typeof e||!e||e.startsWith("/")||e.includes("..")||e.includes("\\"))return null;const n="number"==typeof t&&t>0?"#L"+t:"";return"https://github.com/OpenSAE/OpenResearch/blob/main/"+e.split("/").map(encodeURIComponent).join("/")+n}function Z(e,t,n,i){const o=w(t,n,i);return e.appendChild(o),o}function ee(e){const t=w("svg",{viewBox:"0 0 390 128",class:"attribute-diagram",role:"img","aria-label":"residual"===e?"\u6b8b\u5dee\u8def\u5f84 F(x) \u4e0e\u6377\u5f84 x \u76f8\u52a0\u7684\u7ed3\u6784\u793a\u610f":"CUB \u5b98\u65b9\u8bad\u7ec3\u4e0e\u6d4b\u8bd5\u5206\u5f00\u7684\u7ed3\u6784\u793a\u610f"});return"residual"===e?(Z(t,"rect",{x:10,y:46,width:62,height:34,rx:7,class:"diagram-box"}),Z(t,"text",{x:41,y:67,"text-anchor":"middle"},"\u8f93\u5165 x"),Z(t,"path",{d:"M72 63 L106 63 L106 31 L128 31",class:"diagram-edge"}),Z(t,"rect",{x:128,y:14,width:129,height:36,rx:7,class:"diagram-box"}),Z(t,"text",{x:192,y:36,"text-anchor":"middle"},"\u6b8b\u5dee\u53d8\u6362 F(x)"),Z(t,"path",{d:"M257 32 L288 32 L288 63",class:"diagram-edge"}),Z(t,"path",{d:"M72 63 L288 63",class:"diagram-edge"}),Z(t,"rect",{x:275,y:52,width:28,height:24,rx:12,class:"diagram-sum"}),Z(t,"text",{x:289,y:68,"text-anchor":"middle"},"+"),Z(t,"path",{d:"M303 64 L329 64",class:"diagram-edge"}),Z(t,"text",{x:356,y:67,"text-anchor":"middle"},"\u8f93\u51fa"),Z(t,"text",{x:185,y:89,"text-anchor":"middle"},"\u6377\u5f84\u8fde\u63a5")):"cub_split"===e&&(Z(t,"text",{x:195,y:23,"text-anchor":"middle"},"CUB-200-2011 \u5b98\u65b9\u6570\u636e"),Z(t,"rect",{x:16,y:42,width:166,height:62,rx:8,class:"diagram-box"}),Z(t,"rect",{x:208,y:42,width:166,height:62,rx:8,class:"diagram-box"}),Z(t,"text",{x:99,y:67,"text-anchor":"middle"},"\u8bad\u7ec3\u6570\u636e"),Z(t,"text",{x:99,y:84,"text-anchor":"middle"},"Official Train"),Z(t,"text",{x:291,y:67,"text-anchor":"middle"},"\u6d4b\u8bd5\u6570\u636e"),Z(t,"text",{x:291,y:84,"text-anchor":"middle"},"Official Test")),t}function te(e,t){const n=g("section","node-attribute-section");return n.appendChild(g("h4","node-attribute-heading",t)),e.appendChild(n),n}function ne(e,t){const n=g("pre","node-attribute-code",t||"");return e.appendChild(n),n}function ie(e,t,n,i){const o=Y(t,n);if(!o)return;const d=g("a","node-attribute-link",i||"\u67e5\u770b\u5b9e\u4f53\u6e90\u7801");d.href=o,d.target="_blank",d.rel="noopener noreferrer",e.appendChild(d)}function oe(e,t){if(!t?.length)return;const n=te(e,"\u53c2\u6570\u4e0e\u4f5c\u7528"),i=g("div","node-parameter-list");for(const e of t){const t=g("div","node-parameter-row"),n=g("code","node-parameter-name",e.name);t.appendChild(n);const o=g("div","node-parameter-info");o.appendChild(g("p","node-parameter-meaning",e.meaning||"\u8f93\u5165\u53c2\u6570"));const d=[e.annotation,null!==e.default&&void 0!==e.default?"\u9ed8\u8ba4\u503c "+e.default:""].filter(Boolean);d.length&&o.appendChild(g("p","node-parameter-extra",d.join(" \xb7 "))),t.appendChild(o),i.appendChild(t)}n.appendChild(i)}function de(e,t,n){if(t){if(te(e,"\u4e3b\u8981\u4f5c\u7528").appendChild(g("p","node-attribute-text",t.purpose||"\u73b0\u6709\u6e90\u4ee3\u7801\u5b9e\u73b0\u7684\u5904\u7406\u6d41\u7a0b\u3002")),te(e,"\u51fd\u6570\u7b7e\u540d").appendChild(g("code","node-attribute-signature",t.signature||"")),oe(e,t.parameters),t.returns){const n=te(e,"\u8fd4\u56de\u503c"),i=(t.returns.name||"return")+" \xb7 "+(t.returns.annotation||"\u6e90\u4ee3\u7801\u8868\u8fbe\u5f0f");n.appendChild(g("code","node-attribute-signature",i)),n.appendChild(g("p","node-attribute-text",t.returns.meaning||"")),t.returns.expressions?.length&&ne(n,t.returns.expressions.join("\n"))}if(t.code){const i=te(e,"\u5b9e\u9645\u4ee3\u7801\u4e3b\u8981\u90e8\u5206");ne(i,t.code),ie(i,n,t.line,"\u67e5\u770b\u5b8c\u6574\u51fd\u6570\u6e90\u7801")}}}function ae(e,t,n){if(!t||"string"!=typeof t.label)return;if("class_methods"===t.type){const i=te(e,t.label);for(const e of t.methods||[]){const t=g("details","node-method-details"),o=g("summary","node-method-summary",e.name);t.appendChild(o);const d=g("div","node-method-body");de(d,e,n.path),t.appendChild(d),i.appendChild(t)}return}if("fields"===t.type){const n=te(e,t.label);for(const e of t.fields||[]){const t=g("div","node-field-row");t.appendChild(g("code","node-parameter-name",e.name)),t.appendChild(g("span","node-attribute-text",e.meaning||"\u6210\u5458\u6570\u636e")),e.assignment&&t.appendChild(g("code","node-field-assignment",e.assignment)),n.appendChild(t)}return}if("module_contents"===t.type){const n=te(e,t.label);for(const[e,i]of[["\u7c7b",t.classes||[]],["\u51fd\u6570",t.functions||[]]])i.length&&n.appendChild(g("p","node-attribute-text",e+"\uff1a"+i.join(" \xb7 ")));return}if("interface"===t.type)return void de(e,t.interface,n.path);if("code_reference"===t.type){const n=te(e,t.label);if(t.interface?de(n,t.interface,t.path):t.code&&ne(n,t.code),ie(n,t.path,t.line,"\u67e5\u770b\u6e90\u6587\u4ef6"),t.symbol_id){const e=g("a","node-attribute-link","\u5728 Code Tree \u4e2d\u67e5\u770b\u5bf9\u5e94\u5b9e\u73b0");e.href="code.html?focus="+encodeURIComponent(t.symbol_id),n.appendChild(e)}return}const i=te(e,t.label);"diagram"===t.type?(i.appendChild(ee(t.diagram)),t.caption&&i.appendChild(g("p","node-attribute-note",t.caption))):"formula"===t.type?(i.appendChild(g("div","node-attribute-formula",t.value||"")),t.note&&i.appendChild(g("p","node-attribute-note",t.note))):"code"===t.type?ne(i,t.value||""):"function"===t.type?i.appendChild(g("code","node-attribute-signature",t.signature||t.value||"")):"reference"===t.type?ie(i,t.path,t.line,"\u67e5\u770b\u5b8c\u6574\u6765\u6e90"):i.appendChild(g("p","node-attribute-text",t.value||"")),t.source&&ie(i,t.source,t.line,"\u67e5\u770b\u4f9d\u636e")}function se(e){Ce.expandedAttributes.has(e)?Ce.expandedAttributes.delete(e):Ce.expandedAttributes.add(e),ce(!1);const t=me("diagram");return Ce.focusId===e&&J(),t}function re(){const e=me("detailBody");e.replaceChildren();const t=Le.get(Ce.focusId);if(!t)return void e.appendChild(g("p","empty-message","\u9009\u62e9\u8282\u70b9\u67e5\u770b\u8bc1\u636e\u4e0e\u6765\u6e90"));e.appendChild(g("h2","detail-title",t.title));const n=g("div","detail-status"),i=g("span","detail-status-swatch");if(i.style.background=fe[t.status]||"#adb2b9",n.appendChild(i),n.appendChild(g("span","","environment"===Ce.view&&x().synthetic?"\u6f14\u793a\u6570\u636e\uff08\u672a\u5b9e\u6d4b\uff09":{not_implemented:"Not Implemented",partial:"Partial",implemented:"Implemented"}[t.status]||"Unknown")),e.appendChild(n),e.appendChild(g("p","detail-description",t.reader_explanation||b(t.description||""))),t.context_term_ids?.length){const n=G(e,"\u4e13\u4e1a\u8bcd\u6c47 \xb7 Context");for(const e of t.context_term_ids){const t=(pe.context?.nodes||[]).find(t=>t.id===e);if(!t)continue;const i=g("div","node-term-row");i.appendChild(Q(e,t.title)),i.appendChild(g("p","node-term-definition",b(t.description))),n.appendChild(i)}}if(t.source_symbol&&["module","class","method","function"].includes(v(t))){G(e,"\u6e90\u4ee3\u7801\u6807\u8bc6").appendChild(g("code","signature",t.source_symbol))}if(t.signature&&G(e,"\u65b9\u6cd5\u7b7e\u540d").appendChild(g("code","signature",t.signature)),t.facts){const n=G(e,"\u8bbe\u5907\u4e0e\u6267\u884c\u4fe1\u606f");for(const[e,i]of Object.entries(t.facts))n.appendChild(g("p","",e+"\uff1a"+i))}t.why_it_matters&&G(e,"Why this matters").appendChild(g("p","",t.why_it_matters)),t.aliases?.length&&G(e,"Also known as").appendChild(g("p","",t.aliases.join(" \xb7 "))),t.next&&G(e,"Next step").appendChild(g("p","",t.next));for(const[n,i]of[["Scientific knowledge",t.context_ids],["Project context",t.core_ids],["Scientific terms",t.term_ids]])if(i?.length){const t=G(e,n);for(const e of i){const n=M(e),i=(pe[n]?.nodes||[]).find(t=>t.id===e);t.appendChild(Q(e,i?.title||e))}}if(t.foundation){const n=G(e,"Background"),i=g("a","context-link",t.foundation);i.href="https://github.com/OpenSAE/OpenResearch/blob/main/"+t.foundation,i.target="_blank",i.rel="noopener noreferrer",n.appendChild(i)}if(t.evidence?.length){const n=G(e,"Evidence");for(const e of t.evidence.slice(0,12)){const t=g("a","context-link",e),i=e.split(":")[0];i.startsWith("https://")?t.href=i:i.startsWith("/")||i.includes("..")||(t.href="https://github.com/OpenSAE/OpenResearch/blob/main/"+i),t.target="_blank",t.rel="noopener noreferrer",n.appendChild(t)}}if("code"===Ce.view&&Ce.diff){const n=Ce.diff.changed?.find(e=>e.id===t.id);n&&G(e,"Observed change").appendChild(g("p","",n.fields.join(", ")))}}function ce(e){const t=T("focus"===Ce.mode?q():B());Ce.visible=t.visible,H(t),Ce.zoomInitialized||(Ce.zoom=1,Ce.zoomInitialized=!0),F(),X(),K(),re(),$(),me("canvasWrap").classList.toggle("in-focus","focus"===Ce.mode),me("diffControl").classList.toggle("is-hidden","code"!==Ce.view),me("focusHint").textContent="environment"===Ce.view&&x().synthetic?"\u6f14\u793a\u73af\u5883 \xb7 \u5408\u6210\u8bbe\u5907\u914d\u7f6e":"",me("statusLegend").classList.toggle("implemented-only","environment"!==Ce.view),me("statusLegend").classList.toggle("is-hidden",!!we),me("collapse").disabled="focus"===Ce.mode,me("expand").disabled="focus"===Ce.mode,we&&u(),"focus"===Ce.mode?J():e&&"function"==typeof me("canvasWrap").scrollTo&&me("canvasWrap").scrollTo({left:0,top:0})}function le(){me("overviewBack").addEventListener("click",()=>S(!0)),me("outlineToggle").addEventListener("click",()=>{Ce.outlineOpen=!Ce.outlineOpen,Ce.detailsOpen=!1,$()}),me("outlineClose").addEventListener("click",()=>{Ce.outlineOpen=!1,$()}),me("detailsToggle").addEventListener("click",()=>{Ce.focusId&&(Ce.detailsOpen=!Ce.detailsOpen,Ce.outlineOpen=!1,re(),$())}),me("detailsClose").addEventListener("click",()=>{Ce.detailsOpen=!1,$()}),me("search").addEventListener("input",e=>{Ce.query=String(e.target.value||""),Ce.expandedAttributes.clear(),Ce.mode="overview",Ce.focusId=null,Ce.detailsOpen=!1,Ce.outlineOpen=!!Ce.query.trim(),window.location?.search?.includes("focus=")&&E(null,!0),ce(!0)}),me("collapse").addEventListener("click",()=>{"focus"!==Ce.mode&&(Ce.expanded=new Set(Ee),ce(!0))}),me("expand").addEventListener("click",()=>{"focus"!==Ce.mode&&(Ce.expanded=new Set(Le.keys()),ce(!0))}),me("fit").addEventListener("click",()=>{Ce.zoom=P(),Ce.zoomInitialized=!0,F(),"focus"===Ce.mode&&J()}),me("zoomIn").addEventListener("click",()=>{Ce.zoom=Math.min(1.8,Math.round(100*(Ce.zoom+.15))/100),F(),"focus"===Ce.mode&&J()}),me("zoomOut").addEventListener("click",()=>{Ce.zoom=Math.max(.45,Math.round(100*(Ce.zoom-.15))/100),F(),"focus"===Ce.mode&&J()}),me("diffFile").addEventListener("change",async e=>{const t=e.target.files?.[0];if(t){try{const e=JSON.parse(await t.text());if("code_diff"!==e.kind)throw new Error("Expected a code_diff JSON report");Ce.diff=e,"code"!==Ce.view?window.location&&(window.location.href="code.html"):ce(!0)}catch(e){"function"==typeof alert&&alert("Cannot load code-tree diff: "+e.message)}e.target.value=""}}),window.addEventListener&&(window.addEventListener("popstate",()=>{if(we){const e=(window.location?.pathname||"").match(/\/(core|knowledge|code|environment|context)\.html$/);e&&e[1]!==Ce.view&&"core"!==e[1]&&O(e[1])}const e=L();Ce.expandedAttributes.clear(),Ce.focusId=e&&Le.has(e)?e:null,Ce.mode=Ce.focusId?"focus":"overview",Ce.detailsOpen=!1,Ce.query="",me("search").value="",ce(!0)}),window.addEventListener("keydown",e=>{if("Escape"===e.key){if(Ce.expandedAttributes.size)return Ce.expandedAttributes.clear(),void ce(!0);Ce.detailsOpen||Ce.outlineOpen?(Ce.detailsOpen=!1,Ce.outlineOpen=!1,$()):"focus"===Ce.mode&&S(!0)}}),window.addEventListener("resize",()=>{const e=me("canvasWrap"),t={width:Number(e.clientWidth)||0,height:Number(e.clientHeight)||0};(Math.abs(t.width-Me.width)>90||Math.abs(t.height-Me.height)>90)&&(Me=t,ce(!1))}))}const pe=window.OPENRESEARCH_ATLAS||{},ue={core:{root:"core:existing",primary:["contains","refines","addresses","decomposes"]},knowledge:{root:"knowledge:existing",primary:["contains","refines","addresses","decomposes"]},code:{root:"code:root",primary:["contains"]},environment:{root:"env:root",primary:["contains"]},context:{root:"context:root",primary:["contains"]}},fe={unchecked:"#8255b5",denied:"#78818b",not_implemented:"#c85b61",partial:"#d5a238",implemented:"#429669"
-},he={root:"#e0e4e9",question:"#e6eaef",solve:"#f1f3f5",goal:"#fbfcfd",group:"#e8ebef",term:"#fbfcfd",module:"#f4f5f6",class:"#edf0f3",method:"#fcfcfc",function:"#fafbfc",device:"#f7f8fa",capability:"#fcfcfc"},me=e=>document.getElementById(e),ge={unchecked:{fill:"#eadff8",stroke:"#8255b5"},approved:{fill:"#f8e2e5",stroke:"#bb4656"},denied:{fill:"#e5e7ea",stroke:"#78818b"}};let we=null,ve={},xe=!1,be="",ye="";const Ce={view:document.body?.dataset?.atlasView||"core",focusId:null,mode:"overview",expanded:new Set,query:"",zoom:1,zoomInitialized:!1,outlineOpen:!1,detailsOpen:!1,diff:null,expandedAttributes:new Set,positions:new Map,scene:{width:700,height:440},visible:[]};let ke=new Map,_e=new Map,Le=new Map,Ee=[],Me={width:0,height:0};R()}();
+/* OpenResearch Atlas: centered, source-backed trees with node focus navigation. */
+(function () {
+  "use strict";
+
+  const DATA = window.OPENRESEARCH_ATLAS || {};
+  const VIEWS = {
+    core: { root: "core:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
+    knowledge: { root: "knowledge:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
+    code: { root: "code:root", primary: ["contains"] },
+    environment: { root: "env:root", primary: ["contains"] },
+    context: { root: "context:root", primary: ["contains"] }
+  };
+  const STATES = {
+    unchecked: "#8255b5", denied: "#78818b",
+    not_implemented: "#c85b61",
+    partial: "#d5a238",
+    implemented: "#429669"
+  };
+  const PALETTE = {
+    root: "#e0e4e9", question: "#e6eaef", solve: "#f1f3f5",
+    goal: "#fbfcfd", group: "#e8ebef", term: "#fbfcfd",
+    module: "#f4f5f6", class: "#edf0f3", method: "#fcfcfc",
+    function: "#fafbfc", device: "#f7f8fa", capability: "#fcfcfc"
+  };
+
+  const $ = id => document.getElementById(id);
+
+  // Review is a mode inside Atlas. It reuses the real graph, cards and navigation.
+  // Proposal decisions are NOT implementation results: unchecked purple,
+  // approved red (still unimplemented), denied gray.
+  const REVIEW_PALETTE = {
+    unchecked: { fill: "#eadff8", stroke: "#8255b5" },
+    approved: { fill: "#f8e2e5", stroke: "#bb4656" },
+    denied: { fill: "#e5e7ea", stroke: "#78818b" }
+  };
+  let review = null, reviewGraphs = {}, reviewBusy = false, reviewError = "";
+  let reviewDraftMessage = "";
+
+  function requestedReview() {
+    const match = (window.location?.search || "").match(/[?&]review=([^&]+)/);
+    if (!match) return null;
+    try { return decodeURIComponent(match[1]); } catch (_) { return null; }
+  }
+  function reviewKey() {
+    const match = (window.location?.hash || "").match(/^#key=([^&]+)/);
+    try { return match ? decodeURIComponent(match[1]) : ""; }
+    catch (_) { return ""; }
+  }
+  function proposalState(item) {
+    return item?.proposal_review?.decision || "unchecked";
+  }
+  function itemFor(id, view=config.view) {
+    return review?.plan?.items?.find(x => x.node_id === id && x.view === view);
+  }
+  function overlayGraphs() {
+    reviewGraphs = {};
+    if (!review) return;
+    const anchor = review.context || { nodes:[], edges:[] };
+    for(const view of ["knowledge","code","environment","context"]) {
+      const base = DATA[view] || {nodes:[],edges:[]};
+      const nodes = new Map((base.nodes || []).map(n=>[n.id,n]));
+      const edges = [...(base.edges || [])];
+      const addEdge = edge => {
+        if (!edges.some(e => e.source === edge.source && e.target === edge.target &&
+             e.type === edge.type)) edges.push(edge);
+      };
+      if (view === "knowledge") {
+        for(const node of anchor.nodes || [])
+          if (!nodes.has(node.id)) nodes.set(node.id,node);
+        for(const edge of anchor.edges || []) addEdge(edge);
+      }
+      for(const item of review.plan.items.filter(x=>x.view===view)) {
+        const baseNode = nodes.get(item.node_id) || {};
+        const after = item.after || {};
+        const origin = item.before || {};
+        const displayed = {
+          ...baseNode,
+          // Keep the normal node's interface, device facts and terminology.
+          // Proposed fields are never read as real implemented Code evidence.
+          ...after,
+          id: item.node_id,
+          kind: baseNode.kind || after.type || origin.type || "goal",
+          title: after.title || origin.title || baseNode.title || item.node_id,
+          description: after.description || origin.description || baseNode.description || "",
+          summary: after.summary || after.description || origin.description || baseNode.summary || "",
+          status: proposalState(item) === "approved" ? "not_implemented" :
+                  proposalState(item) === "denied" ? "denied" : "unchecked",
+          reader_explanation: after.reader_explanation || after.description || origin.description || "",
+          context_term_ids: after.context_term_ids || after.term_ids ||
+                            baseNode.context_term_ids || [],
+          review_item: true
+        };
+        nodes.set(item.node_id,displayed);
+        const parent = item.parent_id;
+        if (parent && nodes.has(parent)) {
+          addEdge({source:parent,target:item.node_id,type:"contains"});
+        } else if (item.operation === "add" && nodes.has(VIEWS[view].root)) {
+          addEdge({source:VIEWS[view].root,target:item.node_id,type:"contains"});
+        }
+      }
+      reviewGraphs[view] = {...base,nodes:[...nodes.values()],edges};
+    }
+  }
+  function reviewPosition() {
+    return review?.plan.items.findIndex(item=>item.node_id===config.focusId &&
+      item.view===config.view) ?? -1;
+  }
+  function reviewGo(index) {
+    if(!review || index<0 || index>=review.plan.items.length) return;
+    reviewError="";
+    const item=review.plan.items[index];
+    navigate(item.node_id,item.view,false);
+  }
+
+  // A public GitHub Pages page has no identity allowed to write to a repository.
+  // Browser drafts really persist as JSON in this browser, with a visible export;
+  // only authenticated loopback Atlas saves the authoritative Knowledge JSON.
+  function browserDraftKey(plan) {
+    return "openresearch:atlas:proposal:v1:" + plan.id + ":" + plan.preview_sha256;
+  }
+  function browserDraftStorage() {
+    try { return window.localStorage || null; }
+    catch (_) { return null; }
+  }
+  function restoreBrowserDraft(plan) {
+    const store = browserDraftStorage();
+    if (!store) return;
+    try {
+      const raw=store.getItem(browserDraftKey(plan));
+      if(!raw) return;
+      const saved=JSON.parse(raw);
+      if(saved.schema!=="openresearch.atlas.proposal-draft.v1" ||
+         saved.plan_id!==plan.id || saved.preview_sha256!==plan.preview_sha256)
+         return;
+      for(const item of plan.items){
+        const decision=saved.decisions?.[item.key];
+        if(["approved","denied"].includes(decision))
+          item.proposal_review={decision,actor:"Browser draft"};
+      }
+    } catch (_) { reviewDraftMessage="Could not load saved draft"; }
+  }
+  function saveBrowserDraft(key,decision) {
+    const store=browserDraftStorage();
+    if(!store) throw Error("Browser storage unavailable. Use local Atlas to save JSON.");
+    const choices={};
+    for(const item of review.plan.items){
+      const val=item.key===key?decision:proposalState(item);
+      if(val==="approved"||val==="denied") choices[item.key]=val;
+    }
+    const data={schema:"openresearch.atlas.proposal-draft.v1",
+      plan_id:review.plan.id,preview_sha256:review.plan.preview_sha256,
+      decisions:choices,updated_at:new Date().toISOString(),
+      authority_applied:false};
+    // Synchronous storage completes before the visible node state changes.
+    store.setItem(browserDraftKey(review.plan),JSON.stringify(data));
+    review.plan.items.find(item=>item.key===key).proposal_review={
+      decision,actor:"Browser draft",at:data.updated_at
+    };
+    reviewDraftMessage="Saved in browser";
+  }
+  function exportBrowserDraft() {
+    if(!review || review.editable) return;
+    const store=browserDraftStorage();
+    const raw=store?.getItem(browserDraftKey(review.plan));
+    if(!raw){reviewError="Nothing saved";updateReviewBar();return;}
+    const data=JSON.parse(raw);
+    const payload=JSON.stringify(data,null,2)+"\n";
+    const url=URL.createObjectURL(new Blob([payload],{type:"application/json"}));
+    const link=el("a");
+    link.href=url;link.download=review.plan.id+".proposal-draft.json";
+    document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),0);
+  }
+  function updateReviewBar() {
+    if(!review) return;
+    const bar=$("atlasReviewBar");
+    bar.classList.remove("is-hidden");
+    const items=review.plan.items, current=reviewPosition();
+    $("atlasReviewCount").textContent = (current>=0?current+1:"–") + " / " + items.length;
+    $("atlasReviewPrev").disabled = reviewBusy || current<=0;
+    $("atlasReviewNext").disabled = reviewBusy || current===items.length-1;
+    $("atlasReviewApprove").disabled = reviewBusy || current<0;
+    $("atlasReviewDeny").disabled = reviewBusy || current<0;
+    $("atlasReviewExport").classList.toggle("is-hidden", !!review.editable);
+    $("atlasReviewExport").disabled = reviewBusy;
+    const currentItem=items[current];
+    const status=proposalState(currentItem);
+    $("atlasReviewApprove").classList.toggle("chosen", status==="approved");
+    $("atlasReviewDeny").classList.toggle("chosen", status==="denied");
+    $("atlasReviewMessage").textContent = reviewBusy ? "Saving…" : reviewError ? reviewError :
+       (!review.editable ? (reviewDraftMessage || "Browser draft") :
+       (status === "unchecked" ? "Unchecked" :
+        status === "approved" ? "Not implemented" : "Denied"));
+  }
+  function applyReviewResponse(data,live) {
+    if (!data?.plan || !Array.isArray(data.plan.items) ||
+        data.plan.id !== requestedReview()) throw Error("Invalid Atlas plan");
+    if(!live) restoreBrowserDraft(data.plan);
+    review = {plan:data.plan,context:data.context || data.review_context ||
+              {nodes:[],edges:[]},editable:!!live && !!reviewKey()};
+    overlayGraphs();
+    rebuildHierarchy();
+    config.expanded = initialExpanded();
+    render(false);
+  }
+  async function loadReview() {
+    if(!requestedReview() || config.view==="core") return;
+    let payload,live=false;
+    try {
+      const response=await fetch("/api/review/state",{cache:"no-store"});
+      if(!response.ok) throw Error("Local review service unavailable");
+      payload=await response.json();
+      live=true;
+    } catch (_) {
+      // GitHub Pages is read-only. It cannot secretly persist human decisions.
+      if(!["OR-Knowledge-Demo-20261026","OR-Atlas-MultiTree-Demo-20261026"]
+          .includes(requestedReview())) {
+        $("focusHint").textContent="Local Atlas review service required";
+        return;
+      }
+      const response=await fetch("./demo-knowledge-plan.json",{cache:"no-store"});
+      if(!response.ok) throw Error("Preview JSON missing");
+      payload=await response.json();
+      if(!payload.plan) payload={plan:payload,context:payload.review_context};
+    }
+    applyReviewResponse(payload,live);
+    const key=getSearchFocus(), item=review.plan.items.find(x=>x.node_id===key && x.view===config.view);
+    if(item) navigate(item.node_id,item.view,true);
+    else {
+      const first=review.plan.items.find(x=>x.view===config.view) || review.plan.items[0];
+      if(first) navigate(first.node_id,first.view,true);
+    }
+    const bar=$("atlasReviewBar");
+    $("atlasReviewPrev").addEventListener("click",()=>reviewGo(reviewPosition()-1));
+    $("atlasReviewNext").addEventListener("click",()=>reviewGo(reviewPosition()+1));
+    $("atlasReviewApprove").addEventListener("click",()=>submitReview("approved"));
+    $("atlasReviewDeny").addEventListener("click",()=>submitReview("denied"));
+    $("atlasReviewExport").addEventListener("click",exportBrowserDraft);
+    // Existing Atlas tabs remain available in review mode without reloading.
+    if (typeof document.querySelectorAll === "function")
+      for(const tab of document.querySelectorAll(".tabs [data-graph]"))
+        tab.addEventListener("click", event => {
+          if(!review || tab.dataset.graph === "core") return;
+          event.preventDefault();
+          const choice=review.plan.items.find(item=>item.view===tab.dataset.graph);
+          if(choice) navigate(choice.node_id, choice.view, false);
+        });
+    bar.classList.remove("is-hidden");
+    updateReviewBar();
+  }
+  async function submitReview(decision) {
+    if(!review || reviewBusy) return;
+    const at=reviewPosition();
+    if(at<0) return;
+    const current=review.plan.items[at];
+    reviewError="";
+    reviewBusy=true;
+    updateReviewBar();
+    try {
+      // Local Atlas commits Knowledge and Ledger before returning success.
+      // Public Atlas persists a clearly labeled browser-only JSON draft.
+      if(review.editable){
+        const response=await fetch("/api/review/decision",{
+          method:"POST",credentials:"same-origin",keepalive:true,
+          headers:{"Content-Type":"application/json","X-Atlas-Review-Key":reviewKey()},
+          body:JSON.stringify({revision:review.plan.revision,key:current.key,decision})
+        });
+        const data=await response.json();
+        if(!response.ok) throw Error(data.error || "Review not saved");
+        applyReviewResponse(data,true);
+      } else {
+        saveBrowserDraft(current.key,decision);
+        overlayGraphs();
+        rebuildHierarchy();
+        render(false);
+      }
+      const currentKey=current.key;
+      let next=-1;
+      for(let i=at+1;i<review.plan.items.length;i++){
+        if(proposalState(review.plan.items[i])==="unchecked"){next=i;break;}
+      }
+      if(next<0) for(let i=0;i<at;i++){
+        if(proposalState(review.plan.items[i])==="unchecked"){next=i;break;}
+      }
+      if(next>=0) reviewGo(next);
+      else reviewGo(review.plan.items.findIndex(x=>x.key===currentKey));
+    } catch(error) {
+      reviewError=review.editable?"Save failed":"Draft not saved";
+      $("atlasReviewMessage").title=error.message;
+    } finally {
+      reviewBusy=false;
+      updateReviewBar();
+    }
+  }
+
+  const config = {
+    view: document.body?.dataset?.atlasView || "core",
+    focusId: null,
+    mode: "overview",
+    expanded: new Set(),
+    query: "",
+    zoom: 1,
+    zoomInitialized: false,
+    outlineOpen: false,
+    detailsOpen: false,
+    diff: null,
+    expandedAttributes: new Set(),
+    positions: new Map(),
+    scene: { width: 700, height: 440 },
+    visible: []
+  };
+  let parents = new Map(), children = new Map(), byId = new Map();
+  let rootIds = [];
+  let lastViewport = { width: 0, height: 0 };
+
+  function el(tag, className, value) {
+    const item = document.createElement(tag);
+    if (className) item.className = className;
+    if (value !== undefined) item.textContent = String(value);
+    return item;
+  }
+  function svg(tag, attrs, text) {
+    const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [key, value] of Object.entries(attrs || {})) node.setAttribute(key, String(value));
+    if (text !== undefined) node.textContent = String(text);
+    return node;
+  }
+  function kind(node) { return node?.kind || node?.type || "goal"; }
+  function graph() { return reviewGraphs[config.view] || DATA[config.view] || { nodes: [], edges: [], gates: [] }; }
+  function plain(text) {
+    return String(text || "").replace(/^\s*(问题|方案|目标|定义|现状)[:：]\s*/, "").replace(/\s+/g, " ").trim();
+  }
+  function matches(node) {
+    const q = config.query.trim().toLocaleLowerCase();
+    return !q || [node.id, node.title, node.source_symbol, node.description, node.signature, node.path,
+      ...(node.aliases || []), ...(node.term_ids || []), ...(node.context_ids || [])]
+      .join(" ").toLocaleLowerCase().includes(q);
+  }
+  function order(a, b) {
+    const weights = { question: 0, solve: 1, goal: 2, root: 0,
+      group: 1, module: 2, class: 3, function: 4, method: 5, term: 3 };
+    return (weights[kind(a)] ?? 6) - (weights[kind(b)] ?? 6)
+      || String(a.title).localeCompare(String(b.title), "zh");
+  }
+  function rebuildHierarchy() {
+    byId = new Map((graph().nodes || []).map(n => [n.id, n]));
+    parents = new Map(); children = new Map();
+    for (const edge of graph().edges || []) {
+      if (!VIEWS[config.view].primary.includes(edge.type)) continue;
+      if (!byId.has(edge.source) || !byId.has(edge.target) || parents.has(edge.target)) continue;
+      parents.set(edge.target, edge.source);
+      if (!children.has(edge.source)) children.set(edge.source, []);
+      children.get(edge.source).push(edge.target);
+    }
+    // Child edges are intentionally rendered in stored top-to-bottom order.
+    const preferred = VIEWS[config.view].root;
+    rootIds = byId.has(preferred) ? [preferred] : [...byId.keys()].filter(id => !parents.has(id));
+  }
+  function ancestors(id) {
+    const result = []; const seen = new Set();
+    let cursor = id;
+    while (byId.has(cursor) && !seen.has(cursor) && result.length <= 16) {
+      seen.add(cursor); result.push(cursor);
+      cursor = parents.get(cursor);
+    }
+    return result.reverse();
+  }
+  function initialExpanded() {
+    const result = new Set(rootIds);
+    if (["core", "knowledge"].includes(config.view)) {
+      for (const id of rootIds) for (const c of children.get(id) || []) result.add(c);
+    }
+    if (config.view === "environment") {
+      for (const n of byId.values()) if (kind(n) === "group") result.add(n.id);
+    }
+    return result;
+  }
+  function getSearchFocus() {
+    const raw = (window.location?.search || "").match(/[?&]focus=([^&]+)/);
+    if (!raw) return null;
+    try { return decodeURIComponent(raw[1].replace(/\+/g, "%20")); }
+    catch (_) { return null; }
+  }
+  function setAddress(focusId, replace) {
+    if (!window.history?.pushState || !window.location?.pathname) return;
+    // Review mode switches the URL and Atlas graph in place; no new HTML load.
+    const path = review ? config.view + ".html" : window.location.pathname;
+    const params=[];
+    if(requestedReview()) params.push("review="+encodeURIComponent(requestedReview()));
+    if(focusId) params.push("focus="+encodeURIComponent(focusId));
+    const url = path + (params.length?"?"+params.join("&"):"") +
+      (requestedReview()?window.location.hash||"":"");
+    try {
+      window.history[replace ? "replaceState" : "pushState"](
+        { view: config.view, focusId: focusId || null }, "", url
+      );
+    } catch (_) { /* file:// mode may reject history; still allow local navigation */ }
+  }
+  function locateView(id) {
+    if (byId.has(id)) return config.view;
+    for (const key of Object.keys(VIEWS)) {
+      if ((reviewGraphs[key]?.nodes || DATA[key]?.nodes || []).some(n => n.id === id)) return key;
+    }
+    return null;
+  }
+  function activateReviewView(view) {
+    if (!review || view === "core" || !VIEWS[view] || !DATA[view]) return false;
+    config.view = view;
+    if(document.body?.dataset) document.body.dataset.atlasView = view;
+    rebuildHierarchy();
+    config.expanded = initialExpanded();
+    config.expandedAttributes.clear();
+    // The same DOM and canvas stay mounted across different trees.
+    if(typeof document.querySelectorAll === "function")
+      for(const tab of document.querySelectorAll(".tabs [data-graph]"))
+        tab.classList.toggle("active", tab.dataset.graph === view);
+    return true;
+  }
+  function navigate(id, view, replace) {
+    const target = view || locateView(id);
+    if (!target || !(reviewGraphs[target]?.nodes || DATA[target]?.nodes || []).some(n => n.id === id)) return false;
+    if (target !== config.view) {
+      if (review) {
+        // Fast cross-tree page turn: preserve scroll/zoom and shared draft state.
+        if (!activateReviewView(target)) return false;
+      } else {
+        if(window.location) window.location.href = target+".html?"+
+          (requestedReview()?"review="+encodeURIComponent(requestedReview())+"&":"")+
+          "focus="+encodeURIComponent(id)+(requestedReview()?window.location.hash||"":"");
+        return true;
+      }
+    }
+    // Primary click expands this node in place. Existing branches stay open;
+    // the graph becomes scrollable and never changes its current zoom.
+    config.mode = review ? "focus" : "overview";
+    if(review) config.expandedAttributes.clear();
+    config.focusId = id;
+    config.query = "";
+    $("search").value = "";
+    config.outlineOpen = false;
+    config.detailsOpen = false;
+    for (const key of ancestors(id)) config.expanded.add(key);
+    // Focus opens the exact same attribute panel as an ordinary Atlas node.
+    // Only one review node is expanded at a time for rapid page turns.
+    config.expandedAttributes.add(id);
+    setAddress(id, !!replace);
+    render(false);
+    centerSelected();
+    if(review) updateReviewBar();
+    return true;
+  }
+  function overview(push) {
+    config.expandedAttributes.clear();
+    config.mode = "overview"; config.focusId = null; config.query = "";
+    config.detailsOpen = false;
+    $("search").value = "";
+    if (push) setAddress(null, false);
+    render(true);
+  }
+  function openCross(id) { navigate(id, locateView(id), false); }
+  function init() {
+    if (!VIEWS[config.view] || !DATA[config.view]) config.view = "core";
+    rebuildHierarchy();
+    config.expanded = initialExpanded();
+    const deep = getSearchFocus();
+    if (deep && byId.has(deep)) {
+      config.mode = "focus"; config.focusId = deep;
+    }
+    bind();
+    render(true);
+    if(requestedReview() && config.view!=="core") {
+      loadReview().catch(error=>{$("focusHint").textContent=error.message;});
+    }
+  }
+
+  // SVG text wrapping uses a conservative display-width estimate for CJK and Latin.
+  function charWidth(character, fontSize) {
+    const code = character.codePointAt(0) || 0;
+    if (code >= 0x2e80 || code >= 0x1100 && code <= 0x11ff) return fontSize;
+    if (character === " ") return fontSize * .36;
+    if ("il.,:;'!|".includes(character)) return fontSize * .42;
+    if ("MW@%".includes(character)) return fontSize * .91;
+    return fontSize * .65;
+  }
+  function wrap(text, width, fontSize, maxLines) {
+    const chars = Array.from(plain(text));
+    if (!chars.length) return [];
+    const lines = []; let line = "", used = 0, at = 0;
+    while (at < chars.length && lines.length < maxLines) {
+      const ch = chars[at], w = charWidth(ch, fontSize);
+      if (line && used + w > width) {
+        lines.push(line.trim()); line = ""; used = 0;
+      } else {
+        line += ch; used += w; at++;
+      }
+    }
+    if (line && lines.length < maxLines) lines.push(line.trim());
+    if (at < chars.length && lines.length) {
+      const i = lines.length - 1;
+      lines[i] = lines[i].replace(/.{1,2}$/u, "") + "…";
+    }
+    return lines;
+  }
+  function measure(node, focused) {
+    // Pending/approved/denied nodes use the SAME size and expansion rules
+    // as source-backed Atlas nodes. Status affects only their colors.
+    const expanded = config.expandedAttributes.has(node.id);
+    const w = expanded ? 490 : 290;
+    const title = wrap(node.title || node.id, w - 45, 13.5, 2);
+    const body = wrap(node.summary || node.description, w - 42, 11.8, 4);
+    const base = Math.max(108, 22 + title.length * 19
+      + (body.length ? 10 + body.length * 17 : 0) + 18);
+    const isClass=(node.attributes||[]).some(x=>x.type==="class_methods");
+    const count=(node.attributes||[]).length;
+    const terms = (node.context_term_ids || []).length;
+    const extraH = expanded ? Math.min(760, Math.max(340, 170 + terms * 65 +
+      Math.min(count, 5) * 46 + (isClass ? 180 : 0))) : 0;
+    return { w, h:base + extraH, title, body, baseH:base,
+      extraH, expanded };
+  }
+  function visibleOverview() {
+    const needed = new Set();
+    if (config.query.trim()) {
+      for (const n of byId.values()) if (matches(n)) {
+        for (const id of ancestors(n.id)) needed.add(id);
+      }
+    }
+    const seen = new Set(), list = [];
+    function visit(id, depth) {
+      if (!byId.has(id) || seen.has(id) || depth > 13) return;
+      if (config.query && !needed.has(id)) return;
+      seen.add(id); list.push({ id, depth, role: "overview" });
+      if (config.query || config.expanded.has(id)) {
+        for (const child of children.get(id) || []) visit(child, depth + 1);
+      }
+    }
+    for (const id of rootIds) visit(id, 0);
+    return list;
+  }
+
+  function layoutOverview() {
+    const visible = visibleOverview();
+    const allowed = new Set(visible.map(v => v.id));
+    const sizes = new Map(), blocks = new Map(), positions = new Map();
+    const VERTICAL_GAP = 24, HORIZONTAL_GAP = 72, ORIGIN_X = 36;
+    const columnWidths=new Map();
+    for(const entry of visible){
+      const width=measure(byId.get(entry.id),false).w;
+      columnWidths.set(entry.depth,Math.max(columnWidths.get(entry.depth)||270,width));
+    }
+    const xColumns=[ORIGIN_X];
+    const maxDepth=Math.max(0,...visible.map(x=>x.depth));
+    for(let depth=1;depth<=maxDepth;depth++){
+      xColumns[depth]=xColumns[depth-1]+(columnWidths.get(depth-1)||270)+HORIZONTAL_GAP;
+    }
+    function height(id) {
+      if (blocks.has(id)) return blocks.get(id);
+      const kids = (children.get(id) || []).filter(x => allowed.has(x));
+      let total = kids.reduce((sum, child) => sum + height(child), 0)
+        + Math.max(0, kids.length - 1) * VERTICAL_GAP;
+      const own = sizes.get(id) || measure(byId.get(id), false);
+      sizes.set(id, own);
+      const result = Math.max(own.h, total);
+      blocks.set(id, result);
+      return result;
+    }
+    function place(id, depth, top) {
+      const size = sizes.get(id), block = blocks.get(id);
+      const centerY = top + block / 2;
+      positions.set(id, { x: xColumns[depth],
+        y: centerY - size.h / 2, ...size, depth });
+      const kids = (children.get(id) || []).filter(x => allowed.has(x));
+      const total = kids.reduce((sum, child) => sum + blocks.get(child), 0)
+        + Math.max(0, kids.length - 1) * VERTICAL_GAP;
+      let childTop = top + (block - total) / 2;
+      for (const child of kids) {
+        place(child, depth + 1, childTop);
+        childTop += blocks.get(child) + VERTICAL_GAP;
+      }
+    }
+    let y = 34;
+    for (const id of rootIds) if (allowed.has(id)) {
+      const h = height(id); place(id, 0, y); y += h + 28;
+    }
+    return { visible, positions };
+  }
+
+  function layoutFocus() {
+    const id = config.focusId;
+    if (!byId.has(id)) return layoutOverview();
+    const chain = ancestors(id);
+    const ancestorsShown = chain.slice(Math.max(0, chain.length - 3), -1);
+    const kids = (children.get(id) || []).filter(x => byId.has(x));
+    const ids = [...ancestorsShown, id, ...kids];
+    const positions = new Map();
+    const horizontalGap = 72, xStart = 36;
+    const focusSize = measure(byId.get(id), true);
+    const childSizes = kids.map(k => measure(byId.get(k), false));
+    const childTotal = childSizes.reduce((sum, s) => sum + s.h, 0)
+      + Math.max(0, childSizes.length - 1) * 20;
+    const center = 38 + Math.max(focusSize.h, childTotal) / 2;
+    const depthOffset = ancestorsShown.length;
+    const ancestorSizes=ancestorsShown.map(key=>measure(byId.get(key),false));
+    const columns=[xStart];
+    for(let i=1;i<=depthOffset;i++){
+      columns[i]=columns[i-1]+ancestorSizes[i-1].w+horizontalGap;
+    }
+    const ownX=columns[depthOffset];
+    positions.set(id, { x: ownX, y: center - focusSize.h / 2,
+      ...focusSize, depth: depthOffset, role: "focus" });
+    ancestorsShown.forEach((key, i) => {
+      const size=ancestorSizes[i];
+      positions.set(key, { x: columns[i],
+        y: center - size.h / 2, ...size, depth: i, role: "ancestor" });
+    });
+    let y = center - childTotal / 2;
+    kids.forEach((child, index) => {
+      const size = childSizes[index];
+      positions.set(child, { x: ownX + focusSize.w + horizontalGap,
+        y, ...size, depth: depthOffset + 1, role: "child" });
+      y += size.h + 20;
+    });
+    return { visible: ids.map(key => ({
+      id: key, depth: positions.get(key).depth, role: positions.get(key).role
+    })), positions };
+  }
+  function normalizeLayout(layout) {
+    let maxX = 0, maxY = 0;
+    for (const p of layout.positions.values()) {
+      maxX = Math.max(maxX, p.x + p.w); maxY = Math.max(maxY, p.y + p.h);
+    }
+    return { ...layout, width: Math.max(600, maxX + 35),
+      height: Math.max(300, maxY + 35) };
+  }
+  function textLines(group, lines, x, startY, lineHeight, className) {
+    for (let i = 0; i < lines.length; i++) {
+      group.appendChild(svg("text", { x, y: startY + i * lineHeight,
+        class: className }, lines[i]));
+    }
+  }
+  function drawCard(node, p, layer, positions, focus) {
+    const k = kind(node), chosen = node.id === config.focusId;
+    const classes = ["graph-node", "node-" + k, chosen ? "node-selected" : "",
+      p.expanded ? "node-expanded" : "",
+      config.diff && config.view === "code" &&
+        (config.diff.added_ids || []).includes(node.id) ? "node-added" : "",
+      config.diff && config.view === "code" &&
+        (config.diff.changed || []).some(x => x.id === node.id) ? "node-changed" : ""
+    ].filter(Boolean).join(" ");
+    const attrs = {
+      class: classes, transform: "translate(" + p.x + "," + p.y + ")",
+      role: "button", tabindex: "0",
+      "aria-label": node.title + ": " + plain(node.description || ""),
+      "data-node-id": node.id, "data-status": node.status || "unknown"
+    };
+    // Even an empty data-review attribute activates review CSS. Only reviewed
+    // nodes may have it; normal Atlas cards must keep their original font size.
+    if (review && itemFor(node.id)) attrs["data-review"] = proposalState(itemFor(node.id));
+    const card = svg("g", attrs);
+    card.appendChild(svg("title", {}, (node.title || "") +
+      (node.status ? " — " + node.status : "") + ". " + plain(node.description || "")));
+    card.appendChild(svg("rect", {
+      class: "node-surface", rx: 10, width: p.w, height: p.h,
+      fill: review && itemFor(node.id) ?
+        REVIEW_PALETTE[proposalState(itemFor(node.id))].fill : PALETTE[k] || "#fbfbfc"
+    }));
+    // Context ancestors stay neutral during a proposal review. In particular,
+    // a partial child must not paint its parent branch yellow.
+    const status = review ?
+      (itemFor(node.id) ? REVIEW_PALETTE[proposalState(itemFor(node.id))].stroke : null) :
+      STATES[node.status];
+    if (status) card.appendChild(svg("rect", {
+      class: "node-status", rx: 2, x: 0, y: 9,
+      width: 4, height: p.h - 18, fill: status
+    }));
+    // Typography and text layout are identical in normal and review modes.
+    const titleX=17, top=23;
+    textLines(card, p.title, titleX, top, 19, "node-title");
+    if (p.body.length) {
+      const contentY=top+p.title.length*19+7;
+      textLines(card,p.body,titleX,contentY,17,"node-description");
+    }
+    if(p.expanded){
+      const embedded=svg("foreignObject",{
+        x:10,y:p.baseH+8,width:p.w-20,height:p.extraH-41,
+        class:"node-attributes-foreign"
+      });
+      const content=el("div","node-attributes-inner");
+      content.setAttribute("aria-label",node.title+" 的完整解释与证据");
+      const intro=attributeSection(content,"这个节点在做什么");
+      intro.appendChild(el("p","node-attribute-text",
+        node.reader_explanation || plain(node.description || node.summary || "")));
+      const termIds=node.context_term_ids || [];
+      if(termIds.length){
+        const terms=attributeSection(content,"专业词汇 · Context");
+        for(const id of termIds){
+          const term=(reviewGraphs.context?.nodes || DATA.context?.nodes || []).find(x=>x.id===id);
+          if(!term)continue;
+          const row=el("div","node-term-row");
+          const link=el("a","node-term-link",term.title);
+          link.href="context.html?"+(review?"review="+encodeURIComponent(requestedReview())+"&":"")+
+                    "focus="+encodeURIComponent(id)+(review?window.location.hash||"":"");
+          link.title="在 Context 中查看“"+term.title+"”";
+          if(review) link.addEventListener("click",event=>{
+            event.preventDefault();
+            navigate(id,"context",false);
+          });
+          row.appendChild(link);
+          row.appendChild(el("p","node-term-definition",plain(term.description)));
+          terms.appendChild(row);
+        }
+      }
+      for(const block of node.attributes||[])renderAttributeBlock(content,block,node);
+      embedded.appendChild(content);
+      embedded.addEventListener("click",event=>event.stopPropagation?.());
+      embedded.addEventListener("keydown",event=>event.stopPropagation?.());
+      card.appendChild(embedded);
+    }
+    const count = (children.get(node.id) || []).length;
+    if (count) {
+      const label = svg("g", { class: "child-count" });
+      label.appendChild(svg("rect", {
+        x: p.w - 41, y: p.h - 25, width: 29, height: 18, rx: 9
+      }));
+      label.appendChild(svg("text", {
+        x: p.w - 26.5, y: p.h - 12, "text-anchor": "middle"
+      }, String(count)));
+      // The count badge expands this branch without changing zoom or focus.
+      label.setAttribute("role", "button");
+      label.setAttribute("tabindex", "0");
+      label.setAttribute("aria-label", "展开或收起子节点");
+      label.addEventListener("click", event => {
+        event.stopPropagation?.();
+        if (config.expanded.has(node.id)) config.expanded.delete(node.id);
+        else config.expanded.add(node.id);
+        render(false);
+      });
+      label.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault?.();
+          event.stopPropagation?.();
+          if (config.expanded.has(node.id)) config.expanded.delete(node.id);
+          else config.expanded.add(node.id);
+          render(false);
+        }
+      });
+      card.appendChild(label);
+    }
+    {
+      const toggle = svg("g", {
+        class: "attribute-trigger", role: "button", tabindex: "0",
+        "data-attribute-toggle": node.id,
+        "aria-label": "展开 " + node.title + " 的属性",
+      });
+      const countWidth = (children.get(node.id) || []).length ? 48 : 13;
+      const buttonWidth = p.w - countWidth - 14;
+      toggle.appendChild(svg("rect",{
+        class:"attr-hit",x:11,y:p.h-28,width:buttonWidth,height:22,rx:6
+      }));
+      const shortFunction = node.key_function ?
+        node.key_function.split(".").slice(-1)[0] : null;
+      toggle.appendChild(svg("text",{
+        x:20,y:p.h-13
+      },p.expanded ? "收起节点属性" :
+         shortFunction ? "关键函数 " + shortFunction + " · 展开属性" :
+         "展开节点说明与依据"));
+      const show = event => {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+        toggleAttributes(node.id);
+      };
+      toggle.addEventListener("click",show);
+      toggle.addEventListener("keydown",event=>{
+        if (event.key==="Enter" || event.key===" ") show(event);
+      });
+      card.appendChild(toggle);
+    }
+    const onOpen = () => navigate(node.id, config.view, false);
+    card.addEventListener("click", onOpen);
+    card.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault(); onOpen();
+      }
+    });
+    layer.appendChild(card);
+  }
+
+  function drawSVG(layout) {
+    const drawing = $("diagram");
+    drawing.replaceChildren();
+    const lines = svg("g", { class: "edges" });
+    const cards = svg("g", { class: "cards" });
+    const position = layout.positions;
+    function link(source, target) {
+      const a = position.get(source), b = position.get(target);
+      if (!a || !b) return;
+      const x1 = a.x + a.w, x2 = b.x;
+      const y1 = a.y + a.h / 2, y2 = b.y + b.h / 2;
+      if (x2 <= x1) return;
+      const mid = (x1 + x2) / 2;
+      lines.appendChild(svg("path", {
+        class: "edge-main",
+        d: "M " + x1 + " " + y1 + " C " + mid + " " + y1 +
+          ", " + mid + " " + y2 + ", " + x2 + " " + y2
+      }));
+    }
+    for (const item of layout.visible) {
+      const p = parents.get(item.id);
+      if (p) link(p, item.id);
+    }
+    for (const item of layout.visible) {
+      const n = byId.get(item.id), p = position.get(item.id);
+      if (n && p) drawCard(n, p, cards, position, config.mode === "focus");
+    }
+    drawing.append(lines, cards);
+    drawing.setAttribute("viewBox", "0 0 " + layout.width + " " + layout.height);
+    config.positions = position;
+    config.scene = { width: layout.width, height: layout.height };
+  }
+  function fitZoom() {
+    const v = $("canvasWrap");
+    const w = Number(v.clientWidth) || 1150;
+    const h = Number(v.clientHeight) || 630;
+    const { width, height } = config.scene;
+    const a = (w - 56) / width, b = (h - 48) / height;
+    return Math.max(0.82, Math.min(1, a, b));
+  }
+  function centerSelected() {
+    const v = $("canvasWrap");
+    const p = config.positions.get(config.focusId);
+    if (!p) return;
+    const width = Number(v.clientWidth) || 1150;
+    const height = Number(v.clientHeight) || 630;
+    const x = config.zoom * (p.x + p.w / 2) - width / 2;
+    const y = config.zoom * (p.y + p.h / 2) - height / 2;
+    if (typeof v.scrollTo === "function") {
+      v.scrollTo({ left: Math.max(0, x), top: Math.max(0, y),
+        behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches ? "auto" : "smooth" });
+    }
+  }
+  function setScale() {
+    const drawing = $("diagram");
+    drawing.setAttribute("width", Math.round(config.scene.width * config.zoom));
+    drawing.setAttribute("height", Math.round(config.scene.height * config.zoom));
+    $("zoomValue").textContent = Math.round(config.zoom * 100) + "%";
+  }
+  function rowButton(id, label, indent) {
+    const button = el("button", "outline-item" +
+      (config.focusId === id ? " selected" : ""), label);
+    button.style.paddingLeft = (13 + indent * 12) + "px";
+    button.title = byId.get(id)?.description || label;
+    button.addEventListener("click", () => navigate(id, config.view, false));
+    return button;
+  }
+  function renderOutline() {
+    const output = $("outline");
+    output.replaceChildren();
+    const list = visibleOverview();
+    if (config.mode === "focus" && config.focusId) {
+      const path = ancestors(config.focusId);
+      const ids = new Set([...path, ...(children.get(config.focusId) || [])]);
+      for (const id of ids) output.appendChild(rowButton(id, byId.get(id).title,
+        Math.min(4, path.indexOf(id) >= 0 ? path.indexOf(id) : path.length)));
+    } else {
+      for (const item of list) output.appendChild(rowButton(item.id, byId.get(item.id).title, item.depth));
+    }
+    if (!output.children.length) output.appendChild(el("p", "empty-message", "尝试其他检索词"));
+  }
+  function setDrawerState() {
+    $("sidebar").classList.toggle("is-hidden", !config.outlineOpen);
+    $("detailDrawer").classList.toggle("is-hidden", !config.detailsOpen);
+    $("detailsToggle").disabled = !config.focusId;
+    $("overviewBack").classList.toggle("is-hidden", !config.focusId);
+  }
+  function updateBreadcrumb() {
+    const area = $("breadcrumb");
+    area.replaceChildren();
+    if (!config.focusId) {
+      area.appendChild(el("span", "crumb-current", config.view[0].toUpperCase() + config.view.slice(1)));
+      return;
+    }
+    const path = ancestors(config.focusId);
+    const visiblePath = path.slice(-3);
+    if (path.length > 3) area.appendChild(el("span", "crumb-ellipsis", "…"));
+    for (let i = 0; i < visiblePath.length; i++) {
+      if (i) area.appendChild(el("span", "crumb-divider", "/"));
+      const id = visiblePath[i], n = byId.get(id);
+      if (id === config.focusId) area.appendChild(el("span", "crumb-current", n.title));
+      else {
+        const button = el("button", "crumb-link", n.title);
+        button.addEventListener("click", () => navigate(id, config.view, false));
+        area.appendChild(button);
+      }
+    }
+  }
+  function section(area, label) {
+    const block = el("section", "context-section");
+    block.appendChild(el("h4", "", label));
+    area.appendChild(block);
+    return block;
+  }
+  function refLink(id, label) {
+    const target = locateView(id);
+    const button = el("button", "context-link", label);
+    button.addEventListener("click", () => openCross(id));
+    button.title = target ? target + " · " + id : "Unknown node";
+    return button;
+  }
+  function sourceHref(path, line) {
+    if (typeof path !== "string" || !path ||
+        path.startsWith("/") || path.includes("..") || path.includes("\\"))
+      return null;
+    const suffix = typeof line === "number" && line > 0 ? "#L" + line : "";
+    return "https://github.com/OpenSAE/OpenResearch/blob/main/" +
+      path.split("/").map(encodeURIComponent).join("/") + suffix;
+  }
+  function diagramShape(group, tag, attributes, value) {
+    const element = svg(tag,attributes,value);
+    group.appendChild(element);
+    return element;
+  }
+  function attributeDiagram(type) {
+    const diagram = svg("svg",{viewBox:"0 0 390 128",class:"attribute-diagram",
+      role:"img", "aria-label":type==="residual"?
+      "残差路径 F(x) 与捷径 x 相加的结构示意":"CUB 官方训练与测试分开的结构示意"});
+    if (type==="residual") {
+      diagramShape(diagram,"rect",{x:10,y:46,width:62,height:34,rx:7,class:"diagram-box"});
+      diagramShape(diagram,"text",{x:41,y:67,"text-anchor":"middle"},"输入 x");
+      diagramShape(diagram,"path",{d:"M72 63 L106 63 L106 31 L128 31",class:"diagram-edge"});
+      diagramShape(diagram,"rect",{x:128,y:14,width:129,height:36,rx:7,class:"diagram-box"});
+      diagramShape(diagram,"text",{x:192,y:36,"text-anchor":"middle"},"残差变换 F(x)");
+      diagramShape(diagram,"path",{d:"M257 32 L288 32 L288 63",class:"diagram-edge"});
+      diagramShape(diagram,"path",{d:"M72 63 L288 63",class:"diagram-edge"});
+      diagramShape(diagram,"rect",{x:275,y:52,width:28,height:24,rx:12,class:"diagram-sum"});
+      diagramShape(diagram,"text",{x:289,y:68,"text-anchor":"middle"},"+");
+      diagramShape(diagram,"path",{d:"M303 64 L329 64",class:"diagram-edge"});
+      diagramShape(diagram,"text",{x:356,y:67,"text-anchor":"middle"},"输出");
+      diagramShape(diagram,"text",{x:185,y:89,"text-anchor":"middle"},"捷径连接");
+    } else if(type==="cub_split") {
+      diagramShape(diagram,"text",{x:195,y:23,"text-anchor":"middle"},"CUB-200-2011 官方数据");
+      diagramShape(diagram,"rect",{x:16,y:42,width:166,height:62,rx:8,class:"diagram-box"});
+      diagramShape(diagram,"rect",{x:208,y:42,width:166,height:62,rx:8,class:"diagram-box"});
+      diagramShape(diagram,"text",{x:99,y:67,"text-anchor":"middle"},"训练数据");
+      diagramShape(diagram,"text",{x:99,y:84,"text-anchor":"middle"},"Official Train");
+      diagramShape(diagram,"text",{x:291,y:67,"text-anchor":"middle"},"测试数据");
+      diagramShape(diagram,"text",{x:291,y:84,"text-anchor":"middle"},"Official Test");
+    }
+    return diagram;
+  }
+
+  function attributeSection(parent,title) {
+    const group=el("section","node-attribute-section");
+    group.appendChild(el("h4","node-attribute-heading",title));
+    parent.appendChild(group);
+    return group;
+  }
+  function attributeCode(parent,value) {
+    const pre=el("pre","node-attribute-code",value||"");
+    parent.appendChild(pre);
+    return pre;
+  }
+  function sourceAnchor(parent,path,line,title) {
+    const href=sourceHref(path,line);
+    if(!href)return;
+    const a=el("a","node-attribute-link",title||"查看实体源码");
+    a.href=href;a.target="_blank";a.rel="noopener noreferrer";
+    parent.appendChild(a);
+  }
+  function renderParameterList(parent,parameters) {
+    if(!parameters?.length) return;
+    const section=attributeSection(parent,"参数与作用");
+    const list=el("div","node-parameter-list");
+    for(const parameter of parameters) {
+      const row=el("div","node-parameter-row");
+      const name=el("code","node-parameter-name",parameter.name);
+      row.appendChild(name);
+      const body=el("div","node-parameter-info");
+      body.appendChild(el("p","node-parameter-meaning",parameter.meaning||"输入参数"));
+      const tech=[parameter.annotation,parameter.default!==null&&parameter.default!==undefined?
+        "默认值 "+parameter.default:""].filter(Boolean);
+      if(tech.length)body.appendChild(el("p","node-parameter-extra",tech.join(" · ")));
+      row.appendChild(body);list.appendChild(row);
+    }
+    section.appendChild(list);
+  }
+  function renderInterface(parent,info,sourcePath) {
+    if(!info)return;
+    attributeSection(parent,"主要作用").appendChild(
+      el("p","node-attribute-text",info.purpose||"现有源代码实现的处理流程。"));
+    attributeSection(parent,"函数签名").appendChild(
+      el("code","node-attribute-signature",info.signature||""));
+    renderParameterList(parent,info.parameters);
+    if(info.returns){
+      const ret=attributeSection(parent,"返回值");
+      const description=(info.returns.name||"return")+" · "+
+        (info.returns.annotation||"源代码表达式");
+      ret.appendChild(el("code","node-attribute-signature",description));
+      ret.appendChild(el("p","node-attribute-text",info.returns.meaning||""));
+      if(info.returns.expressions?.length){
+        attributeCode(ret,info.returns.expressions.join("\n"));
+      }
+    }
+    if(info.code){
+      const block=attributeSection(parent,"实际代码主要部分");
+      attributeCode(block,info.code);
+      sourceAnchor(block,sourcePath,info.line,"查看完整函数源码");
+    }
+  }
+  function renderAttributeBlock(parent,attr,node) {
+    if(!attr || typeof attr.label!=="string")return;
+    if(attr.type==="class_methods") {
+      const section=attributeSection(parent,attr.label);
+      for(const item of attr.methods||[]) {
+        const details=el("details","node-method-details");
+        const heading=el("summary","node-method-summary",item.name);
+        details.appendChild(heading);
+        const body=el("div","node-method-body");
+        renderInterface(body,item,node.path);
+        details.appendChild(body);
+        section.appendChild(details);
+      }
+      return;
+    }
+    if(attr.type==="fields") {
+      const section=attributeSection(parent,attr.label);
+      for(const field of attr.fields||[]){
+        const row=el("div","node-field-row");
+        row.appendChild(el("code","node-parameter-name",field.name));
+        row.appendChild(el("span","node-attribute-text",field.meaning||"成员数据"));
+        if(field.assignment)row.appendChild(
+          el("code","node-field-assignment",field.assignment));
+        section.appendChild(row);
+      }
+      return;
+    }
+    if(attr.type==="module_contents") {
+      const section=attributeSection(parent,attr.label);
+      for(const [label,values] of [
+        ["类",attr.classes||[]],["函数",attr.functions||[]]]){
+        if(values.length)section.appendChild(
+          el("p","node-attribute-text",label+"："+values.join(" · ")));
+      }
+      return;
+    }
+    if(attr.type==="interface"){
+      renderInterface(parent,attr.interface,node.path);
+      return;
+    }
+    if(attr.type==="code_reference"){
+      const section=attributeSection(parent,attr.label);
+      if(attr.interface)renderInterface(section,attr.interface,attr.path);
+      else if(attr.code)attributeCode(section,attr.code);
+      sourceAnchor(section,attr.path,attr.line,"查看源文件");
+      if(attr.symbol_id){
+        const link=el("a","node-attribute-link","在 Code Tree 中查看对应实现");
+        link.href="code.html?focus="+encodeURIComponent(attr.symbol_id);
+        section.appendChild(link);
+      }
+      return;
+    }
+    const section=attributeSection(parent,attr.label);
+    if(attr.type==="diagram"){
+      section.appendChild(attributeDiagram(attr.diagram));
+      if(attr.caption)section.appendChild(
+        el("p","node-attribute-note",attr.caption));
+    } else if(attr.type==="formula") {
+      section.appendChild(el("div","node-attribute-formula",attr.value||""));
+      if(attr.note)section.appendChild(el("p","node-attribute-note",attr.note));
+    } else if(attr.type==="code") {
+      attributeCode(section,attr.value||"");
+    } else if(attr.type==="function") {
+      section.appendChild(el("code","node-attribute-signature",attr.signature||attr.value||""));
+    } else if(attr.type==="reference"){
+      sourceAnchor(section,attr.path,attr.line,"查看完整来源");
+    } else {
+      section.appendChild(el("p","node-attribute-text",attr.value||""));
+    }
+    if(attr.source)sourceAnchor(section,attr.source,attr.line,"查看依据");
+  }
+  function toggleAttributes(id){
+    if(config.expandedAttributes.has(id))config.expandedAttributes.delete(id);
+    else config.expandedAttributes.add(id);
+    render(false);
+    const element=$("diagram");
+    // Expanded card remains part of the same tree, with all surrounding
+    // coordinates recomputed by the centered layout.
+    if(config.focusId===id)centerSelected();
+    return element;
+  }
+
+  function renderDetails() {
+    const area = $("detailBody"); area.replaceChildren();
+    const n = byId.get(config.focusId);
+    if (!n) {
+      area.appendChild(el("p", "empty-message", "选择节点查看证据与来源"));
+      return;
+    }
+    area.appendChild(el("h2", "detail-title", n.title));
+    const status = el("div", "detail-status");
+    const swatch = el("span", "detail-status-swatch");
+    const proposal=itemFor(n.id);
+    swatch.style.background = proposal
+      ? REVIEW_PALETTE[proposalState(proposal)].stroke
+      : STATES[n.status] || "#adb2b9";
+    status.appendChild(swatch);
+    status.appendChild(el("span", "", config.view==="environment" && graph().synthetic
+      ? "演示数据（未实测）"
+      : ({unchecked:"Unchecked",denied:"Denied",not_implemented:"Not Implemented",
+          partial:"Partial",implemented:"Implemented"})[n.status] || "Unknown"));
+    area.appendChild(status);
+    area.appendChild(el("p", "detail-description",
+      n.reader_explanation || plain(n.description || "")));
+    if(n.context_term_ids?.length){
+      const context=section(area,"专业词汇 · Context");
+      for(const id of n.context_term_ids){
+        const term=(reviewGraphs.context?.nodes || DATA.context?.nodes || []).find(x=>x.id===id);
+        if(!term)continue;
+        const row=el("div","node-term-row");
+        row.appendChild(refLink(id,term.title));
+        row.appendChild(el("p","node-term-definition",plain(term.description)));
+        context.appendChild(row);
+      }
+    }
+    if (n.source_symbol && ["module","class","method","function"].includes(kind(n))) {
+      const technical = section(area, "源代码标识");
+      technical.appendChild(el("code", "signature", n.source_symbol));
+    }
+    if (n.signature) section(area, "方法签名").appendChild(el("code", "signature", n.signature));
+    if (n.facts) {
+      const details = section(area, "设备与执行信息");
+      for (const [key,value] of Object.entries(n.facts)) {
+        details.appendChild(el("p", "", key + "：" + value));
+      }
+    }
+    if (n.why_it_matters) section(area, "Why this matters").appendChild(el("p", "", n.why_it_matters));
+    if (n.aliases?.length) section(area, "Also known as").appendChild(el("p", "", n.aliases.join(" · ")));
+    if (n.next) section(area, "Next step").appendChild(el("p", "", n.next));
+    for (const [title, keys] of [
+      ["Scientific knowledge", n.context_ids], ["Project context", n.core_ids],
+      ["Scientific terms", n.term_ids]
+    ]) {
+      if (keys?.length) {
+        const block = section(area, title);
+        for (const key of keys) {
+          const targetView = locateView(key);
+          const source = (reviewGraphs[targetView]?.nodes || DATA[targetView]?.nodes || []).find(x=>x.id===key);
+          block.appendChild(refLink(key, source?.title || key));
+        }
+      }
+    }
+    if (n.foundation) {
+      const block = section(area, "Background");
+      const a = el("a", "context-link", n.foundation);
+      a.href = "https://github.com/OpenSAE/OpenResearch/blob/main/" + n.foundation;
+      a.target = "_blank"; a.rel = "noopener noreferrer"; block.appendChild(a);
+    }
+    if (n.evidence?.length) {
+      const block = section(area, "Evidence");
+      for (const source of n.evidence.slice(0, 12)) {
+        const a = el("a", "context-link", source);
+        const path = source.split(":")[0];
+        if (path.startsWith("https://")) a.href = path;
+        else if (!path.startsWith("/") && !path.includes("..")) {
+          a.href = "https://github.com/OpenSAE/OpenResearch/blob/main/" + path;
+        }
+        a.target = "_blank"; a.rel = "noopener noreferrer"; block.appendChild(a);
+      }
+    }
+    if (config.view === "code" && config.diff) {
+      const changed = config.diff.changed?.find(x => x.id === n.id);
+      if (changed) section(area, "Observed change").appendChild(el("p", "", changed.fields.join(", ")));
+    }
+  }
+  function render(autoFit) {
+    const layout = normalizeLayout(config.mode === "focus" ? layoutFocus() : layoutOverview());
+    config.visible = layout.visible;
+    drawSVG(layout);
+    // Preserve the user’s visual scale across focus, expansion, and search.
+    // The tree grows in scrollable space rather than squeezing every card.
+    if (!config.zoomInitialized) {
+      config.zoom = 1;
+      config.zoomInitialized = true;
+    }
+    setScale();
+    updateBreadcrumb(); renderOutline(); renderDetails(); setDrawerState();
+    $("canvasWrap").classList.toggle("in-focus", config.mode === "focus");
+    $("diffControl").classList.toggle("is-hidden", config.view !== "code");
+    $("focusHint").textContent = config.view === "environment" && graph().synthetic
+      ? "演示环境 · 合成设备配置" : "";
+    $("statusLegend").classList.toggle("implemented-only", config.view !== "environment");
+    $("statusLegend").classList.toggle("is-hidden", !!review);
+    $("collapse").disabled = config.mode === "focus";
+    $("expand").disabled = config.mode === "focus";
+    if (review) updateReviewBar();
+    if (config.mode === "focus") centerSelected();
+    else if (autoFit && typeof $("canvasWrap").scrollTo === "function") {
+      $("canvasWrap").scrollTo({ left: 0, top: 0 });
+    }
+  }
+
+  function bind() {
+    // Each public HTML is a genuine URL; same-view focus changes use browser history.
+    $("overviewBack").addEventListener("click", () => overview(true));
+    $("outlineToggle").addEventListener("click", () => {
+      config.outlineOpen = !config.outlineOpen;
+      config.detailsOpen = false; setDrawerState();
+    });
+    $("outlineClose").addEventListener("click", () => {
+      config.outlineOpen = false; setDrawerState();
+    });
+    $("detailsToggle").addEventListener("click", () => {
+      if (!config.focusId) return;
+      config.detailsOpen = !config.detailsOpen;
+      config.outlineOpen = false; renderDetails(); setDrawerState();
+    });
+    $("detailsClose").addEventListener("click", () => {
+      config.detailsOpen = false; setDrawerState();
+    });
+    $("search").addEventListener("input", event => {
+      config.query = String(event.target.value || "");
+      config.expandedAttributes.clear();
+      config.mode = "overview"; config.focusId = null; config.detailsOpen = false;
+      config.outlineOpen = !!config.query.trim();
+      if (window.location?.search?.includes("focus=")) setAddress(null, true);
+      render(true);
+    });
+    $("collapse").addEventListener("click", () => {
+      if (config.mode === "focus") return;
+      config.expanded = new Set(rootIds);
+      render(true);
+    });
+    $("expand").addEventListener("click", () => {
+      if (config.mode === "focus") return;
+      config.expanded = new Set(byId.keys());
+      render(true);
+    });
+    $("fit").addEventListener("click", () => {
+      config.zoom = fitZoom(); config.zoomInitialized = true; setScale();
+      if (config.mode === "focus") centerSelected();
+    });
+    $("zoomIn").addEventListener("click", () => {
+      config.zoom = Math.min(1.8, Math.round((config.zoom + 0.15) * 100) / 100);
+      setScale(); if (config.mode === "focus") centerSelected();
+    });
+    $("zoomOut").addEventListener("click", () => {
+      config.zoom = Math.max(0.45, Math.round((config.zoom - 0.15) * 100) / 100);
+      setScale(); if (config.mode === "focus") centerSelected();
+    });
+    $("diffFile").addEventListener("change", async event => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        const result = JSON.parse(await file.text());
+        if (result.kind !== "code_diff") throw new Error("Expected a code_diff JSON report");
+        config.diff = result;
+        if (config.view !== "code") {
+          if (window.location) window.location.href = "code.html";
+        } else render(true);
+      } catch (error) {
+        if (typeof alert === "function") alert("Cannot load code-tree diff: " + error.message);
+      }
+      event.target.value = "";
+    });
+    if (window.addEventListener) {
+      window.addEventListener("popstate", () => {
+        if(review) {
+          const current = (window.location?.pathname || "").match(/\/(core|knowledge|code|environment|context)\.html$/);
+          if(current && current[1] !== config.view && current[1] !== "core")
+            activateReviewView(current[1]);
+        }
+        const next = getSearchFocus();
+        config.expandedAttributes.clear();
+        config.focusId = next && byId.has(next) ? next : null;
+        config.mode = config.focusId ? "focus" : "overview";
+        config.detailsOpen = false;
+        config.query = ""; $("search").value = "";
+        render(true);
+      });
+      window.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          if(config.expandedAttributes.size) {
+            config.expandedAttributes.clear();render(true);return;
+          }
+          if (config.detailsOpen || config.outlineOpen) {
+            config.detailsOpen = false; config.outlineOpen = false; setDrawerState();
+          } else if (config.mode === "focus") overview(true);
+        }
+      });
+      window.addEventListener("resize", () => {
+        const v = $("canvasWrap"), next = {
+          width: Number(v.clientWidth) || 0, height: Number(v.clientHeight) || 0
+        };
+        if (Math.abs(next.width - lastViewport.width) > 90 ||
+            Math.abs(next.height - lastViewport.height) > 90) {
+          lastViewport = next;
+          render(false);
+        }
+      });
+    }
+  }
+
+  init();
+})();
+
