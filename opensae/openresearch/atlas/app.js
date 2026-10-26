@@ -35,6 +35,12 @@
   };
   let review = null, reviewGraphs = {}, reviewBusy = false, reviewError = "";
   let reviewDraftMessage = "";
+  const REVIEW_VIEWS=["knowledge","code","environment","context"];
+  const REVIEW_TITLES={knowledge:"Knowledge",code:"Code",
+    environment:"Environment",context:"Context"};
+  let reviewQueue=[],reviewGroupOf=new Map(),reviewGroups=[];
+  let reviewFilter={level:"all"},reviewMenuOpen=false;
+  const reviewExpanded=new Set(["all",...REVIEW_VIEWS.map(v=>"view:"+v)]);
 
   function requestedReview() {
     const match = (window.location?.search || "").match(/[?&]review=([^&]+)/);
@@ -101,15 +107,214 @@
       reviewGraphs[view] = {...base,nodes:[...nodes.values()],edges};
     }
   }
-  function reviewPosition() {
-    return review?.plan.items.findIndex(item=>item.node_id===config.focusId &&
-      item.view===config.view) ?? -1;
+  function buildReviewQueue() {
+    // DFS over the source tree's stored child edges, never manifest list order.
+    reviewQueue=[]; reviewGroups=[]; reviewGroupOf=new Map();
+    if(!review)return;
+    const indexed=new Map(review.plan.items.map(x=>[x.key,x]));
+    const visitedItems=new Set();
+    for(const view of REVIEW_VIEWS) {
+      const tree=reviewGraphs[view] || DATA[view] || {nodes:[],edges:[]};
+      const nodes=new Map((tree.nodes||[]).map(x=>[x.id,x]));
+      const kids=new Map(),parentsOf=new Map();
+      const allowed=new Set(VIEWS[view].primary);
+      for(const edge of tree.edges||[]) {
+        if(!allowed.has(edge.type)||!nodes.has(edge.source)||
+           !nodes.has(edge.target)||parentsOf.has(edge.target))continue;
+        parentsOf.set(edge.target,edge.source);
+        if(!kids.has(edge.source))kids.set(edge.source,[]);
+        kids.get(edge.source).push(edge.target);
+      }
+      const roots=[];
+      if(nodes.has(VIEWS[view].root))roots.push(VIEWS[view].root);
+      for(const id of nodes.keys())if(!parentsOf.has(id)&&!roots.includes(id))roots.push(id);
+      const seen=new Set(),stack=roots.reverse();
+      while(stack.length){
+        const id=stack.pop();
+        if(seen.has(id))continue;
+        seen.add(id);
+        const key=view+":"+id;
+        if(indexed.has(key)){reviewQueue.push(indexed.get(key));visitedItems.add(key);}
+        const list=kids.get(id)||[];
+        for(let i=list.length-1;i>=0;i--)stack.push(list[i]);
+      }
+      // Orphan proposals follow the reachable DFS nodes in their own view.
+      for(const item of review.plan.items){
+        if(item.view===view&&!visitedItems.has(item.key)){
+          reviewQueue.push(item);visitedItems.add(item.key);
+        }
+      }
+      const branches=new Map();
+      for(const item of reviewQueue.filter(x=>x.view===view)){
+        const parentId=parentsOf.get(item.node_id)||item.parent_id||VIEWS[view].root;
+        const key=view+"\u0000"+parentId;
+        reviewGroupOf.set(item.key,key);
+        if(!branches.has(key)){
+          branches.set(key,{key,view,parentId,
+                            label:nodes.get(parentId)?.title||parentId,items:[]});
+        }
+        branches.get(key).items.push(item);
+      }
+      if(branches.size)reviewGroups.push({
+        view,title:REVIEW_TITLES[view],groups:[...branches.values()]
+      });
+    }
   }
-  function reviewGo(index) {
-    if(!review || index<0 || index>=review.plan.items.length) return;
+  function filteredReviewQueue(){
+    if(reviewFilter.level==="all")return reviewQueue;
+    if(reviewFilter.level==="view")
+      return reviewQueue.filter(item=>item.view===reviewFilter.view);
+    if(reviewFilter.level==="parent")
+      return reviewQueue.filter(item=>reviewGroupOf.get(item.key)===reviewFilter.parentKey);
+    if(reviewFilter.level==="node")
+      return reviewQueue.filter(item=>item.key===reviewFilter.nodeKey);
+    return reviewQueue;
+  }
+  function reviewPosition(){
+    return filteredReviewQueue().findIndex(item=>
+      item.node_id===config.focusId && item.view===config.view);
+  }
+  function reviewGo(index){
+    const queue=filteredReviewQueue();
+    if(!review||reviewBusy||index<0||index>=queue.length)return;
     reviewError="";
-    const item=review.plan.items[index];
-    navigate(item.node_id,item.view,false);
+    navigate(queue[index].node_id,queue[index].view,false);
+  }
+  function findUnchecked(direction){
+    const queue=filteredReviewQueue(),at=reviewPosition();
+    if(at<0||queue.length<2)return -1;
+    for(let offset=1;offset<queue.length;offset++){
+      const index=(at+direction*offset+queue.length)%queue.length;
+      if(proposalState(queue[index])==="unchecked")return index;
+    }
+    return -1;
+  }
+  function reviewGoUnchecked(direction){
+    const index=findUnchecked(direction);
+    if(index>=0)reviewGo(index);
+  }
+  function reviewStats(items){
+    const counts={approved:0,denied:0,unchecked:0,total:items.length};
+    for(const item of items){
+      const key=proposalState(item);
+      counts[key]=(counts[key]||0)+1;
+    }
+    return counts;
+  }
+
+
+  function reviewRing(items){
+    const c=reviewStats(items),ring=el("span","review-ring");
+    const total=c.total||1,red=360*c.approved/total,
+          gray=360*(c.approved+c.denied)/total;
+    ring.style.background="conic-gradient(#bb4656 0deg "+red+
+      "deg,#78818b "+red+"deg "+gray+
+      "deg,#8255b5 "+gray+"deg 360deg)";
+    ring.title=(c.approved+c.denied)+" of "+c.total+" reviewed";
+    ring.appendChild(el("span","review-ring-center",
+                        (c.approved+c.denied)+"/"+c.total));
+    return ring;
+  }
+  function reviewCountDots(items){
+    const counts=reviewStats(items),row=el("span","review-state-counts");
+    for(const [state,color] of [["approved","red"],["denied","gray"],["unchecked","purple"]]){
+      const badge=el("span","review-count-chip");
+      badge.title=state+": "+counts[state];
+      badge.appendChild(el("i","review-count-dot "+color));
+      badge.appendChild(el("span","",counts[state]));
+      row.appendChild(badge);
+    }
+    return row;
+  }
+  function reviewFilterLabel(){
+    if(reviewFilter.level==="all")return "All";
+    if(reviewFilter.level==="view")return REVIEW_TITLES[reviewFilter.view];
+    if(reviewFilter.level==="parent")return reviewGroups.flatMap(x=>x.groups)
+      .find(x=>x.key===reviewFilter.parentKey)?.label || "Branch";
+    if(reviewFilter.level==="node")return reviewQueue.find(x=>x.key===reviewFilter.nodeKey)
+      ?.after?.title || "Node";
+    return "All";
+  }
+  function selectedReviewCategory(level,value){
+    if(reviewFilter.level!==level)return false;
+    return level==="all" ? true : level==="view" ? reviewFilter.view===value :
+      level==="parent" ? reviewFilter.parentKey===value : reviewFilter.nodeKey===value;
+  }
+  function reviewCategoryRow(container,level,value,label,items,expand,children){
+    const row=el("div","review-category-row level-"+level);
+    if(children){
+      const disclosure=el("button","review-category-disclosure",
+                          reviewExpanded.has(expand)?"▾":"▸");
+      disclosure.type="button";
+      disclosure.setAttribute("aria-label","Expand "+label);
+      disclosure.setAttribute("aria-expanded",String(reviewExpanded.has(expand)));
+      disclosure.addEventListener("click",event=>{
+        event.stopPropagation?.();
+        if(reviewExpanded.has(expand))reviewExpanded.delete(expand);
+        else reviewExpanded.add(expand);
+        renderReviewCategories();
+      });
+      row.appendChild(disclosure);
+    }else row.appendChild(el("span","review-category-spacer"));
+    const button=el("button","review-category-choice",label);
+    button.type="button";
+    button.title=label;
+    button.setAttribute("data-review-scope",level+":"+value);
+    button.setAttribute("aria-selected",String(selectedReviewCategory(level,value)));
+    button.addEventListener("click",()=>selectReviewCategory(
+      level==="all"?{level:"all"}:
+      level==="view"?{level,view:value}:
+      level==="parent"?{level,parentKey:value}:
+      {level:"node",nodeKey:value}
+    ));
+    row.appendChild(button);
+    row.appendChild(reviewRing(items));
+    row.appendChild(reviewCountDots(items));
+    container.appendChild(row);
+    if(children && reviewExpanded.has(expand)){
+      const nested=el("div","review-category-children");
+      container.appendChild(nested);
+      children(nested);
+    }
+    return row;
+  }
+  function renderReviewCategories(){
+    if(!review)return;
+    const menu=$("atlasReviewMenu");
+    menu.replaceChildren();
+    reviewCategoryRow(menu,"all","all","All",reviewQueue,"all",root=>{
+      for(const section of reviewGroups){
+        const contents=reviewQueue.filter(item=>item.view===section.view);
+        reviewCategoryRow(root,"view",section.view,section.title,contents,
+                          "view:"+section.view,branchContainer=>{
+          for(const branch of section.groups){
+            reviewCategoryRow(branchContainer,"parent",branch.key,branch.label,
+                              branch.items,"parent:"+branch.key,leafContainer=>{
+              for(const item of branch.items){
+                reviewCategoryRow(leafContainer,"node",item.key,
+                  item.after?.title||item.before?.title||item.node_id,
+                  [item],null,null);
+              }
+            });
+          }
+        });
+      }
+    });
+    $("atlasReviewFilterLabel").textContent=reviewFilterLabel();
+    const ring=$("atlasReviewFilterRing");
+    ring.replaceChildren(reviewRing(filteredReviewQueue()));
+    $("atlasReviewFilter").setAttribute("aria-expanded",String(reviewMenuOpen));
+    menu.classList.toggle("is-hidden",!reviewMenuOpen);
+  }
+  function selectReviewCategory(next){
+    reviewFilter=next;
+    reviewMenuOpen=false;
+    const queue=filteredReviewQueue();
+    if(queue.length&&!queue.some(item=>
+      item.view===config.view && item.node_id===config.focusId)){
+      const target=queue.find(item=>proposalState(item)==="unchecked")||queue[0];
+      navigate(target.node_id,target.view,false);
+    }else updateReviewBar();
   }
 
   // A public GitHub Pages page has no identity allowed to write to a repository.
@@ -153,9 +358,9 @@
       authority_applied:false};
     // Synchronous storage completes before the visible node state changes.
     store.setItem(browserDraftKey(review.plan),JSON.stringify(data));
-    review.plan.items.find(item=>item.key===key).proposal_review={
-      decision,actor:"Browser draft",at:data.updated_at
-    };
+    review.plan.items.find(item=>item.key===key).proposal_review=
+      decision==="unchecked"?null:
+      {decision,actor:"Browser draft",at:data.updated_at};
     reviewDraftMessage="Saved in browser";
   }
   function exportBrowserDraft() {
@@ -175,18 +380,23 @@
     if(!review) return;
     const bar=$("atlasReviewBar");
     bar.classList.remove("is-hidden");
-    const items=review.plan.items, current=reviewPosition();
-    $("atlasReviewCount").textContent = (current>=0?current+1:"–") + " / " + items.length;
-    $("atlasReviewPrev").disabled = reviewBusy || current<=0;
-    $("atlasReviewNext").disabled = reviewBusy || current===items.length-1;
-    $("atlasReviewApprove").disabled = reviewBusy || current<0;
-    $("atlasReviewDeny").disabled = reviewBusy || current<0;
+    const items=filteredReviewQueue(),current=reviewPosition();
+    $("atlasReviewCount").textContent=(current>=0?current+1:"–")+" / "+items.length;
+    $("atlasReviewPrevUnchecked").disabled=reviewBusy||findUnchecked(-1)<0;
+    $("atlasReviewNextUnchecked").disabled=reviewBusy||findUnchecked(1)<0;
+    $("atlasReviewPrev").disabled=reviewBusy||current<=0;
+    $("atlasReviewNext").disabled=reviewBusy||current>=items.length-1;
+    $("atlasReviewApprove").disabled=reviewBusy||current<0;
+    $("atlasReviewDeny").disabled=reviewBusy||current<0;
+    $("atlasReviewUnchecked").disabled=reviewBusy||current<0;
     $("atlasReviewExport").classList.toggle("is-hidden", !!review.editable);
     $("atlasReviewExport").disabled = reviewBusy;
     const currentItem=items[current];
     const status=proposalState(currentItem);
-    $("atlasReviewApprove").classList.toggle("chosen", status==="approved");
-    $("atlasReviewDeny").classList.toggle("chosen", status==="denied");
+    $("atlasReviewApprove").classList.toggle("chosen",status==="approved");
+    $("atlasReviewDeny").classList.toggle("chosen",status==="denied");
+    $("atlasReviewUnchecked").classList.toggle("chosen",status==="unchecked");
+    renderReviewCategories();
     $("atlasReviewMessage").textContent = reviewBusy ? "Saving…" : reviewError ? reviewError :
        (!review.editable ? (reviewDraftMessage || "Browser draft") :
        (status === "unchecked" ? "Unchecked" :
@@ -199,6 +409,7 @@
     review = {plan:data.plan,context:data.context || data.review_context ||
               {nodes:[],edges:[]},editable:!!live && !!reviewKey()};
     overlayGraphs();
+    buildReviewQueue();
     rebuildHierarchy();
     config.expanded = initialExpanded();
     render(false);
@@ -224,17 +435,25 @@
       if(!payload.plan) payload={plan:payload,context:payload.review_context};
     }
     applyReviewResponse(payload,live);
-    const key=getSearchFocus(), item=review.plan.items.find(x=>x.node_id===key && x.view===config.view);
+    const key=getSearchFocus(),item=reviewQueue.find(x=>x.node_id===key && x.view===config.view);
     if(item) navigate(item.node_id,item.view,true);
     else {
-      const first=review.plan.items.find(x=>x.view===config.view) || review.plan.items[0];
+      const first=reviewQueue.find(x=>x.view===config.view)||reviewQueue[0];
       if(first) navigate(first.node_id,first.view,true);
     }
     const bar=$("atlasReviewBar");
+    $("atlasReviewPrevUnchecked").addEventListener("click",()=>reviewGoUnchecked(-1));
     $("atlasReviewPrev").addEventListener("click",()=>reviewGo(reviewPosition()-1));
     $("atlasReviewNext").addEventListener("click",()=>reviewGo(reviewPosition()+1));
+    $("atlasReviewNextUnchecked").addEventListener("click",()=>reviewGoUnchecked(1));
     $("atlasReviewApprove").addEventListener("click",()=>submitReview("approved"));
     $("atlasReviewDeny").addEventListener("click",()=>submitReview("denied"));
+    $("atlasReviewUnchecked").addEventListener("click",()=>submitReview("unchecked"));
+    $("atlasReviewFilter").addEventListener("click",event=>{
+      event.stopPropagation?.();
+      reviewMenuOpen=!reviewMenuOpen;
+      renderReviewCategories();
+    });
     $("atlasReviewExport").addEventListener("click",exportBrowserDraft);
     // Existing Atlas tabs remain available in review mode without reloading.
     if (typeof document.querySelectorAll === "function")
@@ -242,17 +461,56 @@
         tab.addEventListener("click", event => {
           if(!review || tab.dataset.graph === "core") return;
           event.preventDefault();
-          const choice=review.plan.items.find(item=>item.view===tab.dataset.graph);
-          if(choice) navigate(choice.node_id, choice.view, false);
+          const choice=reviewQueue.find(item=>item.view===tab.dataset.graph);
+          if(choice){
+            reviewFilter={level:"view",view:tab.dataset.graph};
+            navigate(choice.node_id,choice.view,false);
+          }
         });
     bar.classList.remove("is-hidden");
     updateReviewBar();
   }
+  function handleReviewShortcut(event) {
+    if(!review || reviewBusy || !event || event.repeat ||
+       event.altKey || event.ctrlKey || event.metaKey)return false;
+    const active=event.target || document.activeElement;
+    const tag=String(active?.tagName||"").toUpperCase();
+    if(["INPUT","TEXTAREA","SELECT"].includes(tag) ||
+       active?.isContentEditable)return false;
+    const key=event.key;
+    if(key==="Escape" && reviewMenuOpen){
+      event.preventDefault?.();
+      reviewMenuOpen=false;
+      renderReviewCategories();
+      return true;
+    }
+    if(!["Enter","Backspace","u","U","ArrowLeft","ArrowRight"].includes(key))
+      return false;
+    // Keep the standard keyboard behavior for focused inputs, links and
+    // node/attribute controls; elsewhere Enter approves the selected node.
+    if(key==="Enter" &&
+       (["BUTTON","A","SUMMARY"].includes(tag) ||
+        active?.attributes?.role==="button" ||
+        active?.getAttribute?.("role")==="button"))return false;
+    event.preventDefault?.();
+    if(key==="Enter")submitReview("approved");
+    else if(key==="Backspace")submitReview("denied");
+    else if(key==="u" || key==="U")submitReview("unchecked");
+    else if(key==="ArrowLeft"){
+      if(event.shiftKey)reviewGo(reviewPosition()-1);
+      else reviewGoUnchecked(-1);
+    }else if(key==="ArrowRight"){
+      if(event.shiftKey)reviewGo(reviewPosition()+1);
+      else reviewGoUnchecked(1);
+    }
+    return true;
+  }
+
   async function submitReview(decision) {
     if(!review || reviewBusy) return;
     const at=reviewPosition();
-    if(at<0) return;
-    const current=review.plan.items[at];
+    if(at<0)return;
+    const current=filteredReviewQueue()[at];
     reviewError="";
     reviewBusy=true;
     updateReviewBar();
@@ -274,16 +532,12 @@
         rebuildHierarchy();
         render(false);
       }
-      const currentKey=current.key;
-      let next=-1;
-      for(let i=at+1;i<review.plan.items.length;i++){
-        if(proposalState(review.plan.items[i])==="unchecked"){next=i;break;}
+      // Keep a purple-reset node visible. Approve/Deny advances within scope.
+      if(decision!=="unchecked"){
+        const next=findUnchecked(1);
+        reviewBusy=false;
+        if(next>=0)reviewGo(next);
       }
-      if(next<0) for(let i=0;i<at;i++){
-        if(proposalState(review.plan.items[i])==="unchecked"){next=i;break;}
-      }
-      if(next>=0) reviewGo(next);
-      else reviewGo(review.plan.items.findIndex(x=>x.key===currentKey));
     } catch(error) {
       reviewError=review.editable?"Save failed":"Draft not saved";
       $("atlasReviewMessage").title=error.message;
@@ -1277,6 +1531,7 @@
         render(true);
       });
       window.addEventListener("keydown", event => {
+        if(handleReviewShortcut(event))return;
         if (event.key === "Escape") {
           if(config.expandedAttributes.size) {
             config.expandedAttributes.clear();render(true);return;
