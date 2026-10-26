@@ -34,6 +34,7 @@
     denied: { fill: "#e5e7ea", stroke: "#78818b" }
   };
   let review = null, reviewGraphs = {}, reviewBusy = false, reviewError = "";
+  let reviewDraftMessage = "";
 
   function requestedReview() {
     const match = (window.location?.search || "").match(/[?&]review=([^&]+)/);
@@ -106,6 +107,66 @@
     const item=review.plan.items[index];
     navigate(item.node_id,item.view,false);
   }
+
+  // A public GitHub Pages page has no identity allowed to write to a repository.
+  // Browser drafts really persist as JSON in this browser, with a visible export;
+  // only authenticated loopback Atlas saves the authoritative Knowledge JSON.
+  function browserDraftKey(plan) {
+    return "openresearch:atlas:proposal:v1:" + plan.id + ":" + plan.preview_sha256;
+  }
+  function browserDraftStorage() {
+    try { return window.localStorage || null; }
+    catch (_) { return null; }
+  }
+  function restoreBrowserDraft(plan) {
+    const store = browserDraftStorage();
+    if (!store) return;
+    try {
+      const raw=store.getItem(browserDraftKey(plan));
+      if(!raw) return;
+      const saved=JSON.parse(raw);
+      if(saved.schema!=="openresearch.atlas.proposal-draft.v1" ||
+         saved.plan_id!==plan.id || saved.preview_sha256!==plan.preview_sha256)
+         return;
+      for(const item of plan.items){
+        const decision=saved.decisions?.[item.key];
+        if(["approved","denied"].includes(decision))
+          item.proposal_review={decision,actor:"Browser draft"};
+      }
+    } catch (_) { reviewDraftMessage="Could not load saved draft"; }
+  }
+  function saveBrowserDraft(key,decision) {
+    const store=browserDraftStorage();
+    if(!store) throw Error("Browser storage unavailable. Use local Atlas to save JSON.");
+    const choices={};
+    for(const item of review.plan.items){
+      const val=item.key===key?decision:proposalState(item);
+      if(val==="approved"||val==="denied") choices[item.key]=val;
+    }
+    const data={schema:"openresearch.atlas.proposal-draft.v1",
+      plan_id:review.plan.id,preview_sha256:review.plan.preview_sha256,
+      decisions:choices,updated_at:new Date().toISOString(),
+      authority_applied:false};
+    // Synchronous storage completes before the visible node state changes.
+    store.setItem(browserDraftKey(review.plan),JSON.stringify(data));
+    review.plan.items.find(item=>item.key===key).proposal_review={
+      decision,actor:"Browser draft",at:data.updated_at
+    };
+    reviewDraftMessage="Saved in browser";
+  }
+  function exportBrowserDraft() {
+    if(!review || review.editable) return;
+    const store=browserDraftStorage();
+    const raw=store?.getItem(browserDraftKey(review.plan));
+    if(!raw){reviewError="Nothing saved";updateReviewBar();return;}
+    const data=JSON.parse(raw);
+    const payload=JSON.stringify(data,null,2)+"\n";
+    const url=URL.createObjectURL(new Blob([payload],{type:"application/json"}));
+    const link=el("a");
+    link.href=url;link.download=review.plan.id+".proposal-draft.json";
+    document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),0);
+  }
   function updateReviewBar() {
     if(!review) return;
     const bar=$("atlasReviewBar");
@@ -114,19 +175,23 @@
     $("atlasReviewCount").textContent = (current>=0?current+1:"–") + " / " + items.length;
     $("atlasReviewPrev").disabled = reviewBusy || current<=0;
     $("atlasReviewNext").disabled = reviewBusy || current===items.length-1;
-    $("atlasReviewApprove").disabled = reviewBusy || !review.editable || current<0;
-    $("atlasReviewDeny").disabled = reviewBusy || !review.editable || current<0;
+    $("atlasReviewApprove").disabled = reviewBusy || current<0;
+    $("atlasReviewDeny").disabled = reviewBusy || current<0;
+    $("atlasReviewExport").classList.toggle("is-hidden", !!review.editable);
+    $("atlasReviewExport").disabled = reviewBusy;
     const currentItem=items[current];
     const status=proposalState(currentItem);
     $("atlasReviewApprove").classList.toggle("chosen", status==="approved");
     $("atlasReviewDeny").classList.toggle("chosen", status==="denied");
     $("atlasReviewMessage").textContent = reviewBusy ? "Saving…" : reviewError ? reviewError :
-      (!review.editable ? "Preview" : (status === "unchecked" ? "Unchecked" :
-       status === "approved" ? "Not implemented" : "Denied"));
+       (!review.editable ? (reviewDraftMessage || "Browser draft") :
+       (status === "unchecked" ? "Unchecked" :
+        status === "approved" ? "Not implemented" : "Denied"));
   }
   function applyReviewResponse(data,live) {
     if (!data?.plan || !Array.isArray(data.plan.items) ||
         data.plan.id !== requestedReview()) throw Error("Invalid Atlas plan");
+    if(!live) restoreBrowserDraft(data.plan);
     review = {plan:data.plan,context:data.context || data.review_context ||
               {nodes:[],edges:[]},editable:!!live && !!reviewKey()};
     overlayGraphs();
@@ -165,11 +230,12 @@
     $("atlasReviewNext").addEventListener("click",()=>reviewGo(reviewPosition()+1));
     $("atlasReviewApprove").addEventListener("click",()=>submitReview("approved"));
     $("atlasReviewDeny").addEventListener("click",()=>submitReview("denied"));
+    $("atlasReviewExport").addEventListener("click",exportBrowserDraft);
     bar.classList.remove("is-hidden");
     updateReviewBar();
   }
   async function submitReview(decision) {
-    if(!review?.editable || reviewBusy) return;
+    if(!review || reviewBusy) return;
     const at=reviewPosition();
     if(at<0) return;
     const current=review.plan.items[at];
@@ -177,16 +243,24 @@
     reviewBusy=true;
     updateReviewBar();
     try {
-      // The server commits JSON and validates Knowledge/Glossary before 200.
-      const response=await fetch("/api/review/decision",{
-        method:"POST",credentials:"same-origin",keepalive:true,
-        headers:{"Content-Type":"application/json","X-Atlas-Review-Key":reviewKey()},
-        body:JSON.stringify({revision:review.plan.revision,key:current.key,decision})
-      });
-      const data=await response.json();
-      if(!response.ok) throw Error(data.error || "Review not saved");
+      // Local Atlas commits Knowledge and Ledger before returning success.
+      // Public Atlas persists a clearly labeled browser-only JSON draft.
+      if(review.editable){
+        const response=await fetch("/api/review/decision",{
+          method:"POST",credentials:"same-origin",keepalive:true,
+          headers:{"Content-Type":"application/json","X-Atlas-Review-Key":reviewKey()},
+          body:JSON.stringify({revision:review.plan.revision,key:current.key,decision})
+        });
+        const data=await response.json();
+        if(!response.ok) throw Error(data.error || "Review not saved");
+        applyReviewResponse(data,true);
+      } else {
+        saveBrowserDraft(current.key,decision);
+        overlayGraphs();
+        rebuildHierarchy();
+        render(false);
+      }
       const currentKey=current.key;
-      applyReviewResponse(data,true);
       let next=-1;
       for(let i=at+1;i<review.plan.items.length;i++){
         if(proposalState(review.plan.items[i])==="unchecked"){next=i;break;}
@@ -197,7 +271,7 @@
       if(next>=0) reviewGo(next);
       else reviewGo(review.plan.items.findIndex(x=>x.key===currentKey));
     } catch(error) {
-      reviewError="Save failed";
+      reviewError=review.editable?"Save failed":"Draft not saved";
       $("atlasReviewMessage").title=error.message;
     } finally {
       reviewBusy=false;
@@ -368,10 +442,10 @@
   function charWidth(character, fontSize) {
     const code = character.codePointAt(0) || 0;
     if (code >= 0x2e80 || code >= 0x1100 && code <= 0x11ff) return fontSize;
-    if (character === " ") return fontSize * .30;
-    if ("il.,:;'!|".includes(character)) return fontSize * .32;
-    if ("MW@%".includes(character)) return fontSize * .83;
-    return fontSize * .56;
+    if (character === " ") return fontSize * .36;
+    if ("il.,:;'!|".includes(character)) return fontSize * .42;
+    if ("MW@%".includes(character)) return fontSize * .91;
+    return fontSize * .65;
   }
   function wrap(text, width, fontSize, maxLines) {
     const chars = Array.from(plain(text));
@@ -394,10 +468,12 @@
   }
   function measure(node, focused) {
     if(review && itemFor(node.id)) {
-      const w=460;
-      return {w,h:176,title:wrap(node.title||node.id,w-42,16,2),
-              body:wrap(node.description,w-42,14,5),baseH:176,
-              extraH:0,expanded:false};
+      const w=480;
+      const title=wrap(node.title||node.id,w-80,16,3);
+      const body=wrap(node.description,w-82,14,9);
+      // Never use a fixed-height card for variable-length reviewed content.
+      const h=Math.max(142,42+title.length*27+(body.length?10+body.length*24:0)+30);
+      return {w,h,title,body,baseH:h,extraH:0,expanded:false};
     }
     const expanded = config.expandedAttributes.has(node.id);
     const w = expanded ? 490 : 290;
@@ -542,13 +618,16 @@
       config.diff && config.view === "code" &&
         (config.diff.changed || []).some(x => x.id === node.id) ? "node-changed" : ""
     ].filter(Boolean).join(" ");
-    const card = svg("g", {
+    const attrs = {
       class: classes, transform: "translate(" + p.x + "," + p.y + ")",
       role: "button", tabindex: "0",
       "aria-label": node.title + ": " + plain(node.description || ""),
-      "data-node-id": node.id, "data-status": node.status || "unknown",
-      "data-review": review && itemFor(node.id) ? proposalState(itemFor(node.id)) : ""
-    });
+      "data-node-id": node.id, "data-status": node.status || "unknown"
+    };
+    // Even an empty data-review attribute activates review CSS. Only reviewed
+    // nodes may have it; normal Atlas cards must keep their original font size.
+    if (review && itemFor(node.id)) attrs["data-review"] = proposalState(itemFor(node.id));
+    const card = svg("g", attrs);
     card.appendChild(svg("title", {}, (node.title || "") +
       (node.status ? " — " + node.status : "") + ". " + plain(node.description || "")));
     card.appendChild(svg("rect", {
@@ -556,17 +635,22 @@
       fill: review && itemFor(node.id) ?
         REVIEW_PALETTE[proposalState(itemFor(node.id))].fill : PALETTE[k] || "#fbfbfc"
     }));
-    const status = review && itemFor(node.id) ?
-      REVIEW_PALETTE[proposalState(itemFor(node.id))].stroke : STATES[node.status];
+    // Context ancestors stay neutral during a proposal review. In particular,
+    // a partial child must not paint its parent branch yellow.
+    const status = review ?
+      (itemFor(node.id) ? REVIEW_PALETTE[proposalState(itemFor(node.id))].stroke : null) :
+      STATES[node.status];
     if (status) card.appendChild(svg("rect", {
       class: "node-status", rx: 2, x: 0, y: 9,
       width: 4, height: p.h - 18, fill: status
     }));
-    const titleX = 17, top = 23;
-    textLines(card, p.title, titleX, top, 19, "node-title");
+    const inReview=!!(review && itemFor(node.id));
+    const titleX = inReview?25:17, top = inReview?39:23;
+    const titleStep=inReview?27:19, bodyStep=inReview?24:17;
+    textLines(card, p.title, titleX, top, titleStep, "node-title");
     if (p.body.length) {
-      const contentY = top + p.title.length * 19 + 7;
-      textLines(card, p.body, titleX, contentY, 17, "node-description");
+      const contentY = top + p.title.length * titleStep + (inReview?12:7);
+      textLines(card, p.body, titleX, contentY, bodyStep, "node-description");
     }
     if(p.expanded){
       const embedded=svg("foreignObject",{
@@ -599,6 +683,7 @@
       embedded.addEventListener("keydown",event=>event.stopPropagation?.());
       card.appendChild(embedded);
     }
+    if (!inReview) {
     const count = (children.get(node.id) || []).length;
     if (count) {
       const label = svg("g", { class: "child-count" });
@@ -657,6 +742,7 @@
         if (event.key==="Enter" || event.key===" ") show(event);
       });
       card.appendChild(toggle);
+    }
     }
     const onOpen = () => navigate(node.id, config.view, false);
     card.addEventListener("click", onOpen);
