@@ -71,7 +71,7 @@
               tabindex:0,role:"button","aria-label":title(row)+": "+row.state});
         const textTitle=title(row).slice(0,55);
         draw("text",{x:201,y:ry+23,"font-size":12.4,"font-weight":650,fill:"#26363d"},textTitle);
-        draw("text",{x:201,y:ry+44,"font-size":10.5,fill:stroke},row.operation+" · "+row.state.replace(/_/g," "));
+        draw("text",{x:201,y:ry+44,"font-size":10.5,fill:stroke},(row.operation+" · "+row.state.replace(/_/g," ")+(row.parent_id ? " · under "+row.parent_id : "")).slice(0,75));
         tile.style.cursor="pointer";
         const open=()=>{selected=row.key;paint();};
         tile.addEventListener("click",open);
@@ -236,6 +236,7 @@
                       item.state === "partial" ? "Implementation partial" :
                       item.state === "implemented" ? "Human accepted" : "Discarded"));
     area.appendChild(headline);
+    if (item.parent_id) field(area, "Planned position in tree", item.parent_id + " → " + item.node_id);
     if (item.operation === "add") {
       field(area, "New node · title", item.after?.title);
       field(area, "New node · content", item.after?.description);
