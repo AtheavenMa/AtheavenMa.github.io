@@ -16,11 +16,14 @@
     partial: "#d5a238",
     implemented: "#429669"
   };
-  const PALETTE = {
-    root: "#e0e4e9", question: "#e6eaef", solve: "#f1f3f5",
-    goal: "#fbfcfd", group: "#e8ebef", term: "#fbfcfd",
-    module: "#f4f5f6", class: "#edf0f3", method: "#fcfcfc",
-    function: "#fafbfc", device: "#f7f8fa", capability: "#fcfcfc"
+  // Node kind never dictates shading. State alone defines the surface.
+  const STATE_FILL = {
+    implemented: "rgba(66,150,105,.14)",
+    not_implemented: "rgba(200,91,97,.14)",
+    partial: "rgba(213,162,56,.14)",
+    unchecked: "rgba(130,85,181,.14)",
+    denied: "rgba(120,129,139,.14)",
+    unknown: "rgba(120,129,139,.07)"
   };
 
   const $ = id => document.getElementById(id);
@@ -29,9 +32,9 @@
   // Proposal decisions are NOT implementation results: unchecked purple,
   // approved red (still unimplemented), denied gray.
   const REVIEW_PALETTE = {
-    unchecked: { fill: "#eadff8", stroke: "#8255b5" },
-    approved: { fill: "#f8e2e5", stroke: "#bb4656" },
-    denied: { fill: "#e5e7ea", stroke: "#78818b" }
+    unchecked: { fill: STATE_FILL.unchecked, stroke: "#8255b5" },
+    approved: { fill: STATE_FILL.not_implemented, stroke: "#bb4656" },
+    denied: { fill: STATE_FILL.denied, stroke: "#78818b" }
   };
   let review = null, reviewGraphs = {}, reviewBusy = false, reviewError = "";
   let reviewDraftMessage = "";
@@ -565,6 +568,7 @@
   };
   let parents = new Map(), children = new Map(), byId = new Map();
   let rootIds = [];
+  let drag = null, bounceFrame = null, wheelStamp = 0;
   let lastViewport = { width: 0, height: 0 };
 
   function el(tag, className, value) {
@@ -670,6 +674,34 @@
         tab.classList.toggle("active", tab.dataset.graph === view);
     return true;
   }
+  function siblingsOf(id) {
+    const parent = parents.get(id);
+    return parent ? (children.get(parent) || []).filter(key => byId.has(key)) :
+      rootIds.filter(key => byId.has(key));
+  }
+  function adjacentSibling(direction) {
+    if (!config.focusId) return null;
+    const siblings = siblingsOf(config.focusId);
+    const at = siblings.indexOf(config.focusId);
+    return at >= 0 ? siblings[at + direction] || null : null;
+  }
+  function moveSibling(direction) {
+    if (reviewBusy) return false;
+    const next = adjacentSibling(direction);
+    if (!next) return false;
+    return navigate(next, config.view, false);
+  }
+  function moveReviewOrSibling(direction) {
+    if (review) {
+      const at = reviewPosition();
+      if(at < 0)return false;
+      const next = at + direction;
+      if(next < 0 || next >= filteredReviewQueue().length)return false;
+      reviewGo(next);
+      return true;
+    }
+    return moveSibling(direction);
+  }
   function navigate(id, view, replace) {
     const target = view || locateView(id);
     if (!target || !(reviewGraphs[target]?.nodes || DATA[target]?.nodes || []).some(n => n.id === id)) return false;
@@ -686,7 +718,7 @@
     }
     // Primary click expands this node in place. Existing branches stay open;
     // the graph becomes scrollable and never changes its current zoom.
-    config.mode = review ? "focus" : "overview";
+    config.mode = "focus";
     if(review) config.expandedAttributes.clear();
     config.focusId = id;
     config.query = "";
@@ -845,7 +877,10 @@
     const chain = ancestors(id);
     const ancestorsShown = chain.slice(Math.max(0, chain.length - 3), -1);
     const kids = (children.get(id) || []).filter(x => byId.has(x));
-    const ids = [...ancestorsShown, id, ...kids];
+    const siblings = siblingsOf(id), at = siblings.indexOf(id);
+    const peerIds = [siblings[at-1],siblings[at+1]].filter(Boolean)
+      .filter(key => !ancestorsShown.includes(key) && !kids.includes(key));
+    const ids = [...ancestorsShown, id, ...kids, ...peerIds];
     const positions = new Map();
     const horizontalGap = 72, xStart = 36;
     const focusSize = measure(byId.get(id), true);
@@ -874,17 +909,32 @@
         y, ...size, depth: depthOffset + 1, role: "child" });
       y += size.h + 20;
     });
+    // Ghost siblings share the selected node's parent, not a fictional edge.
+    for(const peer of peerIds) {
+      const size = measure(byId.get(peer), false);
+      const direction = siblings.indexOf(peer) < at ? -1 : 1;
+      positions.set(peer, {x:ownX,
+        y:center - focusSize.h/2 + (direction < 0 ?
+          -size.h-26 : focusSize.h+26),
+        ...size, depth:depthOffset, role:"sibling-preview"});
+    }
     return { visible: ids.map(key => ({
       id: key, depth: positions.get(key).depth, role: positions.get(key).role
     })), positions };
   }
   function normalizeLayout(layout) {
-    let maxX = 0, maxY = 0;
+    let minX = 0, minY = 0, maxX = 0, maxY = 0;
     for (const p of layout.positions.values()) {
-      maxX = Math.max(maxX, p.x + p.w); maxY = Math.max(maxY, p.y + p.h);
+      minX = Math.min(minX,p.x); minY = Math.min(minY,p.y);
+      maxX = Math.max(maxX,p.x+p.w); maxY = Math.max(maxY,p.y+p.h);
     }
-    return { ...layout, width: Math.max(600, maxX + 35),
-      height: Math.max(300, maxY + 35) };
+    if(minX<0 || minY<0) {
+      const dx = minX<0 ? 35-minX : 0, dy = minY<0 ? 35-minY : 0;
+      for(const p of layout.positions.values()){p.x+=dx;p.y+=dy;}
+      maxX+=dx;maxY+=dy;
+    }
+    return { ...layout,width:Math.max(600,maxX+35),
+      height:Math.max(300,maxY+35) };
   }
   function textLines(group, lines, x, startY, lineHeight, className) {
     for (let i = 0; i < lines.length; i++) {
@@ -896,6 +946,7 @@
     const k = kind(node), chosen = node.id === config.focusId;
     const classes = ["graph-node", "node-" + k, chosen ? "node-selected" : "",
       p.expanded ? "node-expanded" : "",
+      p.role === "sibling-preview" ? "node-sibling-preview" : "",
       config.diff && config.view === "code" &&
         (config.diff.added_ids || []).includes(node.id) ? "node-added" : "",
       config.diff && config.view === "code" &&
@@ -916,12 +967,13 @@
     card.appendChild(svg("rect", {
       class: "node-surface", rx: 10, width: p.w, height: p.h,
       fill: review && itemFor(node.id) ?
-        REVIEW_PALETTE[proposalState(itemFor(node.id))].fill : PALETTE[k] || "#fbfbfc"
+        REVIEW_PALETTE[proposalState(itemFor(node.id))].fill :
+        STATE_FILL[node.status] || STATE_FILL.unknown
     }));
     // Context ancestors stay neutral during a proposal review. In particular,
     // a partial child must not paint its parent branch yellow.
-    const status = review ?
-      (itemFor(node.id) ? REVIEW_PALETTE[proposalState(itemFor(node.id))].stroke : null) :
+    const status = review && itemFor(node.id) ?
+      REVIEW_PALETTE[proposalState(itemFor(node.id))].stroke :
       STATES[node.status];
     if (status) card.appendChild(svg("rect", {
       class: "node-status", rx: 2, x: 0, y: 9,
@@ -1031,6 +1083,21 @@
     }
     const onOpen = () => navigate(node.id, config.view, false);
     card.addEventListener("click", onOpen);
+    // Wheel on a compact node turns actual siblings. Expanded HTML content
+    // retains its native scroll; blank canvas keeps native scrolling.
+    card.addEventListener("wheel", event => {
+      if(!config.focusId || !event.deltaY || event.ctrlKey ||
+         event.target?.closest?.(".node-attributes-inner,textarea,input,select,pre"))return;
+      if(node.id !== config.focusId &&
+         !["sibling-preview"].includes(p.role))return;
+      const now = Date.now();
+      if(now-wheelStamp<180){event.preventDefault?.();return;}
+      const next = adjacentSibling(event.deltaY>0?1:-1);
+      if(!next)return;
+      event.preventDefault?.();
+      wheelStamp=now;
+      navigate(next,config.view,false);
+    },{passive:false});
     card.addEventListener("keydown", event => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault(); onOpen();
@@ -1061,6 +1128,16 @@
     for (const item of layout.visible) {
       const p = parents.get(item.id);
       if (p) link(p, item.id);
+    }
+    // In focused mode siblings are vertically stacked and share a parent.
+    if(config.mode==="focus")for(const item of layout.visible){
+      if(item.role!=="sibling-preview")continue;
+      const peer=position.get(item.id),selected=position.get(config.focusId);
+      if(!peer||!selected)continue;
+      const x=selected.x+selected.w/2, a=peer.y+peer.h/2,
+            b=selected.y+selected.h/2;
+      lines.appendChild(svg("path",{class:"edge-sibling",
+        d:"M "+x+" "+a+" L "+x+" "+b}));
     }
     for (const item of layout.visible) {
       const n = byId.get(item.id), p = position.get(item.id);
@@ -1452,7 +1529,73 @@
     }
   }
 
+  function bindCanvasPan() {
+    const canvas=$("canvasWrap");
+    const boundary=()=>({
+      x:Math.max(0,(Number(canvas.scrollWidth)||config.scene.width*config.zoom)-
+        (Number(canvas.clientWidth)||1150)),
+      y:Math.max(0,(Number(canvas.scrollHeight)||config.scene.height*config.zoom)-
+        (Number(canvas.clientHeight)||630))
+    });
+    const easeBack=()=>{
+      if(!drag)return;
+      const b=boundary(),left=Math.max(0,Math.min(b.x,canvas.scrollLeft)),
+        top=Math.max(0,Math.min(b.y,canvas.scrollTop));
+      canvas.scrollTo?.({left,top,behavior:"smooth"});
+      drag=null;
+      canvas.classList.remove("is-dragging");
+      canvas.classList.add("is-bouncing");
+      $("diagram").style.transform="translate(0px,0px)";
+    };
+    // Thumb buttons on five-button mice mirror forced previous/next.
+    // This does not replace Shift+Left/Right on the keyboard.
+    canvas.addEventListener("mousedown",event=>{
+      if(event.button!==3 && event.button!==4)return;
+      if(moveReviewOrSibling(event.button===3?-1:1))
+        event.preventDefault?.();
+    });
+    canvas.addEventListener("auxclick",event=>{
+      if(event.button===3 || event.button===4)event.preventDefault?.();
+    });
+    canvas.addEventListener("pointerdown",event=>{
+      if(event.button!==0 || event.target?.closest?.(
+        ".graph-node,button,a,input,textarea,select,[role=button]"))return;
+      if(bounceFrame && window.cancelAnimationFrame)window.cancelAnimationFrame(bounceFrame);
+      canvas.classList.remove("is-bouncing");
+      $("diagram").style.transform="translate(0px,0px)";
+      drag={id:event.pointerId,x:event.clientX,y:event.clientY,
+        left:canvas.scrollLeft,top:canvas.scrollTop};
+      canvas.setPointerCapture?.(event.pointerId);
+      canvas.classList.add("is-dragging");
+    });
+    canvas.addEventListener("pointermove",event=>{
+      if(!drag || event.pointerId!==drag.id)return;
+      const bounds=boundary();
+      const rubber=(value,max)=>value<0?value*.18:value>max?
+        max+(value-max)*.18:value;
+      const wantedX=drag.left+drag.x-event.clientX,
+        wantedY=drag.top+drag.y-event.clientY;
+      canvas.scrollLeft=Math.max(0,Math.min(bounds.x,wantedX));
+      canvas.scrollTop=Math.max(0,Math.min(bounds.y,wantedY));
+      // Native scroll cannot overshoot its bounds: translate the SVG for
+      // visible resistance and spring it back on pointer release.
+      const offsetX=rubber(wantedX,bounds.x)-canvas.scrollLeft;
+      const offsetY=rubber(wantedY,bounds.y)-canvas.scrollTop;
+      $("diagram").style.transform="translate("+(-offsetX)+"px,"+(-offsetY)+"px)";
+      event.preventDefault?.();
+    });
+    $("diagram").addEventListener("transitionend",()=>{
+      canvas.classList.remove("is-bouncing");
+    });
+    for(const key of ["pointerup","pointercancel","lostpointercapture"])
+      canvas.addEventListener(key,event=>{
+        if(!drag || event.pointerId!==drag.id)return;
+        canvas.releasePointerCapture?.(drag.id);
+        easeBack();
+      });
+  }
   function bind() {
+    bindCanvasPan();
     // Each public HTML is a genuine URL; same-view focus changes use browser history.
     $("overviewBack").addEventListener("click", () => overview(true));
     $("outlineToggle").addEventListener("click", () => {
@@ -1532,6 +1675,16 @@
       });
       window.addEventListener("keydown", event => {
         if(handleReviewShortcut(event))return;
+        const active=event.target||document.activeElement;
+        const tag=String(active?.tagName||"").toUpperCase();
+        const editing=["INPUT","TEXTAREA","SELECT"].includes(tag) ||
+          active?.isContentEditable;
+        if(!editing && !event.altKey && !event.ctrlKey && !event.metaKey &&
+           event.shiftKey && ["ArrowLeft","ArrowRight"].includes(event.key)){
+          const direction=event.key==="ArrowLeft"?-1:1;
+          if(moveReviewOrSibling(direction))event.preventDefault?.();
+          return;
+        }
         if (event.key === "Escape") {
           if(config.expandedAttributes.size) {
             config.expandedAttributes.clear();render(true);return;
