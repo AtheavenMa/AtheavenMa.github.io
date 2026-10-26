@@ -5,7 +5,7 @@
     "goal": "在 Knowledge、Code、Environment、Context 四棵树的不同位置审阅具有完整示例字段的测试节点，验证 Atlas 原地切换与人工批准流程",
     "source_plan": {
       "path": "harness/github_work_plan/agent_flow/_demo_atlas_multitree_manifest.json",
-      "sha256": "b6f7099047fe4f0eb284c3434d258f5727d5e1cb2546721a44f89c13ed1a9e33"
+      "sha256": "9a83bd8421456c7893072490861210f7c6fe64c8c674c15ce387540df45b3bf8"
     },
     "allowed_paths": [
       "doc/knowledge/context_graph.json",
@@ -22,15 +22,49 @@
         "operation": "add",
         "before": null,
         "after": {
-          "title": "测试 A · 分类损失审阅",
-          "summary": "确认训练记录、交叉熵定义与模型输出是否一致（演示）",
-          "description": "测试目标：给定一批 CUB 样本，检查分类预测与训练损失的对应关系。输入为测试批次与标签；预期记录 logits、交叉熵及检查结论。这里只展示计划中的字段、依赖和验收标准，尚无实验或源码实现。",
+          "title": "分类损失一致性测试",
+          "summary": "输入、loss 计算、比对与验收（拟议）",
+          "description": "拟议核对 CUB 分类训练中预测 logits 与交叉熵 loss 的一致性。输入 images: Tensor[B,3,H,W] 和 labels: Tensor[B]；输出标量 loss、逐样本统计以及与训练日志的误差。实验尚未运行。",
           "type": "goal",
           "term_ids": [
-            "term.cross_entropy"
+            "term.cross_entropy",
+            "term.cub200"
           ],
           "evidence": [],
-          "next": "测试占位；等待正式数据、评测指标和人类批准。"
+          "next": "由研究者确定数据批次与阈值，再实现独立验证。",
+          "reader_explanation": "从已有分类任务获得预测与标签，按同一 label smoothing、reduction 设置重新计算交叉熵，对比数值误差并形成审阅记录。这是完整的待实施任务规格。",
+          "context_term_ids": [
+            "term.cross_entropy",
+            "term.cub200"
+          ],
+          "attributes": [
+            {
+              "type": "text",
+              "label": "输入",
+              "value": "images: Tensor[B,3,H,W]；labels: Tensor[B]；类别数 200。"
+            },
+            {
+              "type": "formula",
+              "label": "待验证公式",
+              "value": "L = −Σᶜ y_c log softmax(logits)_c",
+              "note": "应与现有训练的标签平滑和 reduction 设置保持一致。"
+            },
+            {
+              "type": "text",
+              "label": "预期输出",
+              "value": "batch_loss: float；per_sample_loss: Tensor[B]；absolute_error: float。"
+            },
+            {
+              "type": "text",
+              "label": "验收条件",
+              "value": "确定容差后检查形状、NaN、标签范围和日志中的交叉熵差异。"
+            },
+            {
+              "type": "code_reference",
+              "label": "参考现有分类任务",
+              "path": "tasks/vision/classification/classification_module.py"
+            }
+          ]
         },
         "parent_id": "s.cub.training",
         "files": [
@@ -51,25 +85,86 @@
         "operation": "add",
         "before": null,
         "after": {
-          "title": "测试 B · 特征检查方法",
-          "summary": "提议在 Resnet18MLP 中增加特征检查接口（仅供审阅）",
-          "description": "拟议接口读取一批测试图像，按强度参数生成用于核对的特征摘要。输入 images: Tensor[B,3,H,W]、strength: float=1.0；预期输出 Tensor[B,512]。此方法不存在于仓库源码中，所有参数及返回值都是界面测试。",
+          "title": "提取特征接口",
+          "summary": "Resnet18MLP 拟议方法与完整接口合同",
+          "description": "拟议 Resnet18MLP.atlas_review_probe 接收图像 Tensor[B,3,H,W] 与 strength: float，输出特征 Tensor[B,512]。下方可展开每个参数与返回值；函数尚不存在于实际 Python AST。",
           "type": "method",
           "kind": "method",
           "path": "models/vision/resnet18_mlp/resnet18_mlp.py",
-          "signature": "def atlas_review_probe(self, images: Tensor, strength: float = 1.0) -> Tensor",
-          "source_symbol": "Resnet18MLP.atlas_review_probe (proposed only)",
+          "signature": "def atlas_review_probe(self, images: torch.Tensor, strength: float = 1.0) -> torch.Tensor",
+          "source_symbol": "Resnet18MLP.atlas_review_probe（待实现）",
           "why_it_matters": "演示在 Code Tree 的类节点下审阅一个完整、尚未实现的方法接口。",
-          "next": "仅用于切换测试；不要将本节点解释为真实 Python AST。",
+          "next": "获得代码授权后实现，随后检查 shape、dtype、数值一致性和资源影响。",
           "attributes": [
             {
-              "type": "text",
-              "label": "参数与返回值（演示）",
-              "value": "images: Tensor[B,3,H,W]；strength: float；返回 Tensor[B,512]。",
-              "source": "models/vision/resnet18_mlp/resnet18_mlp.py"
+              "type": "interface",
+              "label": "拟议函数接口",
+              "interface": {
+                "purpose": "从现有 ResNet-18 backbone 提取表征，对输出施加可配置的强度缩放。仅为待审批的接口设计。",
+                "signature": "def atlas_review_probe(self, images: torch.Tensor, strength: float = 1.0) -> torch.Tensor",
+                "parameters": [
+                  {
+                    "name": "self",
+                    "annotation": "Resnet18MLP",
+                    "default": null,
+                    "meaning": "现有 Resnet18MLP 模型实例。"
+                  },
+                  {
+                    "name": "images",
+                    "annotation": "Tensor[B,3,H,W]",
+                    "default": null,
+                    "meaning": "按模型要求归一化的图像批次。"
+                  },
+                  {
+                    "name": "strength",
+                    "annotation": "float",
+                    "default": "1.0",
+                    "meaning": "缩放后输出的特征强度。"
+                  }
+                ],
+                "returns": {
+                  "name": "features",
+                  "annotation": "Tensor[B,512]",
+                  "meaning": "预期的骨干特征批次；真实输出需后续单测确认。",
+                  "expressions": []
+                }
+              }
+            },
+            {
+              "type": "fields",
+              "label": "接口约束",
+              "fields": [
+                {
+                  "name": "shape",
+                  "meaning": "保留输入批量维度。",
+                  "assignment": "(B,512)"
+                },
+                {
+                  "name": "dtype",
+                  "meaning": "与模型浮点精度兼容。",
+                  "assignment": "model dtype"
+                },
+                {
+                  "name": "implemented",
+                  "meaning": "此方法目前并不在仓库 AST 中。",
+                  "assignment": "False"
+                }
+              ]
+            },
+            {
+              "type": "code_reference",
+              "label": "真实父类源码（仅供参考）",
+              "path": "models/vision/resnet18_mlp/resnet18_mlp.py",
+              "line": 45
             }
           ],
-          "evidence": []
+          "evidence": [],
+          "reader_explanation": "设计目标：复用现有 Resnet18MLP backbone，输出可进一步解释的中间表征。此次仅审批输入输出合同，不意味着方法已经编码。",
+          "key_function": "Resnet18MLP.atlas_review_probe",
+          "context_ids": [
+            "g.cub.resnet",
+            "g.cub.logits"
+          ]
         },
         "parent_id": "code:class:models.vision.resnet18_mlp.resnet18_mlp:Resnet18MLP",
         "files": [
@@ -89,21 +184,65 @@
         "operation": "add",
         "before": null,
         "after": {
-          "title": "测试 C · GPU 运行环境",
-          "summary": "演示环境资源登记与执行前检查",
-          "description": "模拟设备属性：GPU=DEMO Device-0；显存=24 GB（虚构）；驱动版本=TEST 0.0；执行位置=local simulator。演示节点仅用于切换审阅与设备属性展示，绝不代表真实机器或 GPU 可用。",
+          "title": "GPU 运行档案",
+          "summary": "模拟 GPU 属性、检测步骤及执行前约束",
+          "description": "拟议 GPU 资源档案。设备 DEMO Device-0、总显存 24 GiB、驱动 TEST 0.0 均为虚构示例；CUDA 不可用性/可用性未检测。可展开字段与检测条件，不代表机器状态。",
           "type": "device",
           "kind": "device",
           "synthetic": true,
           "facts": {
-            "GPU": "TEST · Device-0",
-            "显存": "TEST · 24 GB",
-            "驱动": "TEST · 0.0",
-            "CUDA": "未检测 / Not measured",
-            "执行来源": "演示配置，不是真实设备"
+            "device": "DEMO Device-0（模拟）",
+            "VRAM": "24 GiB TEST",
+            "driver": "TEST 0.0",
+            "CUDA": "not measured",
+            "origin": "synthetic review fixture"
           },
-          "next": "在实际机器上执行独立探测之前，不得把设备状态当作已验证。",
-          "evidence": []
+          "next": "先采集真实机器快照并核对字段来源，再决定是否可用于实验。",
+          "evidence": [],
+          "reader_explanation": "本节点与普通 Environment 设备节点一样具有字段、条件、来源与验收步骤。所有值均来自测试数据，绝不作为真实 GPU 证明。",
+          "attributes": [
+            {
+              "type": "fields",
+              "label": "设备字段",
+              "fields": [
+                {
+                  "name": "device",
+                  "meaning": "设备名称，不是真实硬件。",
+                  "assignment": "DEMO Device-0"
+                },
+                {
+                  "name": "vram_total",
+                  "meaning": "展示单位和容量的示例数值。",
+                  "assignment": "24 GiB TEST"
+                },
+                {
+                  "name": "driver",
+                  "meaning": "虚构的驱动版本。",
+                  "assignment": "TEST 0.0"
+                },
+                {
+                  "name": "cuda_available",
+                  "meaning": "真实检测前不可推断。",
+                  "assignment": "unknown"
+                },
+                {
+                  "name": "source",
+                  "meaning": "该结果只用于 UI 演示。",
+                  "assignment": "synthetic"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "label": "执行前验收",
+              "value": "目标机器需由 probe 独立检测 device、torch.cuda.is_available、显存、驱动与真实 CUDA 版本。"
+            },
+            {
+              "type": "reference",
+              "label": "现有环境档案结构",
+              "path": "harness/environment/example.json"
+            }
+          ]
         },
         "parent_id": "env:gpu",
         "files": [
@@ -123,29 +262,64 @@
         "operation": "add",
         "before": null,
         "after": {
-          "title": "测试 D · 置信度校准",
-          "summary": "用于 Context 审阅的定义示例",
-          "description": "定义（示例）：比较模型输出的预测置信度与观测准确率，检查两者是否一致。示例中以分箱计算误差，符号 ECE=Σ_k (n_k/N)·|acc_k−conf_k|。此内容用于展示术语节点的定义、别名与用途，尚未纳入正式术语库。",
+          "title": "预测置信度校准",
+          "summary": "校准术语提案：定义、分箱公式与相关指标",
+          "description": "拟议研究模型输出置信度与实际正确率的对应关系。将预测按置信度划分为 K 个分箱，比较每箱准确率 acc(Bₖ) 和平均置信度 conf(Bₖ)，计算 ECE；本节点尚未纳入正式术语库。",
           "type": "term",
           "kind": "term",
           "category": "training",
           "aliases": [
-            "Calibration（演示）",
-            "Expected Calibration Error（示例）"
+            "Calibration（校准）",
+            "Expected Calibration Error (ECE)"
           ],
-          "why_it_matters": "演示在 Context Tree 的训练与优化分组下审阅一条有定义、解释与相关术语的提案。",
+          "why_it_matters": "用于评估概率是否可解释，辅助比较仅看分类准确率无法区分的模型。",
           "foundation": "doc/knowledge/foundations/training.md",
           "source_evidence": [],
-          "next": "测试占位；相关概念需经科研审计后才可加入权威术语库。",
+          "next": "核对评测定义、分箱策略和引用来源，再申请写入正式 Context Glossary。",
           "attributes": [
             {
               "type": "text",
-              "label": "示例公式（未验证）",
-              "value": "ECE=Σ_k n_k/N·|acc_k−conf_k|",
-              "source": "doc/knowledge/foundations/training.md"
+              "label": "定义",
+              "value": "预测置信度与经验正确率在相同置信度区间应接近。"
+            },
+            {
+              "type": "formula",
+              "label": "ECE 计算示例",
+              "value": "ECE = Σₖ (|Bₖ|/N) · |acc(Bₖ) − conf(Bₖ)|",
+              "note": "N 为样本数；Bₖ 为第 k 个分箱。尚未做真实计算。"
+            },
+            {
+              "type": "fields",
+              "label": "符号与变量",
+              "fields": [
+                {
+                  "name": "acc(Bₖ)",
+                  "meaning": "分箱内实际正确率。",
+                  "assignment": "n_correct/n_bin"
+                },
+                {
+                  "name": "conf(Bₖ)",
+                  "meaning": "分箱内平均置信度。",
+                  "assignment": "Σ confidence/n_bin"
+                },
+                {
+                  "name": "N",
+                  "meaning": "评测样本总量。",
+                  "assignment": "int"
+                }
+              ]
+            },
+            {
+              "type": "reference",
+              "label": "训练相关背景资料",
+              "path": "doc/knowledge/foundations/training.md"
             }
           ],
-          "evidence": []
+          "evidence": [],
+          "reader_explanation": "这里完整给出术语定义、常用别名、计算表达式、主要量和相关研究目标，用于审批术语节点应包含的内容；并非已经运行的评测。",
+          "context_ids": [
+            "g.cub.agent_review_test"
+          ]
         },
         "parent_id": "context:category:training",
         "files": [
@@ -192,7 +366,7 @@
       "本地 Atlas 写入审阅 Ledger；Knowledge 空节点还更新权威图",
       "代码与环境提案仅为展示，不产生真实源码、设备或科研结果"
     ],
-    "preview_sha256": "e836be0e155cd881f7965eb5201da26e906c51153a5a63bd864a45db5113f230"
+    "preview_sha256": "1d38c445b60883ac0099c1f5311123c1687a130438f43abf44d8a36b0b540a54"
   },
   "context": {
     "nodes": [
