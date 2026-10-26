@@ -440,7 +440,9 @@
     config.outlineOpen = false;
     config.detailsOpen = false;
     for (const key of ancestors(id)) config.expanded.add(key);
-    if(!review) config.expandedAttributes.add(id);
+    // Focus opens the exact same attribute panel as an ordinary Atlas node.
+    // Only one review node is expanded at a time for rapid page turns.
+    config.expandedAttributes.add(id);
     setAddress(id, !!replace);
     render(false);
     centerSelected();
@@ -500,14 +502,8 @@
     return lines;
   }
   function measure(node, focused) {
-    if(review && itemFor(node.id)) {
-      const w=480;
-      const title=wrap(node.title||node.id,w-80,16,3);
-      const body=wrap(node.description,w-82,14,9);
-      // Never use a fixed-height card for variable-length reviewed content.
-      const h=Math.max(142,42+title.length*27+(body.length?10+body.length*24:0)+30);
-      return {w,h,title,body,baseH:h,extraH:0,expanded:false};
-    }
+    // Pending/approved/denied nodes use the SAME size and expansion rules
+    // as source-backed Atlas nodes. Status affects only their colors.
     const expanded = config.expandedAttributes.has(node.id);
     const w = expanded ? 490 : 290;
     const title = wrap(node.title || node.id, w - 45, 13.5, 2);
@@ -677,13 +673,12 @@
       class: "node-status", rx: 2, x: 0, y: 9,
       width: 4, height: p.h - 18, fill: status
     }));
-    const inReview=!!(review && itemFor(node.id));
-    const titleX = inReview?25:17, top = inReview?39:23;
-    const titleStep=inReview?27:19, bodyStep=inReview?24:17;
-    textLines(card, p.title, titleX, top, titleStep, "node-title");
+    // Typography and text layout are identical in normal and review modes.
+    const titleX=17, top=23;
+    textLines(card, p.title, titleX, top, 19, "node-title");
     if (p.body.length) {
-      const contentY = top + p.title.length * titleStep + (inReview?12:7);
-      textLines(card, p.body, titleX, contentY, bodyStep, "node-description");
+      const contentY=top+p.title.length*19+7;
+      textLines(card,p.body,titleX,contentY,17,"node-description");
     }
     if(p.expanded){
       const embedded=svg("foreignObject",{
@@ -699,12 +694,17 @@
       if(termIds.length){
         const terms=attributeSection(content,"专业词汇 · Context");
         for(const id of termIds){
-          const term=(DATA.context?.nodes || []).find(x=>x.id===id);
+          const term=(reviewGraphs.context?.nodes || DATA.context?.nodes || []).find(x=>x.id===id);
           if(!term)continue;
           const row=el("div","node-term-row");
           const link=el("a","node-term-link",term.title);
-          link.href="context.html?focus="+encodeURIComponent(id);
+          link.href="context.html?"+(review?"review="+encodeURIComponent(requestedReview())+"&":"")+
+                    "focus="+encodeURIComponent(id)+(review?window.location.hash||"":"");
           link.title="在 Context 中查看“"+term.title+"”";
+          if(review) link.addEventListener("click",event=>{
+            event.preventDefault();
+            navigate(id,"context",false);
+          });
           row.appendChild(link);
           row.appendChild(el("p","node-term-definition",plain(term.description)));
           terms.appendChild(row);
@@ -716,7 +716,6 @@
       embedded.addEventListener("keydown",event=>event.stopPropagation?.());
       card.appendChild(embedded);
     }
-    if (!inReview) {
     const count = (children.get(node.id) || []).length;
     if (count) {
       const label = svg("g", { class: "child-count" });
@@ -775,7 +774,6 @@
         if (event.key==="Enter" || event.key===" ") show(event);
       });
       card.appendChild(toggle);
-    }
     }
     const onOpen = () => navigate(node.id, config.view, false);
     card.addEventListener("click", onOpen);
@@ -1100,18 +1098,22 @@
     area.appendChild(el("h2", "detail-title", n.title));
     const status = el("div", "detail-status");
     const swatch = el("span", "detail-status-swatch");
-    swatch.style.background = STATES[n.status] || "#adb2b9";
+    const proposal=itemFor(n.id);
+    swatch.style.background = proposal
+      ? REVIEW_PALETTE[proposalState(proposal)].stroke
+      : STATES[n.status] || "#adb2b9";
     status.appendChild(swatch);
     status.appendChild(el("span", "", config.view==="environment" && graph().synthetic
       ? "演示数据（未实测）"
-      : ({not_implemented:"Not Implemented",partial:"Partial",implemented:"Implemented"})[n.status] || "Unknown"));
+      : ({unchecked:"Unchecked",denied:"Denied",not_implemented:"Not Implemented",
+          partial:"Partial",implemented:"Implemented"})[n.status] || "Unknown"));
     area.appendChild(status);
     area.appendChild(el("p", "detail-description",
       n.reader_explanation || plain(n.description || "")));
     if(n.context_term_ids?.length){
       const context=section(area,"专业词汇 · Context");
       for(const id of n.context_term_ids){
-        const term=(DATA.context?.nodes || []).find(x=>x.id===id);
+        const term=(reviewGraphs.context?.nodes || DATA.context?.nodes || []).find(x=>x.id===id);
         if(!term)continue;
         const row=el("div","node-term-row");
         row.appendChild(refLink(id,term.title));
@@ -1141,7 +1143,7 @@
         const block = section(area, title);
         for (const key of keys) {
           const targetView = locateView(key);
-          const source = (DATA[targetView]?.nodes || []).find(x => x.id === key);
+          const source = (reviewGraphs[targetView]?.nodes || DATA[targetView]?.nodes || []).find(x=>x.id===key);
           block.appendChild(refLink(key, source?.title || key));
         }
       }
