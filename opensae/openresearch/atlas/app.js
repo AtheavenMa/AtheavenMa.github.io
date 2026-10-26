@@ -2,7 +2,111 @@
 (function () {
   "use strict";
 
+
   const DATA = window.OPENRESEARCH_ATLAS || {};
+
+  // Public GitHub Pages data snapshots are published independently of this
+  // application. Upgrade only older, generic headings from actual node IDs,
+  // Python symbols and paths, without touching the authoritative source files.
+  const LEGACY_TITLES = {
+    "core:existing":"OpenResearch 双核心与任务注册",
+    "knowledge:existing":"CUB-200 的 ResNet-18 训练与评测",
+    "context:root":"科研术语定义与源码依据",
+    "env:root":"CPU、GPU 与科研任务执行环境",
+    "code:root":"OpenResearch Python 实现树",
+    "q.modularity":"Dataset、Model、Task Registry 解耦",
+    "q.transparency":"Atlas 五棵 Tree 的职责与关联",
+    "q.cub.reproducibility":"Hydra 配置、随机种子与实验结果追溯",
+    "g.cub.dataset":"CUB-200 图像与标签读取",
+    "g.cub.transforms":"CUB-200 输入尺寸与图像增强",
+    "g.cub.loss":"CUB-200 分类训练损失",
+    "g.cub.config":"CUB-200 Hydra 训练配置记录",
+    "g.cub.seed":"训练随机种子与运行环境记录",
+    "g.cub.artifacts":"CUB-200 训练结果文件追溯",
+    "g.registry":"Dataset、Model、Task 插件注册",
+    "g.pipeline":"Task 执行前的注册与兼容检查",
+    "code:concrete:datasets":"CUB-200 与 NLP 数据集",
+    "code:concrete:models":"Vision 与 LLM 模型实现",
+    "code:concrete:tasks":"分类训练与 LLM SAE 任务",
+    "code:group:dlbase":"DLBase 训练配置、运行与实验产物",
+    "code:group:saebase":"SAEBase 特征表示与模型干预",
+    "code:group:datasets":"Dataset 读取、划分与注册",
+    "code:group:models":"Model 构建、插件与兼容性",
+    "code:group:tasks":"Vision 分类与 LLM SAE 任务",
+    "code:group:harness":"Harness 代码树、环境与知识验证",
+    "code:family:datasets:vision":"Vision 图像数据集",
+    "code:family:datasets:NLP":"NLP 文本输入数据集",
+    "code:family:models:vision":"Vision 图像模型",
+    "code:family:models:LLM":"LLM 语言模型",
+    "code:family:tasks:vision":"Vision 分类训练任务",
+    "code:family:tasks:LLM":"LLM 稀疏特征任务"
+  };
+  const LEGACY_GENERIC = new Set([
+    "代码模块","代码组件","组件内部操作","已实现的处理步骤",
+    "已有代码模块","任务配置","默认任务配置"
+  ]);
+  const LEGACY_ONLY = new Set([
+    "已有的项目功能","已有的分类研究组件","研究概念与依据","机器与执行条件",
+    "现有代码能力","已有的模块化组件架构","已有的项目上下文组织",
+    "已有的训练配置与产物管理","正确读取图像与标签",
+    "保持输入尺寸与增强协议","定义训练损失","记录 Hydra 组合配置",
+    "确定随机性与执行环境","保存可追溯的结果文件",
+    "可插拔组件注册","Task 运行前检查",
+    "通用训练基础","LLM SAE 研究基础","数据读取与准备","模型组件",
+    "训练与评测任务","可选辅助工具","具体数据集","具体模型",
+    "具体任务","Vision","NLP","LLM"
+  ]);
+  function sourceWords(value){
+    return String(value||"").replace(/\.py$/,"").replace(/^_+|_+$/g,"")
+      .replace(/_+/g," ").replace(/([a-z0-9])([A-Z])/g,"$1 $2").trim();
+  }
+  function sourceScope(path){
+    const parts=String(path||"").replace(/\.py$/,"").split("/").filter(Boolean);
+    const scope=[parts[0],parts[1],parts.length>3?parts[2]:null,parts[parts.length-1]]
+      .filter(Boolean).map(sourceWords);
+    return [...new Set(scope)].join(" · ")||"Python 源码";
+  }
+  function legacySourceTitle(node){
+    const kind=node.kind||node.type;
+    const raw=sourceWords(node.source_symbol||node.title);
+    if(kind==="module")return sourceScope(node.path);
+    if(kind==="class")return raw+" · "+sourceScope(node.path);
+    if(kind==="method"){
+      const parts=String(node.id||"").split(":").pop().split(".");
+      return sourceWords(parts[0])+" · "+raw;
+    }
+    if(kind==="function")return sourceScope(node.path)+" · "+raw;
+    if(kind==="group"){
+      const id=String(node.id||"");
+      if(id.startsWith("code:configurations:tasks:"))
+        return sourceWords(id.split(":").pop())+" 的 Hydra 任务配置";
+      if(id.startsWith("code:config:tasks:")){
+        const parts=id.split(":");
+        return sourceWords(parts[3])+" · "+sourceWords(parts[4])+" 参数";
+      }
+      return sourceWords(id.split(":").pop())+" 源码与接口";
+    }
+    return raw;
+  }
+  function improveLegacyTitles(){
+    for(const [view,tree] of Object.entries(DATA)){
+      for(const node of tree?.nodes||[]){
+        const old=node.title||"";
+        const replacement=(LEGACY_ONLY.has(old)?LEGACY_TITLES[node.id]:null)||
+          (view==="code"&&LEGACY_GENERIC.has(old)?legacySourceTitle(node):null);
+        if(!replacement||replacement===old)continue;
+        node.title=replacement;
+        if(node.reader_explanation)
+          node.reader_explanation=node.reader_explanation.replaceAll(old,replacement);
+        if(view==="code"&&LEGACY_GENERIC.has(old)){
+          node.summary="源文件 "+(node.path||"当前节点")+" 对应实际的 "+
+            (node.source_symbol||"源码组件")+"，可展开查看接口与实现。";
+          node.description=node.summary;
+        }
+      }
+    }
+  }
+  improveLegacyTitles();
   const VIEWS = {
     core: { root: "core:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
     knowledge: { root: "knowledge:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
@@ -18,16 +122,16 @@
   };
   // Node kind never dictates shading. State alone defines the surface.
   const NODE_THEME = {
-    implemented: {rgb:"66,150,105",accent:"#429669",ink:"#246445"},
-    not_implemented: {rgb:"200,91,97",accent:"#c85b61",ink:"#903840"},
-    partial: {rgb:"213,162,56",accent:"#d5a238",ink:"#806019"},
-    unchecked: {rgb:"130,85,181",accent:"#8255b5",ink:"#623c88"},
-    denied: {rgb:"120,129,139",accent:"#78818b",ink:"#46515c"},
-    unknown: {rgb:"120,129,139",accent:"#78818b",ink:"#46515c"}
+    implemented: {rgb:"66,150,105",accent:"#76ad91",ink:"#416b56"},
+    not_implemented: {rgb:"200,91,97",accent:"#d19a9e",ink:"#935d64"},
+    partial: {rgb:"213,162,56",accent:"#d8be86",ink:"#886f39"},
+    unchecked: {rgb:"130,85,181",accent:"#b09cc9",ink:"#775f91"},
+    denied: {rgb:"120,129,139",accent:"#acb3ba",ink:"#636f78"},
+    unknown: {rgb:"120,129,139",accent:"#bac0c6",ink:"#68747d"}
   };
   const STATE_FILL = Object.fromEntries(Object.entries(NODE_THEME).map(
     ([status,color])=>[status,"rgba("+color.rgb+","+
-      (status==="unknown"?".07":".14")+")"]));
+      (status==="unknown"?".035":".085")+")"]));
 
   const $ = id => document.getElementById(id);
 
@@ -213,9 +317,9 @@
     const c=reviewStats(items),ring=el("span","review-ring");
     const total=c.total||1,red=360*c.approved/total,
           gray=360*(c.approved+c.denied)/total;
-    ring.style.background="conic-gradient(#bb4656 0deg "+red+
-      "deg,#78818b "+red+"deg "+gray+
-      "deg,#8255b5 "+gray+"deg 360deg)";
+    ring.style.background="conic-gradient(#c9848b 0deg "+red+
+      "deg,#a5adb5 "+red+"deg "+gray+
+      "deg,#ab94c8 "+gray+"deg 360deg)";
     ring.title=(c.approved+c.denied)+" of "+c.total+" reviewed";
     ring.appendChild(el("span","review-ring-center",
                         (c.approved+c.denied)+"/"+c.total));
@@ -799,8 +903,8 @@
     // Pending/approved/denied nodes use the SAME size and expansion rules
     // as source-backed Atlas nodes. Status affects only their colors.
     const expanded = config.expandedAttributes.has(node.id);
-    const w = expanded ? 490 : 290;
-    const title = wrap(node.title || node.id, w - 45, 13.5, 2);
+    const w = expanded ? 525 : 330;
+    const title = wrap(node.title || node.id, w - 45, 14.2, 3);
     const body = wrap(node.summary || node.description, w - 42, 11.8, 4);
     const base = Math.max(108, 22 + title.length * 19
       + (body.length ? 10 + body.length * 17 : 0) + 18);
