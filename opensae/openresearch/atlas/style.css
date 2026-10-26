@@ -206,3 +206,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,.graph-node:focus-visib
 .edge-main{stroke:#b8c1ca;stroke-width:1.5}
 .graph-node.node-selected .node-title{font-size:13.5px}
 .graph-node.node-selected .node-description{font-size:11.8px}
+
+/* Context-backed, independently readable explanations open inside every card. */
+.node-term-row{display:grid;gap:3px;border-left:2px solid #cbd9d0;padding:5px 9px;margin:8px 0}
+.node-term-link{display:inline-block;width:fit-content;font-weight:650;font-size:12px;color:#285e48;
+  text-decoration:underline;text-decoration-color:#a8c6b7;text-underline-offset:3px}
+.node-term-link:hover{color:#113e2d;text-decoration-color:currentColor}
+.node-term-definition{font-size:11.8px;line-height:1.7;color:#53645b;margin:0;overflow-wrap:anywhere}
+.child-count{cursor:pointer}
+.child-count:hover rect{fill:#d2dfdb}
+.graph-node.node-selected .node-surface{stroke:#456b5c;stroke-width:2}
+.node-attributes-foreign{pointer-events:all}
