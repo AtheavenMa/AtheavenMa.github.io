@@ -33,7 +33,7 @@
     outlineOpen: false,
     detailsOpen: false,
     diff: null,
-    attributeNodeId: null,
+    expandedAttributes: new Set(),
     positions: new Map(),
     scene: { width: 700, height: 440 },
     visible: []
@@ -128,7 +128,7 @@
     return null;
   }
   function navigate(id, view, replace) {
-    closeAttributes();
+    config.expandedAttributes.clear();
     const target = view || locateView(id);
     if (!target || !(DATA[target]?.nodes || []).some(n => n.id === id)) return false;
     if (target !== config.view) {
@@ -146,7 +146,7 @@
     return true;
   }
   function overview(push) {
-    closeAttributes();
+    config.expandedAttributes.clear();
     config.mode = "overview"; config.focusId = null; config.query = "";
     config.detailsOpen = false; config.zoom = 1;
     $("search").value = "";
@@ -195,12 +195,17 @@
     return lines;
   }
   function measure(node, focused) {
-    const w = focused ? 320 : 270;
+    const expanded=config.expandedAttributes.has(node.id) && (node.attributes || []).length>0;
+    const w = expanded ? 490 : focused ? 320 : 270;
     const title = wrap(node.title || node.id, w - 45, focused ? 15 : 13.5, focused ? 3 : 2);
     const body = wrap(node.summary || node.description, w - 42, focused ? 12.4 : 11.8, focused ? 7 : 4);
-    const height = Math.max(85, 22 + title.length * (focused ? 21 : 19)
+    const base = Math.max(85, 22 + title.length * (focused ? 21 : 19)
       + (body.length ? 10 + body.length * (focused ? 19 : 17) : 0) + 18);
-    return { w, h: height, title, body };
+    const isClass=(node.attributes||[]).some(x=>x.type==="class_methods");
+    const count=(node.attributes||[]).length;
+    const extraH = expanded ? Math.min(690, isClass ? 570 : Math.max(300,220+count*55)) : 0;
+    return { w, h:base + extraH, title, body, baseH:base,
+      extraH, expanded };
   }
   function visibleOverview() {
     const needed = new Set();
@@ -227,6 +232,16 @@
     const allowed = new Set(visible.map(v => v.id));
     const sizes = new Map(), blocks = new Map(), positions = new Map();
     const VERTICAL_GAP = 18, HORIZONTAL_GAP = 56, ORIGIN_X = 30;
+    const columnWidths=new Map();
+    for(const entry of visible){
+      const width=measure(byId.get(entry.id),false).w;
+      columnWidths.set(entry.depth,Math.max(columnWidths.get(entry.depth)||270,width));
+    }
+    const xColumns=[ORIGIN_X];
+    const maxDepth=Math.max(0,...visible.map(x=>x.depth));
+    for(let depth=1;depth<=maxDepth;depth++){
+      xColumns[depth]=xColumns[depth-1]+(columnWidths.get(depth-1)||270)+HORIZONTAL_GAP;
+    }
     function height(id) {
       if (blocks.has(id)) return blocks.get(id);
       const kids = (children.get(id) || []).filter(x => allowed.has(x));
@@ -241,7 +256,7 @@
     function place(id, depth, top) {
       const size = sizes.get(id), block = blocks.get(id);
       const centerY = top + block / 2;
-      positions.set(id, { x: ORIGIN_X + depth * (270 + HORIZONTAL_GAP),
+      positions.set(id, { x: xColumns[depth],
         y: centerY - size.h / 2, ...size, depth });
       const kids = (children.get(id) || []).filter(x => allowed.has(x));
       const total = kids.reduce((sum, child) => sum + blocks.get(child), 0)
@@ -274,12 +289,17 @@
       + Math.max(0, childSizes.length - 1) * 20;
     const center = 38 + Math.max(focusSize.h, childTotal) / 2;
     const depthOffset = ancestorsShown.length;
-    const ownX = xStart + depthOffset * (270 + horizontalGap);
+    const ancestorSizes=ancestorsShown.map(key=>measure(byId.get(key),false));
+    const columns=[xStart];
+    for(let i=1;i<=depthOffset;i++){
+      columns[i]=columns[i-1]+ancestorSizes[i-1].w+horizontalGap;
+    }
+    const ownX=columns[depthOffset];
     positions.set(id, { x: ownX, y: center - focusSize.h / 2,
       ...focusSize, depth: depthOffset, role: "focus" });
     ancestorsShown.forEach((key, i) => {
-      const size = measure(byId.get(key), false);
-      positions.set(key, { x: xStart + i * (270 + horizontalGap),
+      const size=ancestorSizes[i];
+      positions.set(key, { x: columns[i],
         y: center - size.h / 2, ...size, depth: i, role: "ancestor" });
     });
     let y = center - childTotal / 2;
@@ -310,6 +330,7 @@
   function drawCard(node, p, layer, positions, focus) {
     const k = kind(node), chosen = focus && node.id === config.focusId;
     const classes = ["graph-node", "node-" + k, chosen ? "node-selected" : "",
+      p.expanded ? "node-expanded" : "",
       config.diff && config.view === "code" &&
         (config.diff.added_ids || []).includes(node.id) ? "node-added" : "",
       config.diff && config.view === "code" &&
@@ -338,6 +359,19 @@
       const contentY = top + p.title.length * (chosen ? 21 : 19) + 7;
       textLines(card, p.body, titleX, contentY, chosen ? 19 : 17, "node-description");
     }
+    if(p.expanded){
+      const embedded=svg("foreignObject",{
+        x:10,y:p.baseH+8,width:p.w-20,height:p.extraH-41,
+        class:"node-attributes-foreign"
+      });
+      const content=el("div","node-attributes-inner");
+      content.setAttribute("aria-label",node.title+" 的接口与研究资料");
+      for(const block of node.attributes||[])renderAttributeBlock(content,block,node);
+      embedded.appendChild(content);
+      embedded.addEventListener("click",event=>event.stopPropagation?.());
+      embedded.addEventListener("keydown",event=>event.stopPropagation?.());
+      card.appendChild(embedded);
+    }
     const count = (children.get(node.id) || []).length;
     if (count) {
       const label = svg("g", { class: "child-count", "aria-hidden": "true" });
@@ -364,11 +398,13 @@
         node.key_function.split(".").slice(-1)[0] : null;
       toggle.appendChild(svg("text",{
         x:20,y:p.h-13
-      },shortFunction ? "关键函数 " + shortFunction + " · 查看属性" : "查看属性与参考资料"));
+      },p.expanded ? "收起节点属性" :
+         shortFunction ? "关键函数 " + shortFunction + " · 展开属性" :
+         "展开节点属性与依据"));
       const show = event => {
         event.preventDefault?.();
         event.stopPropagation?.();
-        showAttributes(node.id);
+        toggleAttributes(node.id);
       };
       toggle.addEventListener("click",show);
       toggle.addEventListener("keydown",event=>{
@@ -465,7 +501,7 @@
     } else {
       for (const item of list) output.appendChild(rowButton(item.id, byId.get(item.id).title, item.depth));
     }
-    if (!output.children.length) output.appendChild(el("p", "empty-message", "No matching nodes"));
+    if (!output.children.length) output.appendChild(el("p", "empty-message", "尝试其他检索词"));
   }
   function setDrawerState() {
     $("sidebar").classList.toggle("is-hidden", !config.outlineOpen);
@@ -549,84 +585,151 @@
     return diagram;
   }
 
-  function closeAttributes(){
-    config.attributeNodeId=null;
-    const panel=$("attributePopover");
-    if(panel)panel.classList.toggle("is-hidden",true);
+  function attributeSection(parent,title) {
+    const group=el("section","node-attribute-section");
+    group.appendChild(el("h4","node-attribute-heading",title));
+    parent.appendChild(group);
+    return group;
   }
-  function placeAttributePopover(id){
-    const pos=config.positions.get(id);
-    const wrap=$("canvasWrap");
-    const canvas=$("diagram");
-    const panel=$("attributePopover");
-    if(!pos || !wrap || !panel)return;
-    const host=wrap.getBoundingClientRect?.();
-    const art=canvas.getBoundingClientRect?.();
-    if(!host || !art){
-      panel.style.left="18px";
-      panel.style.top="50px";
+  function attributeCode(parent,value) {
+    const pre=el("pre","node-attribute-code",value||"");
+    parent.appendChild(pre);
+    return pre;
+  }
+  function sourceAnchor(parent,path,line,title) {
+    const href=sourceHref(path,line);
+    if(!href)return;
+    const a=el("a","node-attribute-link",title||"查看实体源码");
+    a.href=href;a.target="_blank";a.rel="noopener noreferrer";
+    parent.appendChild(a);
+  }
+  function renderParameterList(parent,parameters) {
+    if(!parameters?.length) return;
+    const section=attributeSection(parent,"参数与作用");
+    const list=el("div","node-parameter-list");
+    for(const parameter of parameters) {
+      const row=el("div","node-parameter-row");
+      const name=el("code","node-parameter-name",parameter.name);
+      row.appendChild(name);
+      const body=el("div","node-parameter-info");
+      body.appendChild(el("p","node-parameter-meaning",parameter.meaning||"输入参数"));
+      const tech=[parameter.annotation,parameter.default!==null&&parameter.default!==undefined?
+        "默认值 "+parameter.default:""].filter(Boolean);
+      if(tech.length)body.appendChild(el("p","node-parameter-extra",tech.join(" · ")));
+      row.appendChild(body);list.appendChild(row);
+    }
+    section.appendChild(list);
+  }
+  function renderInterface(parent,info,sourcePath) {
+    if(!info)return;
+    attributeSection(parent,"主要作用").appendChild(
+      el("p","node-attribute-text",info.purpose||"现有源代码实现的处理流程。"));
+    attributeSection(parent,"函数签名").appendChild(
+      el("code","node-attribute-signature",info.signature||""));
+    renderParameterList(parent,info.parameters);
+    if(info.returns){
+      const ret=attributeSection(parent,"返回值");
+      const description=(info.returns.name||"return")+" · "+
+        (info.returns.annotation||"源代码表达式");
+      ret.appendChild(el("code","node-attribute-signature",description));
+      ret.appendChild(el("p","node-attribute-text",info.returns.meaning||""));
+      if(info.returns.expressions?.length){
+        attributeCode(ret,info.returns.expressions.join("\n"));
+      }
+    }
+    if(info.code){
+      const block=attributeSection(parent,"实际代码主要部分");
+      attributeCode(block,info.code);
+      sourceAnchor(block,sourcePath,info.line,"查看完整函数源码");
+    }
+  }
+  function renderAttributeBlock(parent,attr,node) {
+    if(!attr || typeof attr.label!=="string")return;
+    if(attr.type==="class_methods") {
+      const section=attributeSection(parent,attr.label);
+      for(const item of attr.methods||[]) {
+        const details=el("details","node-method-details");
+        const heading=el("summary","node-method-summary",item.name);
+        details.appendChild(heading);
+        const body=el("div","node-method-body");
+        renderInterface(body,item,node.path);
+        details.appendChild(body);
+        section.appendChild(details);
+      }
       return;
     }
-    const panelWidth=Math.min(450, Math.max(260,host.width-24));
-    const x=art.left-host.left+(pos.x+pos.w)*config.zoom+14;
-    const y=art.top-host.top+(pos.y+15)*config.zoom;
-    const overflowRight=x+panelWidth>host.width;
-    const left=overflowRight?
-      Math.max(12,art.left-host.left+pos.x*config.zoom-panelWidth-12):x;
-    panel.style.left=Math.max(8,Math.min(host.width-panelWidth-8,left))+"px";
-    panel.style.top=Math.max(8,Math.min(host.height-210,y))+"px";
-  }
-  function showAttributes(id){
-    const node=byId.get(id);
-    if(!node || !Array.isArray(node.attributes) || !node.attributes.length)return;
-    if(config.attributeNodeId===id){closeAttributes();return;}
-    config.attributeNodeId=id;
-    const panel=$("attributePopover");
-    const body=$("attributeBody");
-    body.replaceChildren();
-    $("attributeTitle").textContent=node.title;
-    for(const attr of node.attributes){
-      if(!attr || typeof attr.label!=="string")continue;
-      const sectionEl=el("section","attribute-section");
-      sectionEl.appendChild(el("div","attribute-label",attr.label));
-      if(attr.type==="diagram"){
-        sectionEl.appendChild(attributeDiagram(attr.diagram));
-        if(attr.caption)sectionEl.appendChild(el("p","attribute-note",attr.caption));
-      }else if(attr.type==="formula"){
-        sectionEl.appendChild(el("div","attribute-formula",attr.value||""));
-        if(attr.note)sectionEl.appendChild(el("p","attribute-note",attr.note));
-      }else if(attr.type==="code"){
-        sectionEl.appendChild(el("pre","attribute-code",attr.value||""));
-      }else if(attr.type==="function"){
-        sectionEl.appendChild(el("p","attribute-prose",attr.value||""));
-        if(attr.signature)sectionEl.appendChild(el("pre","attribute-code",attr.signature));
-      }else if(attr.type==="reference"){
-        const href=sourceHref(attr.path,attr.line);
-        if(href){
-          const link=el("a","attribute-reference",attr.path||"查看来源");
-          link.href=href;link.target="_blank";link.rel="noopener noreferrer";
-          sectionEl.appendChild(link);
-        }
-      }else{
-        sectionEl.appendChild(el("p","attribute-prose",attr.value||""));
+    if(attr.type==="fields") {
+      const section=attributeSection(parent,attr.label);
+      for(const field of attr.fields||[]){
+        const row=el("div","node-field-row");
+        row.appendChild(el("code","node-parameter-name",field.name));
+        row.appendChild(el("span","node-attribute-text",field.meaning||"成员数据"));
+        if(field.assignment)row.appendChild(
+          el("code","node-field-assignment",field.assignment));
+        section.appendChild(row);
       }
-      const href=sourceHref(attr.source,attr.line);
-      if(href && attr.type!=="reference"){
-        const reference=el("a","attribute-reference","查看依据");
-        reference.href=href;reference.target="_blank";reference.rel="noopener noreferrer";
-        sectionEl.appendChild(reference);
-      }
-      body.appendChild(sectionEl);
+      return;
     }
-    panel.classList.toggle("is-hidden",false);
-    placeAttributePopover(id);
+    if(attr.type==="module_contents") {
+      const section=attributeSection(parent,attr.label);
+      for(const [label,values] of [
+        ["类",attr.classes||[]],["函数",attr.functions||[]]]){
+        if(values.length)section.appendChild(
+          el("p","node-attribute-text",label+"："+values.join(" · ")));
+      }
+      return;
+    }
+    if(attr.type==="interface"){
+      renderInterface(parent,attr.interface,node.path);
+      return;
+    }
+    if(attr.type==="code_reference"){
+      const section=attributeSection(parent,attr.label);
+      if(attr.interface)renderInterface(section,attr.interface,attr.path);
+      else if(attr.code)attributeCode(section,attr.code);
+      sourceAnchor(section,attr.path,attr.line,"查看源文件");
+      if(attr.symbol_id){
+        const link=el("a","node-attribute-link","在 Code Tree 中查看对应实现");
+        link.href="code.html?focus="+encodeURIComponent(attr.symbol_id);
+        section.appendChild(link);
+      }
+      return;
+    }
+    const section=attributeSection(parent,attr.label);
+    if(attr.type==="diagram"){
+      section.appendChild(attributeDiagram(attr.diagram));
+      if(attr.caption)section.appendChild(
+        el("p","node-attribute-note",attr.caption));
+    } else if(attr.type==="formula") {
+      section.appendChild(el("div","node-attribute-formula",attr.value||""));
+      if(attr.note)section.appendChild(el("p","node-attribute-note",attr.note));
+    } else if(attr.type==="code") {
+      attributeCode(section,attr.value||"");
+    } else if(attr.type==="function") {
+      section.appendChild(el("code","node-attribute-signature",attr.signature||attr.value||""));
+    } else if(attr.type==="reference"){
+      sourceAnchor(section,attr.path,attr.line,"查看完整来源");
+    } else {
+      section.appendChild(el("p","node-attribute-text",attr.value||""));
+    }
+    if(attr.source)sourceAnchor(section,attr.source,attr.line,"查看依据");
+  }
+  function toggleAttributes(id){
+    if(config.expandedAttributes.has(id))config.expandedAttributes.delete(id);
+    else config.expandedAttributes.add(id);
+    render(true);
+    const element=$("diagram");
+    // Expanded card remains part of the same tree, with all surrounding
+    // coordinates recomputed by the centered layout.
+    if(config.mode==="focus")centerSelected();
+    return element;
   }
 
   function renderDetails() {
     const area = $("detailBody"); area.replaceChildren();
     const n = byId.get(config.focusId);
     if (!n) {
-      area.appendChild(el("p", "empty-message", "Select a node to inspect evidence and cross-links."));
+      area.appendChild(el("p", "empty-message", "选择节点查看证据与来源"));
       return;
     }
     area.appendChild(el("h2", "detail-title", n.title));
@@ -690,7 +793,6 @@
     }
   }
   function render(autoFit) {
-    closeAttributes();
     const layout = normalizeLayout(config.mode === "focus" ? layoutFocus() : layoutOverview());
     config.visible = layout.visible;
     drawSVG(layout);
@@ -700,7 +802,7 @@
     $("canvasWrap").classList.toggle("in-focus", config.mode === "focus");
     $("diffControl").classList.toggle("is-hidden", config.view !== "code");
     $("focusHint").textContent = config.view === "environment" && graph().synthetic
-      ? "示例环境，非当前电脑的硬件测量" : "";
+      ? "演示环境 · 合成设备配置" : "";
     $("statusLegend").classList.toggle("implemented-only", config.view !== "environment");
     $("collapse").disabled = config.mode === "focus";
     $("expand").disabled = config.mode === "focus";
@@ -728,9 +830,9 @@
     $("detailsClose").addEventListener("click", () => {
       config.detailsOpen = false; setDrawerState();
     });
-    $("attributeClose").addEventListener("click", () => closeAttributes());
     $("search").addEventListener("input", event => {
       config.query = String(event.target.value || "");
+      config.expandedAttributes.clear();
       config.mode = "overview"; config.focusId = null; config.detailsOpen = false;
       config.outlineOpen = !!config.query.trim();
       if (window.location?.search?.includes("focus=")) setAddress(null, true);
@@ -776,6 +878,7 @@
     if (window.addEventListener) {
       window.addEventListener("popstate", () => {
         const next = getSearchFocus();
+        config.expandedAttributes.clear();
         config.focusId = next && byId.has(next) ? next : null;
         config.mode = config.focusId ? "focus" : "overview";
         config.detailsOpen = false;
@@ -784,7 +887,9 @@
       });
       window.addEventListener("keydown", event => {
         if (event.key === "Escape") {
-          if (config.attributeNodeId) {closeAttributes();return;}
+          if(config.expandedAttributes.size) {
+            config.expandedAttributes.clear();render(true);return;
+          }
           if (config.detailsOpen || config.outlineOpen) {
             config.detailsOpen = false; config.outlineOpen = false; setDrawerState();
           } else if (config.mode === "focus") overview(true);

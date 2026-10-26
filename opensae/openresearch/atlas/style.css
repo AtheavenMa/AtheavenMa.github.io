@@ -134,42 +134,67 @@ button:focus-visible,a:focus-visible,input:focus-visible,.graph-node:focus-visib
 /* Only the existing green state is relevant outside Environment. */
 .status-legend.implemented-only .legend-item:not(:last-child){display:none}
 
-/* Node-local attribute affordance: details float over canvas rather than
-   resizing the entire tree or requiring the permanent Inspector. */
+
+/* Inline node expansion: the card itself grows and its sub-tree reflows. */
 .attribute-trigger{cursor:pointer}
-.attribute-trigger .attr-hit{fill:#edf1f3;stroke:#dfe4e8;stroke-width:0.7}
-.attribute-trigger:hover .attr-hit,.attribute-trigger:focus .attr-hit{fill:#dde8e4;stroke:#9bb5ac}
-.attribute-trigger text{font-size:10.5px;font-weight:620;fill:#505d63}
-.attribute-popover{position:absolute;z-index:15;width:min(450px,calc(100% - 24px));
-  max-height:min(560px,calc(100% - 70px));background:#fff;border:1px solid #d6dce0;
-  border-radius:12px;box-shadow:0 16px 48px rgba(23,35,41,.18);
-  display:flex;flex-direction:column;overflow:hidden}
-.attribute-head{display:flex;align-items:center;justify-content:space-between;
-  padding:13px 16px;border-bottom:1px solid #e9edef;gap:8px;flex:none}
-.attribute-title{font-weight:680;font-size:14px;line-height:1.3;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.attribute-close{width:28px;height:28px;border:0;border-radius:7px;
-  background:transparent;color:#77808a;font-size:22px;cursor:pointer}
-.attribute-close:hover{background:#f0f2f3;color:#222}
-.attribute-body{padding:4px 17px 17px;overflow:auto;flex:1;min-height:0}
-.attribute-section{padding:12px 0 11px;border-bottom:1px solid #eef0f1}
-.attribute-section:last-child{border-bottom:0}
-.attribute-label{color:#82909a;font-size:10px;font-weight:720;letter-spacing:.45px;margin:0 0 8px}
-.attribute-prose{font-size:12.4px;line-height:1.8;color:#3f4952;margin:0;overflow-wrap:anywhere}
-.attribute-formula{font:600 19px/1.5 "Cambria Math",Cambria,"Noto Serif",serif;
-  background:#f5f7f8;border:1px solid #e6e9ed;color:#26333e;border-radius:7px;
-  padding:12px 13px;overflow-x:auto;white-space:nowrap}
-.attribute-code{margin:0;padding:12px;background:#f4f6f7;border-radius:7px;
-  color:#313b44;font:11.5px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;
-  overflow:auto;tab-size:4;white-space:pre}
-.attribute-reference{display:inline-block;font-size:11.5px;color:#407d77;
-  text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
-.attribute-note{font-size:11px;color:#78828b;line-height:1.6;margin-top:7px}
-.attribute-diagram{display:block;width:100%;max-width:390px;
-  background:#f8fafb;border:1px solid #e7ebed;border-radius:7px}
+.attribute-trigger .attr-hit{fill:#eaf1ee;stroke:#a9cabe;stroke-width:.7}
+.attribute-trigger:hover .attr-hit{fill:#d9eae2;stroke:#6aa58d}
+.attribute-trigger text{font-size:10.6px;font-weight:630;fill:#3e7861}
+.node-expanded .node-surface{stroke:#6e9d88;stroke-width:1.6;filter:drop-shadow(0 7px 13px rgba(44,86,66,.11))}
+.node-attributes-foreign{overflow:hidden}
+.node-attributes-inner{height:100%;width:100%;overflow-y:auto;
+  padding:9px 12px 15px;border-top:1px solid #dfe8e2;
+  border-bottom:1px solid #e7ece9;border-radius:6px;
+  background:rgba(255,255,255,.78);box-sizing:border-box;
+  scrollbar-color:#c4d5ce transparent;scrollbar-width:thin}
+.node-attribute-section{padding:12px 0;border-bottom:1px solid #e6ece9}
+.node-attribute-section:first-child{padding-top:5px}
+.node-attribute-section:last-child{border-bottom:0}
+.node-attribute-heading{font:650 11px/1.45 Inter,"Noto Sans SC",sans-serif;
+  letter-spacing:.35px;margin:0 0 7px;color:#597468}
+.node-attribute-text{font:12px/1.8 Inter,"Noto Sans SC",sans-serif;color:#394843;
+  margin:5px 0;overflow-wrap:anywhere}
+.node-attribute-note{color:#788a82;font-size:10.5px;line-height:1.6;margin:8px 0 0}
+.node-attribute-code{display:block;margin:6px 0;padding:10px 11px;border-radius:5px;
+  background:#f3f6f4;color:#2c3831;overflow:auto;max-height:290px;
+  white-space:pre;tab-size:4;
+  font:10.8px/1.58 ui-monospace,SFMono-Regular,Consolas,monospace}
+.node-attribute-signature{display:block;margin:6px 0;white-space:pre-wrap;
+  overflow-wrap:anywhere;font:11.2px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;
+  color:#293e32;padding:8px 9px;border-radius:5px;background:#edf3ef}
+.node-parameter-list{display:grid;gap:7px;margin-top:6px}
+.node-parameter-row{display:grid;grid-template-columns:minmax(80px,31%) minmax(0,1fr);
+  gap:11px;align-items:start;padding:6px 0;border-bottom:1px solid #edf0ee}
+.node-parameter-row:last-child{border-bottom:0}
+.node-parameter-name{font:11px ui-monospace,SFMono-Regular,Consolas,monospace;
+  color:#3b6d54;overflow-wrap:anywhere;padding:3px 0}
+.node-parameter-meaning{font:11.7px/1.55 Inter,"Noto Sans SC",sans-serif;
+  color:#344239;margin:0}
+.node-parameter-extra{font:10.5px/1.5 ui-monospace,Consolas,monospace;color:#87958d;
+  overflow-wrap:anywhere;margin:3px 0 0}
+.node-method-details{margin:5px 0;border:1px solid #e0e7e3;border-radius:6px;background:#fbfcfb}
+.node-method-summary{padding:9px 10px;cursor:pointer;font:11px/1.5 ui-monospace,Consolas,monospace;
+  color:#324a3a;list-style-position:inside}
+.node-method-summary:hover{background:#f1f7f3}
+.node-method-details[open]>.node-method-summary{border-bottom:1px solid #e0e9e3;background:#f2f7f4}
+.node-method-body{padding:5px 12px 14px}
+.node-field-row{display:flex;flex-direction:column;gap:4px;margin:8px 0;padding:7px 9px;
+  border:1px solid #e7eeea;border-radius:5px}
+.node-field-assignment{font:10.6px/1.4 ui-monospace,Consolas,monospace;
+  color:#78877d;white-space:pre-wrap;overflow-wrap:anywhere}
+.node-attribute-link{display:inline-block;color:#3f8a68;text-decoration:underline;
+  text-underline-offset:3px;font-size:11px;line-height:1.6;margin:5px 0 0;
+  overflow-wrap:anywhere}
+.node-attribute-formula{font:600 17px/1.6 "Cambria Math",Cambria,"Noto Serif",serif;
+  border-radius:6px;background:#f0f6f2;padding:9px 12px;color:#29503d;
+  white-space:nowrap;overflow-x:auto}
+.attribute-diagram{display:block;width:100%;height:auto;max-width:415px;
+  border-radius:6px;border:1px solid #dfe9e3;background:#f7faf8}
 .attribute-diagram text{font-family:Inter,"Noto Sans SC",sans-serif;font-size:11px;fill:#34424c}
 .attribute-diagram .diagram-box{fill:#fff;stroke:#c5d2d8}
 .attribute-diagram .diagram-edge{fill:none;stroke:#7d9098;stroke-width:1.5}
 .attribute-diagram .diagram-sum{fill:#deede8;stroke:#93b3a8}
-@media(max-width:730px){.attribute-popover{width:calc(100% - 16px);max-height:min(520px,65vh)}
-.attribute-head{padding:11px 13px}.attribute-body{padding:4px 13px 14px}
-.attribute-formula{font-size:16px}}
+@media(max-width:730px){
+ .node-attribute-text{font-size:11.5px}
+ .node-attribute-code{font-size:10px}
+}
