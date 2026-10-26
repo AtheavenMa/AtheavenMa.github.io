@@ -70,5 +70,47 @@
     "Human marks content changes and chooses GREEN/YELLOW/RED/DELETE",
     "Finalize with evidence hashes, decisions and next actions"
   ],
-  "preview_sha256": "21d24d9af1fca052b21373c7021088542956e7a0b8652aaaac3a444ed96a7961"
+  "preview_sha256": "21d24d9af1fca052b21373c7021088542956e7a0b8652aaaac3a444ed96a7961",
+  "review_context": {
+    "nodes": [
+      {
+        "id": "s.cub.training",
+        "kind": "solve",
+        "title": "可审计的训练与优化策略",
+        "description": "方案：使用 Lightning 任务模块执行带 label smoothing 的交叉熵和 SGD 优化，并以调度器及验证指标选取 checkpoint。",
+        "status": "partial"
+      },
+      {
+        "id": "q.cub.generalization",
+        "kind": "question",
+        "title": "模型如何学到可泛化的细粒度特征？",
+        "description": "问题：如何选择 ResNet-18、损失与优化策略，在独立评测数据上获得稳定的泛化表现？",
+        "status": "partial"
+      },
+      {
+        "id": "q.cub.train",
+        "kind": "question",
+        "title": "怎样训练出可信的 CUB-200 ResNet 分类模型？",
+        "description": "问题：如何在 CUB-200 细粒度鸟类分类任务上训练 ResNet-18，并用独立评测和可复现实验判断是否达到目标？",
+        "status": "partial"
+      }
+    ],
+    "edges": [
+      {
+        "source": "q.cub.generalization",
+        "target": "s.cub.training",
+        "type": "addresses"
+      },
+      {
+        "source": "q.cub.train",
+        "target": "q.cub.generalization",
+        "type": "refines"
+      },
+      {
+        "source": "knowledge:existing",
+        "target": "q.cub.train",
+        "type": "contains"
+      }
+    ]
+  }
 }

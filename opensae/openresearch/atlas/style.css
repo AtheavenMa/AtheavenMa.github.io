@@ -217,3 +217,32 @@ button:focus-visible,a:focus-visible,input:focus-visible,.graph-node:focus-visib
 .child-count:hover rect{fill:#d2dfdb}
 .graph-node.node-selected .node-surface{stroke:#456b5c;stroke-width:2}
 .node-attributes-foreign{pointer-events:all}
+
+/* Atlas review mode: exactly one compact control bar, the normal tree and Focus view. */
+.atlas-review-bar{position:absolute;left:50%;bottom:48px;transform:translateX(-50%);
+ z-index:5;display:flex;align-items:center;gap:10px;padding:9px 12px;
+ border:1px solid #d9dce1;border-radius:12px;background:rgba(255,255,255,.98);
+ box-shadow:0 8px 30px rgba(32,36,40,.13);white-space:nowrap}
+.atlas-review-bar button{font-weight:650;border-radius:8px;height:43px;min-width:76px;
+ border:1px solid #d7dce2;padding:0 16px;font-size:14px;cursor:pointer}
+.atlas-review-bar button:disabled{opacity:.32;cursor:default}
+.atlas-review-bar .review-arrow{font-size:29px;font-weight:400;min-width:45px;padding:0 6px;
+ background:#f1f2f4;color:#2c343b;line-height:1}
+.atlas-review-bar .review-count{font-size:15px;color:#20272d;font-weight:650;
+ min-width:55px;text-align:center;font-variant-numeric:tabular-nums}
+.atlas-review-bar .review-approve{background:#f8e2e5;color:#9c2f3e;border-color:#e9b7bf}
+.atlas-review-bar .review-deny{background:#e6e8eb;color:#48525c;border-color:#cbd1d7}
+.atlas-review-bar button.chosen{box-shadow:inset 0 0 0 2px currentColor}
+.atlas-review-bar .review-message{font-size:13px;color:#65717c;min-width:104px;text-align:center}
+.graph-node[data-review="unchecked"] .node-surface{stroke:#8255b5;stroke-width:2}
+.graph-node[data-review="approved"] .node-surface{stroke:#bb4656;stroke-width:2}
+.graph-node[data-review="denied"] .node-surface{stroke:#78818b;stroke-width:2}
+.graph-node[data-review] .node-title{font-size:16px}
+.graph-node[data-review] .node-description{font-size:14px}
+@media(max-width:730px){
+ .atlas-review-bar{gap:5px;bottom:45px;padding:7px;max-width:calc(100% - 12px)}
+ .atlas-review-bar button{min-width:65px;height:39px;padding:0 9px;font-size:13px}
+ .atlas-review-bar .review-arrow{min-width:34px;font-size:24px}
+ .atlas-review-bar .review-count{min-width:46px}
+ .atlas-review-bar .review-message{display:none}
+}

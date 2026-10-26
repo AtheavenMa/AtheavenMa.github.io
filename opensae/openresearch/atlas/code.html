@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#fafaf9">
   <meta name="description" content="Explore OpenResearch project structure, scientific questions and source code through interactive node-centered trees.">
   <title>OpenResearch Atlas · Code</title>
-  <link rel="stylesheet" href="./style.css?v=dualcore-20261025-d">
-  <script defer src="./data.js?v=dualcore-20261025-d"></script>
-  <script defer src="./app.js?v=dualcore-20261025-d"></script>
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./data.js"></script>
+  <script defer src="./app.js"></script>
 </head>
 <body data-atlas-view="code">
   <div class="app">
@@ -50,6 +50,14 @@
         <main class="graph-panel">
           <div id="canvasWrap" class="canvas-wrap" aria-label="Interactive node graph" tabindex="0">
             <svg id="diagram" role="img" aria-label="Source-backed expandable project tree"></svg>
+          </div>
+          <div id="atlasReviewBar" class="atlas-review-bar is-hidden" role="group" aria-label="Review nodes">
+            <button id="atlasReviewPrev" class="review-arrow" aria-label="Previous node" title="Previous node">‹</button>
+            <span id="atlasReviewCount" class="review-count">1 / 1</span>
+            <button id="atlasReviewNext" class="review-arrow" aria-label="Next node" title="Next node">›</button>
+            <button id="atlasReviewApprove" class="review-approve">Approve</button>
+            <button id="atlasReviewDeny" class="review-deny">Deny</button>
+            <span id="atlasReviewMessage" class="review-message" aria-live="polite">Unchecked</span>
           </div>
           <div class="status-legend" id="statusLegend" role="note" aria-label="Node status colors: Not Implemented red, Partial yellow, Implemented green">
             <span class="legend-item"><i class="legend-swatch not-implemented" aria-hidden="true"></i>Not Implemented</span>
