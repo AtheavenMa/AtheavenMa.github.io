@@ -75,15 +75,19 @@
         const origin = item.before || {};
         const displayed = {
           ...baseNode,
+          // Keep the normal node's interface, device facts and terminology.
+          // Proposed fields are never read as real implemented Code evidence.
+          ...after,
           id: item.node_id,
           kind: baseNode.kind || after.type || origin.type || "goal",
           title: after.title || origin.title || baseNode.title || item.node_id,
           description: after.description || origin.description || baseNode.description || "",
-          summary: after.description || origin.description || baseNode.summary || "",
+          summary: after.summary || after.description || origin.description || baseNode.summary || "",
           status: proposalState(item) === "approved" ? "not_implemented" :
                   proposalState(item) === "denied" ? "denied" : "unchecked",
-          reader_explanation: after.description || origin.description || "",
-          context_term_ids: after.term_ids || baseNode.context_term_ids || [],
+          reader_explanation: after.reader_explanation || after.description || origin.description || "",
+          context_term_ids: after.context_term_ids || after.term_ids ||
+                            baseNode.context_term_ids || [],
           review_item: true
         };
         nodes.set(item.node_id,displayed);
@@ -209,7 +213,8 @@
       live=true;
     } catch (_) {
       // GitHub Pages is read-only. It cannot secretly persist human decisions.
-      if(requestedReview()!=="OR-Knowledge-Demo-20261026") {
+      if(!["OR-Knowledge-Demo-20261026","OR-Atlas-MultiTree-Demo-20261026"]
+          .includes(requestedReview())) {
         $("focusHint").textContent="Local Atlas review service required";
         return;
       }
@@ -231,6 +236,15 @@
     $("atlasReviewApprove").addEventListener("click",()=>submitReview("approved"));
     $("atlasReviewDeny").addEventListener("click",()=>submitReview("denied"));
     $("atlasReviewExport").addEventListener("click",exportBrowserDraft);
+    // Existing Atlas tabs remain available in review mode without reloading.
+    if (typeof document.querySelectorAll === "function")
+      for(const tab of document.querySelectorAll(".tabs [data-graph]"))
+        tab.addEventListener("click", event => {
+          if(!review || tab.dataset.graph === "core") return;
+          event.preventDefault();
+          const choice=review.plan.items.find(item=>item.view===tab.dataset.graph);
+          if(choice) navigate(choice.node_id, choice.view, false);
+        });
     bar.classList.remove("is-hidden");
     updateReviewBar();
   }
@@ -369,7 +383,8 @@
   }
   function setAddress(focusId, replace) {
     if (!window.history?.pushState || !window.location?.pathname) return;
-    const path = window.location.pathname;
+    // Review mode switches the URL and Atlas graph in place; no new HTML load.
+    const path = review ? config.view + ".html" : window.location.pathname;
     const params=[];
     if(requestedReview()) params.push("review="+encodeURIComponent(requestedReview()));
     if(focusId) params.push("focus="+encodeURIComponent(focusId));
@@ -388,14 +403,32 @@
     }
     return null;
   }
+  function activateReviewView(view) {
+    if (!review || view === "core" || !VIEWS[view] || !DATA[view]) return false;
+    config.view = view;
+    if(document.body?.dataset) document.body.dataset.atlasView = view;
+    rebuildHierarchy();
+    config.expanded = initialExpanded();
+    config.expandedAttributes.clear();
+    // The same DOM and canvas stay mounted across different trees.
+    if(typeof document.querySelectorAll === "function")
+      for(const tab of document.querySelectorAll(".tabs [data-graph]"))
+        tab.classList.toggle("active", tab.dataset.graph === view);
+    return true;
+  }
   function navigate(id, view, replace) {
     const target = view || locateView(id);
     if (!target || !(reviewGraphs[target]?.nodes || DATA[target]?.nodes || []).some(n => n.id === id)) return false;
     if (target !== config.view) {
-      if(window.location) window.location.href = target+".html?"+
-        (requestedReview()?"review="+encodeURIComponent(requestedReview())+"&":"")+
-        "focus="+encodeURIComponent(id)+(requestedReview()?window.location.hash||"":"");
-      return true;
+      if (review) {
+        // Fast cross-tree page turn: preserve scroll/zoom and shared draft state.
+        if (!activateReviewView(target)) return false;
+      } else {
+        if(window.location) window.location.href = target+".html?"+
+          (requestedReview()?"review="+encodeURIComponent(requestedReview())+"&":"")+
+          "focus="+encodeURIComponent(id)+(requestedReview()?window.location.hash||"":"");
+        return true;
+      }
     }
     // Primary click expands this node in place. Existing branches stay open;
     // the graph becomes scrollable and never changes its current zoom.
@@ -1228,6 +1261,11 @@
     });
     if (window.addEventListener) {
       window.addEventListener("popstate", () => {
+        if(review) {
+          const current = (window.location?.pathname || "").match(/\/(core|knowledge|code|environment|context)\.html$/);
+          if(current && current[1] !== config.view && current[1] !== "core")
+            activateReviewView(current[1]);
+        }
         const next = getSearchFocus();
         config.expandedAttributes.clear();
         config.focusId = next && byId.has(next) ? next : null;
