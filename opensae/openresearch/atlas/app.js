@@ -92,8 +92,11 @@
     for(const [view,tree] of Object.entries(DATA)){
       for(const node of tree?.nodes||[]){
         const old=node.title||"";
+        const kind=node.kind||node.type;
         const replacement=(LEGACY_ONLY.has(old)?LEGACY_TITLES[node.id]:null)||
-          (view==="code"&&LEGACY_GENERIC.has(old)?legacySourceTitle(node):null);
+          (view==="code"&&LEGACY_GENERIC.has(old)?legacySourceTitle(node):null)||
+          (view==="code"&&["method","function"].includes(kind)&&!old.includes(" · ")
+            ? old+" · "+legacySourceTitle(node):null);
         if(!replacement||replacement===old)continue;
         node.title=replacement;
         if(node.reader_explanation)
@@ -196,7 +199,17 @@
           ...after,
           id: item.node_id,
           kind: baseNode.kind || after.type || origin.type || "goal",
-          title: after.title || origin.title || baseNode.title || item.node_id,
+          title: (() => {
+            const original=after.title || origin.title || baseNode.title || item.node_id;
+            const parentSymbol=item.parent_id?.startsWith("code:class:")
+              ? item.parent_id.split(":").pop() : "";
+            if(view==="code" && parentSymbol && !original.includes(parentSymbol))
+              return parentSymbol+" · "+original;
+            if(view==="knowledge" && item.node_id.startsWith("g.cub.") &&
+               !original.includes("CUB"))
+              return "CUB-200 · "+original;
+            return original;
+          })(),
           description: after.description || origin.description || baseNode.description || "",
           summary: after.summary || after.description || origin.description || baseNode.summary || "",
           status: proposalState(item) === "approved" ? "not_implemented" :
@@ -341,8 +354,11 @@
     if(reviewFilter.level==="view")return REVIEW_TITLES[reviewFilter.view];
     if(reviewFilter.level==="parent")return reviewGroups.flatMap(x=>x.groups)
       .find(x=>x.key===reviewFilter.parentKey)?.label || "Branch";
-    if(reviewFilter.level==="node")return reviewQueue.find(x=>x.key===reviewFilter.nodeKey)
-      ?.after?.title || "Node";
+    if(reviewFilter.level==="node"){
+      const item=reviewQueue.find(x=>x.key===reviewFilter.nodeKey);
+      return reviewGraphs[item?.view]?.nodes?.find(n=>n.id===item?.node_id)?.title ||
+        item?.after?.title || "Node";
+    }
     return "All";
   }
   function selectedReviewCategory(level,value){
@@ -402,6 +418,7 @@
                               branch.items,"parent:"+branch.key,leafContainer=>{
               for(const item of branch.items){
                 reviewCategoryRow(leafContainer,"node",item.key,
+                  reviewGraphs[item.view]?.nodes?.find(n=>n.id===item.node_id)?.title ||
                   item.after?.title||item.before?.title||item.node_id,
                   [item],null,null);
               }
