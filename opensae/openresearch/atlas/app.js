@@ -1015,6 +1015,7 @@
       const contentY=top+p.title.length*19+7;
       textLines(card,p.body,titleX,contentY,17,"node-description");
     }
+    const onOpen = () => navigate(node.id,config.view,false,{toggle:true});
     if(p.expanded){
       const embedded=svg("foreignObject",{
         x:10,y:p.baseH+8,width:p.w-20,height:p.extraH-41,
@@ -1047,7 +1048,22 @@
       }
       for(const block of node.attributes||[])renderAttributeBlock(content,block,node);
       embedded.appendChild(content);
-      embedded.addEventListener("click",event=>event.stopPropagation?.());
+      // An expanded foreignObject covers much of the card. Its old unconditional
+      // stopPropagation swallowed blank-area clicks, leaving the card open.
+      // Explicitly route those clicks through the SAME toggle as the SVG body.
+      embedded.addEventListener("click",event=>{
+        event.stopPropagation?.();
+        if(event.defaultPrevented || (event.button!==undefined && event.button!==0))return;
+        // Links, accordions, form controls and selectable code keep their
+        // native behavior rather than closing the whole card.
+        if(event.target?.closest?.(
+          "a,button,summary,input,select,textarea,pre,code,[role='button'],[contenteditable]"
+        ))return;
+        // Drag-selecting explanation text must not collapse its container.
+        const selection=window.getSelection?.();
+        if(selection && !selection.isCollapsed && String(selection.toString?.()||"").length)return;
+        onOpen();
+      });
       embedded.addEventListener("keydown",event=>event.stopPropagation?.());
       card.appendChild(embedded);
     }
@@ -1110,7 +1126,6 @@
       });
       card.appendChild(toggle);
     }
-    const onOpen = () => navigate(node.id, config.view, false,{toggle:true});
     card.addEventListener("click", onOpen);
     // Wheel on a compact node turns actual siblings. Expanded HTML content
     // retains its native scroll; blank canvas keeps native scrolling.
