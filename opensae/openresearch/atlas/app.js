@@ -8,7 +8,7 @@
     knowledge: { root: "knowledge:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
     code: { root: "code:root", primary: ["contains"] },
     environment: { root: "env:root", primary: ["contains"] },
-    glossary: { root: "glossary:root", primary: ["contains"] }
+    context: { root: "context:root", primary: ["contains"] }
   };
   const STATES = {
     not_implemented: "#c85b61",
@@ -33,6 +33,7 @@
     outlineOpen: false,
     detailsOpen: false,
     diff: null,
+    attributeNodeId: null,
     positions: new Map(),
     scene: { width: 700, height: 440 },
     visible: []
@@ -127,6 +128,7 @@
     return null;
   }
   function navigate(id, view, replace) {
+    closeAttributes();
     const target = view || locateView(id);
     if (!target || !(DATA[target]?.nodes || []).some(n => n.id === id)) return false;
     if (target !== config.view) {
@@ -144,6 +146,7 @@
     return true;
   }
   function overview(push) {
+    closeAttributes();
     config.mode = "overview"; config.focusId = null; config.query = "";
     config.detailsOpen = false; config.zoom = 1;
     $("search").value = "";
@@ -346,6 +349,33 @@
       }, String(count)));
       card.appendChild(label);
     }
+    if (Array.isArray(node.attributes) && node.attributes.length) {
+      const toggle = svg("g", {
+        class: "attribute-trigger", role: "button", tabindex: "0",
+        "data-attribute-toggle": node.id,
+        "aria-label": "展开 " + node.title + " 的属性",
+      });
+      const countWidth = (children.get(node.id) || []).length ? 48 : 13;
+      const buttonWidth = p.w - countWidth - 14;
+      toggle.appendChild(svg("rect",{
+        class:"attr-hit",x:11,y:p.h-28,width:buttonWidth,height:22,rx:6
+      }));
+      const shortFunction = node.key_function ?
+        node.key_function.split(".").slice(-1)[0] : null;
+      toggle.appendChild(svg("text",{
+        x:20,y:p.h-13
+      },shortFunction ? "关键函数 " + shortFunction + " · 查看属性" : "查看属性与参考资料"));
+      const show = event => {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+        showAttributes(node.id);
+      };
+      toggle.addEventListener("click",show);
+      toggle.addEventListener("keydown",event=>{
+        if (event.key==="Enter" || event.key===" ") show(event);
+      });
+      card.appendChild(toggle);
+    }
     const onOpen = () => navigate(node.id, config.view, false);
     card.addEventListener("click", onOpen);
     card.addEventListener("keydown", event => {
@@ -477,6 +507,121 @@
     button.title = target ? target + " · " + id : "Unknown node";
     return button;
   }
+  function sourceHref(path, line) {
+    if (typeof path !== "string" || !path ||
+        path.startsWith("/") || path.includes("..") || path.includes("\\"))
+      return null;
+    const suffix = typeof line === "number" && line > 0 ? "#L" + line : "";
+    return "https://github.com/OpenSAE/OpenResearch/blob/main/" +
+      path.split("/").map(encodeURIComponent).join("/") + suffix;
+  }
+  function diagramShape(group, tag, attributes, value) {
+    const element = svg(tag,attributes,value);
+    group.appendChild(element);
+    return element;
+  }
+  function attributeDiagram(type) {
+    const diagram = svg("svg",{viewBox:"0 0 390 128",class:"attribute-diagram",
+      role:"img", "aria-label":type==="residual"?
+      "残差路径 F(x) 与捷径 x 相加的结构示意":"CUB 官方训练与测试分开的结构示意"});
+    if (type==="residual") {
+      diagramShape(diagram,"rect",{x:10,y:46,width:62,height:34,rx:7,class:"diagram-box"});
+      diagramShape(diagram,"text",{x:41,y:67,"text-anchor":"middle"},"输入 x");
+      diagramShape(diagram,"path",{d:"M72 63 L106 63 L106 31 L128 31",class:"diagram-edge"});
+      diagramShape(diagram,"rect",{x:128,y:14,width:129,height:36,rx:7,class:"diagram-box"});
+      diagramShape(diagram,"text",{x:192,y:36,"text-anchor":"middle"},"残差变换 F(x)");
+      diagramShape(diagram,"path",{d:"M257 32 L288 32 L288 63",class:"diagram-edge"});
+      diagramShape(diagram,"path",{d:"M72 63 L288 63",class:"diagram-edge"});
+      diagramShape(diagram,"rect",{x:275,y:52,width:28,height:24,rx:12,class:"diagram-sum"});
+      diagramShape(diagram,"text",{x:289,y:68,"text-anchor":"middle"},"+");
+      diagramShape(diagram,"path",{d:"M303 64 L329 64",class:"diagram-edge"});
+      diagramShape(diagram,"text",{x:356,y:67,"text-anchor":"middle"},"输出");
+      diagramShape(diagram,"text",{x:185,y:89,"text-anchor":"middle"},"捷径连接");
+    } else if(type==="cub_split") {
+      diagramShape(diagram,"text",{x:195,y:23,"text-anchor":"middle"},"CUB-200-2011 官方数据");
+      diagramShape(diagram,"rect",{x:16,y:42,width:166,height:62,rx:8,class:"diagram-box"});
+      diagramShape(diagram,"rect",{x:208,y:42,width:166,height:62,rx:8,class:"diagram-box"});
+      diagramShape(diagram,"text",{x:99,y:67,"text-anchor":"middle"},"训练数据");
+      diagramShape(diagram,"text",{x:99,y:84,"text-anchor":"middle"},"Official Train");
+      diagramShape(diagram,"text",{x:291,y:67,"text-anchor":"middle"},"测试数据");
+      diagramShape(diagram,"text",{x:291,y:84,"text-anchor":"middle"},"Official Test");
+    }
+    return diagram;
+  }
+
+  function closeAttributes(){
+    config.attributeNodeId=null;
+    const panel=$("attributePopover");
+    if(panel)panel.classList.toggle("is-hidden",true);
+  }
+  function placeAttributePopover(id){
+    const pos=config.positions.get(id);
+    const wrap=$("canvasWrap");
+    const canvas=$("diagram");
+    const panel=$("attributePopover");
+    if(!pos || !wrap || !panel)return;
+    const host=wrap.getBoundingClientRect?.();
+    const art=canvas.getBoundingClientRect?.();
+    if(!host || !art){
+      panel.style.left="18px";
+      panel.style.top="50px";
+      return;
+    }
+    const panelWidth=Math.min(450, Math.max(260,host.width-24));
+    const x=art.left-host.left+(pos.x+pos.w)*config.zoom+14;
+    const y=art.top-host.top+(pos.y+15)*config.zoom;
+    const overflowRight=x+panelWidth>host.width;
+    const left=overflowRight?
+      Math.max(12,art.left-host.left+pos.x*config.zoom-panelWidth-12):x;
+    panel.style.left=Math.max(8,Math.min(host.width-panelWidth-8,left))+"px";
+    panel.style.top=Math.max(8,Math.min(host.height-210,y))+"px";
+  }
+  function showAttributes(id){
+    const node=byId.get(id);
+    if(!node || !Array.isArray(node.attributes) || !node.attributes.length)return;
+    if(config.attributeNodeId===id){closeAttributes();return;}
+    config.attributeNodeId=id;
+    const panel=$("attributePopover");
+    const body=$("attributeBody");
+    body.replaceChildren();
+    $("attributeTitle").textContent=node.title;
+    for(const attr of node.attributes){
+      if(!attr || typeof attr.label!=="string")continue;
+      const sectionEl=el("section","attribute-section");
+      sectionEl.appendChild(el("div","attribute-label",attr.label));
+      if(attr.type==="diagram"){
+        sectionEl.appendChild(attributeDiagram(attr.diagram));
+        if(attr.caption)sectionEl.appendChild(el("p","attribute-note",attr.caption));
+      }else if(attr.type==="formula"){
+        sectionEl.appendChild(el("div","attribute-formula",attr.value||""));
+        if(attr.note)sectionEl.appendChild(el("p","attribute-note",attr.note));
+      }else if(attr.type==="code"){
+        sectionEl.appendChild(el("pre","attribute-code",attr.value||""));
+      }else if(attr.type==="function"){
+        sectionEl.appendChild(el("p","attribute-prose",attr.value||""));
+        if(attr.signature)sectionEl.appendChild(el("pre","attribute-code",attr.signature));
+      }else if(attr.type==="reference"){
+        const href=sourceHref(attr.path,attr.line);
+        if(href){
+          const link=el("a","attribute-reference",attr.path||"查看来源");
+          link.href=href;link.target="_blank";link.rel="noopener noreferrer";
+          sectionEl.appendChild(link);
+        }
+      }else{
+        sectionEl.appendChild(el("p","attribute-prose",attr.value||""));
+      }
+      const href=sourceHref(attr.source,attr.line);
+      if(href && attr.type!=="reference"){
+        const reference=el("a","attribute-reference","查看依据");
+        reference.href=href;reference.target="_blank";reference.rel="noopener noreferrer";
+        sectionEl.appendChild(reference);
+      }
+      body.appendChild(sectionEl);
+    }
+    panel.classList.toggle("is-hidden",false);
+    placeAttributePopover(id);
+  }
+
   function renderDetails() {
     const area = $("detailBody"); area.replaceChildren();
     const n = byId.get(config.focusId);
@@ -545,6 +690,7 @@
     }
   }
   function render(autoFit) {
+    closeAttributes();
     const layout = normalizeLayout(config.mode === "focus" ? layoutFocus() : layoutOverview());
     config.visible = layout.visible;
     drawSVG(layout);
@@ -582,6 +728,7 @@
     $("detailsClose").addEventListener("click", () => {
       config.detailsOpen = false; setDrawerState();
     });
+    $("attributeClose").addEventListener("click", () => closeAttributes());
     $("search").addEventListener("input", event => {
       config.query = String(event.target.value || "");
       config.mode = "overview"; config.focusId = null; config.detailsOpen = false;
@@ -637,6 +784,7 @@
       });
       window.addEventListener("keydown", event => {
         if (event.key === "Escape") {
+          if (config.attributeNodeId) {closeAttributes();return;}
           if (config.detailsOpen || config.outlineOpen) {
             config.detailsOpen = false; config.outlineOpen = false; setDrawerState();
           } else if (config.mode === "focus") overview(true);
