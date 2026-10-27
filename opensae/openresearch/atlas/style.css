@@ -528,3 +528,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,.graph-node:focus-visib
   .atlas-review-bar .review-category-choice{font-size:13px}
   .legend-item{font-size:11.5px}
 }
+
+
+/* Atlas global locale selector: visible regardless of graph scroll or review mode. */
+.atlas-language-switch{display:inline-flex;align-items:center;flex:none;margin-left:8px;padding:3px;background:#eef2f7;border:1px solid #9faec1;border-radius:10px;box-shadow:0 1px 5px #182c411a;white-space:nowrap}
+.atlas-language-switch button{border:0;border-radius:7px;background:transparent;color:#394454;font-weight:650;padding:7px 12px;min-height:34px}
+.atlas-language-switch button.active{background:#243d5e;color:#fff;box-shadow:0 1px 4px #142d4460}
+.atlas-language-switch button:focus-visible{outline:2px solid #2769b0;outline-offset:3px}
+@media(max-width:730px){.topbar{flex-wrap:wrap;gap:5px 10px;padding-bottom:7px}.atlas-language-switch{margin-left:auto;order:1}.tabs{order:3;flex-basis:100%;justify-content:flex-start;margin-left:0}.guide-link{order:2}.atlas-language-switch button{padding:5px 9px;min-height:32px}}
