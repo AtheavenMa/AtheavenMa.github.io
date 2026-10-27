@@ -10,7 +10,7 @@ const vm = require("node:vm");
 
 const atlas = path.resolve(__dirname, "../opensae/openresearch/atlas");
 const context = { window: {} };
-for (const filename of ["data.js", "atlas-structure.js"]) {
+for (const filename of ["data.js", "atlas-structure.js", "atlas-public-balance.js"]) {
   vm.runInNewContext(fs.readFileSync(path.join(atlas, filename), "utf8"),
     context, {filename, timeout: 20000});
 }
@@ -47,6 +47,12 @@ for (const view of ["code", "context"]) {
   for (const [target,source] of moved) {
     graph.edges.push({source,target,type:"contains"});
   }
+}
+const balance = context.window.OPENRESEARCH_ATLAS_BALANCE;
+assert.equal(typeof balance,"function","Public Atlas balancing script must load");
+for(const name of ["code","context"]){
+  const result=balance(graphs[name],name);
+  console.log(name+": additional public navigation scopes "+result.inserted);
 }
 const expectedViews=["core","knowledge","code","environment","context"];
 assert.deepEqual(Object.keys(graphs).sort(), expectedViews.sort());
@@ -89,8 +95,9 @@ for(const view of ["core","knowledge","code","environment","context"]){
   const html=fs.readFileSync(path.join(atlas,view+".html"),"utf8");
   const data=html.indexOf('src="./data.js"');
   const overlay=html.indexOf('src="./atlas-structure.js');
+  const balancer=html.indexOf('src="./atlas-public-balance.js');
   const app=html.indexOf('src="./app.js');
-  assert(data>=0&&overlay>data&&app>overlay,
+  assert(data>=0&&overlay>data&&balancer>overlay&&app>balancer,
     view+" has incorrect or missing defer script order");
 }
 console.log("PASS: published static Atlas is multi-domain, connected and bounded");
