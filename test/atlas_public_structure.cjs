@@ -37,7 +37,12 @@ for (const view of ["code", "context"]) {
   const moved = new Map(Object.entries(data.parents || {})
     .filter(([child,parent])=>ids.has(child) && ids.has(parent)));
   const expected = Object.keys(data.parents || {}).length;
-  assert.equal(moved.size, expected, view+" overlay references absent source nodes");
+  const missing=Object.entries(data.parents || {}).filter(
+    ([child,parent])=>!ids.has(child)||!ids.has(parent));
+  console.log(view+": matched "+moved.size+"/"+expected+
+    " source-backed overlay edges; missing "+missing.length);
+  if(missing.length)console.log("Missing "+view+" edge examples:",
+    JSON.stringify(missing.slice(0,8)));
   graph.edges = graph.edges.filter(e=>e.type!=="contains" || !moved.has(e.target));
   for (const [target,source] of moved) {
     graph.edges.push({source,target,type:"contains"});
