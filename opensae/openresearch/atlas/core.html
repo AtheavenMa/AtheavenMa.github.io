@@ -6,11 +6,12 @@
   <meta name="theme-color" content="#fafaf9">
   <meta name="description" content="Explore OpenResearch project structure, scientific questions and source code through interactive node-centered trees.">
   <title>OpenResearch Atlas · Core</title>
-  <link rel="stylesheet" href="./style.css?v=atlas-research-20261026">
+  <link rel="stylesheet" href="./style.css?v=locale-20261027">
   <script defer src="./data.js"></script>
   <script defer src="./atlas-structure.js?v=atlas-research-20261026"></script>
   <script defer src="./atlas-public-balance.js?v=code-nav-20261027"></script>
   <script defer src="./app.js?v=atlas-research-20261026"></script>
+  <script defer src="./i18n.js?v=locale-20261027"></script>
 </head>
 <body data-atlas-view="core">
   <div class="app">
@@ -23,6 +24,7 @@
         <a class="tab" data-graph="environment" href="environment.html">Environment</a>
         <a class="tab" data-graph="context" href="context.html">Context</a>
       </nav>
+      <div class="atlas-language-switch" id="atlasLanguageSwitch" role="group" aria-label="Atlas language"><button type="button" data-lang="zh" aria-pressed="false">中文</button><button type="button" data-lang="en" aria-pressed="false">English</button></div>
       <a class="guide-link" href="https://github.com/OpenSAE/OpenResearch/blob/main/harness/visualization/README.md">Guide ↗</a>
     </header>
     <div class="workspace">
