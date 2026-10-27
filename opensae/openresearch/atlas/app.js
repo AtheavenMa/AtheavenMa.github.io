@@ -135,6 +135,12 @@
     }
   }
   improveLegacyTitles();
+  // The public Pages snapshot may precede the private source-backed export.
+  // Rebalance only the real entities present in this public snapshot.
+  if(typeof window.OPENRESEARCH_ATLAS_BALANCE==="function"){
+    window.OPENRESEARCH_ATLAS_BALANCE(DATA.code,"code");
+    window.OPENRESEARCH_ATLAS_BALANCE(DATA.context,"context");
+  }
   const VIEWS = {
     core: { root: "core:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
     knowledge: { root: "knowledge:existing", primary: ["contains", "refines", "addresses", "decomposes"] },
