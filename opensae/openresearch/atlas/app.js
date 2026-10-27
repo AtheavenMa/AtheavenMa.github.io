@@ -4,6 +4,31 @@
 
 
   const DATA = window.OPENRESEARCH_ATLAS || {};
+  // The large public data.js is refreshed independently of the canonical
+  // repository. This generated overlay carries only source-backed structure.
+  const STRUCTURE = window.OPENRESEARCH_ATLAS_PATCH;
+  if(STRUCTURE?.schema === "openresearch.atlas.structure.v1"){
+    if(STRUCTURE.knowledge) DATA.knowledge = STRUCTURE.knowledge;
+    for(const view of ["code","context"]){
+      const graph = DATA[view], patch = STRUCTURE[view];
+      if(!graph || !patch)continue;
+      const ids = new Set((graph.nodes||[]).map(n=>n.id));
+      for(const node of patch.nodes||[]){
+        if(!ids.has(node.id)){graph.nodes.push(node);ids.add(node.id);}
+      }
+      if(view==="code"){
+        const byId=new Map(graph.nodes.map(n=>[n.id,n]));
+        for(const [id,science] of Object.entries(patch.science_links||{}))
+          if(byId.has(id))byId.get(id).context_ids=science;
+      }
+      const moved = new Map(Object.entries(patch.parents||{})
+        .filter(([child,parent])=>ids.has(child)&&ids.has(parent)));
+      graph.edges = (graph.edges||[]).filter(edge=>
+        edge.type!=="contains" || !moved.has(edge.target));
+      for(const [child,parent] of moved)
+        graph.edges.push({source:parent,target:child,type:"contains"});
+    }
+  }
 
   // Public GitHub Pages data snapshots are published independently of this
   // application. Upgrade only older, generic headings from actual node IDs,
