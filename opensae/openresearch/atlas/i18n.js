@@ -31,9 +31,21 @@ const EXACT={
 "已有实现":"Implemented","待审阅":"Pending review","已批准":"Approved","已否决":"Denied"
 };
 const UI={"Guide":"Guide","Overview":"Overview","Details":"Details","Outline":"Outline","Fit":"Fit","Approve":"Approve","Deny":"Deny","Unchecked":"Unchecked","Partial":"Partial","Implemented":"Implemented","Not Implemented":"Not Implemented","Compare code changes":"Compare code changes","Find a node…":"Find a node…"};
+const ZH_UI={
+"Guide":"指南","Overview":"总览","Details":"详情","Outline":"目录","Fit":"适应画布",
+"Approve":"批准","Deny":"否决","Unchecked":"待审阅","Partial":"部分完成",
+"Implemented":"已实现","Not Implemented":"尚未实现",
+"Compare code changes":"比较代码变化","Find a node…":"搜索节点…",
+"Return to overview":"返回总览","Toggle outline":"切换目录",
+"Show node details and links":"显示节点详情与关联",
+"Expand tree":"展开树","Collapse tree":"收起树",
+"Previous unchecked node":"上一个待审节点","Next unchecked node":"下一个待审节点",
+"Close details":"关闭详情","Close outline":"关闭目录",
+"Review nodes":"审阅节点","Project tree outline":"项目树目录"
+};
 const ATTRS=["title","aria-label","placeholder"];
 const native=new WeakMap();
-const technical=(el)=>!!el?.closest?.("code,pre,kbd,.code-source,.source-code,.signature,.code-block,[data-i18n-verbatim],svg text");
+const technical=(el)=>!!el?.closest?.("code,pre,kbd,.code-source,.source-code,.signature,.code-block,[data-i18n-verbatim]");
 function localize(raw,el){
  if(!raw||!CJK.test(raw))return raw;
  if(EXACT[raw.trim()])return raw.replace(raw.trim(),EXACT[raw.trim()]);
@@ -48,7 +60,7 @@ function updateText(node){
  const el=node.parentElement;if(!el||el.closest("#atlasLanguageSwitch")||["SCRIPT","STYLE","NOSCRIPT"].includes(el.tagName))return;
  if(!native.has(node))native.set(node,node.nodeValue);
  const source=native.get(node);
- const next=locale==="en"?localize(source,el):source;
+ const next=locale==="en"?localize(source,el):(ZH_UI[source.trim()]||source);
  if(node.nodeValue!==next)node.nodeValue=next;
 }
 function translate(root=document){
@@ -61,7 +73,7 @@ function translate(root=document){
    if(!el.hasAttribute(attr))continue;
    const key="atlasOriginal"+attr.replace("-","").replace(/^./,x=>x.toUpperCase());
    if(!el.dataset[key])el.dataset[key]=el.getAttribute(attr);
-   const source=el.dataset[key];const value=locale==="en"?localize(source,el):source;
+   const source=el.dataset[key];const value=locale==="en"?localize(source,el):(ZH_UI[source.trim()]||source);
    if(el.getAttribute(attr)!==value)el.setAttribute(attr,value);
   }
  }
