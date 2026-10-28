@@ -52,6 +52,8 @@ assert(Number.isInteger(publicCode.source_api_total) &&
 assert.equal(publicCode.source_api_total,
   publicCode.nodes.length + Object.keys(sourceOwner).length,
   "Loss of original Python source symbols during semantic projection");
+assert(!Object.keys(sourceOwner).some(source => visibleIds.has(source)),
+  "A folded source ID must not also appear as a separate research capability");
 const embedded = new Map();
 for(const node of publicCode.nodes) {
   for(const block of node.attributes || []) {
