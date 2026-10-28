@@ -78,7 +78,7 @@ for(const edge of publicCode.edges || []) {
   children.set(edge.source,entries);
 }
 const byId = new Map(publicCode.nodes.map(node => [node.id,node]));
-const normalizeMeaning = value => String(value || "").replace(/[\\W_]+/gu,"").toLowerCase();
+const normalizeMeaning = value => String(value || "").replace(/[\W_]+/gu,"").toLowerCase();
 for(const [parent, ids] of children) {
   for(const field of ["title","summary"]) {
     const seen = new Set();
