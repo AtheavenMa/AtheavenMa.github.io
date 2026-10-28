@@ -1,5 +1,5 @@
 name: Publish isolated SAEBase Atlas
-# SAEBase source synchronization: be7ff31e73c811dbf4371d629043f08f030f9e49
+# SAEBase source synchronization: a03bfc4897d6ef3bd3296fb26ab8efc9699c4c81
 
 on:
   push:
