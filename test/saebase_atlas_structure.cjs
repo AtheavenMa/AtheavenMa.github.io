@@ -40,7 +40,60 @@ for (const name of ["core", "knowledge", "code", "environment", "context"]) {
   assert(html.includes('href="' + name + '.html"'), "No standalone " + name + " route");
   assert(!html.includes("opensae/openresearch/atlas"), "Foreign URL in " + name);
 }
-assert(graphs.code.nodes.length >= 2000, "Missing most Python source entities");
+// Public Code cards represent independently justified research capabilities.
+// Every other raw AST entity remains available in the expandable source inventory.
+const publicCode = graphs.code;
+const visibleIds = new Set(publicCode.nodes.map(node => node.id));
+const sourceOwner = publicCode.source_api_index || {};
+assert(publicCode.nodes.length >= 200, "Missing semantic Code capabilities");
+assert(Number.isInteger(publicCode.source_api_total) &&
+  publicCode.source_api_total > publicCode.nodes.length,
+  "Missing original Python AST source inventory");
+assert.equal(publicCode.source_api_total,
+  publicCode.nodes.length + Object.keys(sourceOwner).length,
+  "Loss of original Python source symbols during semantic projection");
+const embedded = new Map();
+for(const node of publicCode.nodes) {
+  for(const block of node.attributes || []) {
+    if(block.type !== "source_interfaces")continue;
+    for(const member of block.members || []) {
+      assert(!embedded.has(member.id), "Duplicated original AST interface " + member.id);
+      assert(member.path || member.source_symbol,
+        "Missing source identity for folded interface " + member.id);
+      embedded.set(member.id, node.id);
+    }
+  }
+}
+assert.equal(embedded.size, Object.keys(sourceOwner).length,
+  "Some folded source interfaces are not readable in Atlas details");
+for(const [source, owner] of Object.entries(sourceOwner)) {
+  assert(visibleIds.has(owner), "Folded source points to unknown owner " + source);
+  assert.equal(embedded.get(source), owner, "Folded interface ownership drifted: " + source);
+}
+const children = new Map();
+for(const edge of publicCode.edges || []) {
+  if(edge.type !== "contains")continue;
+  const entries = children.get(edge.source) || [];
+  entries.push(edge.target);
+  children.set(edge.source,entries);
+}
+const byId = new Map(publicCode.nodes.map(node => [node.id,node]));
+const normalizeMeaning = value => String(value || "").replace(/[\\W_]+/gu,"").toLowerCase();
+for(const [parent, ids] of children) {
+  for(const field of ["title","summary"]) {
+    const seen = new Set();
+    for(const id of ids) {
+      const value = normalizeMeaning(byId.get(id)?.[field]);
+      if(!value)continue;
+      assert(!seen.has(value),
+        "Repeated semantic sibling " + field + " below " + parent + ": " + value);
+      seen.add(value);
+    }
+  }
+}
+assert(!publicCode.nodes.some(node =>
+  /源码依据和调用参数可在节点的展开说明中查看/.test(node.summary || "")),
+  "Old generated filler leaked into visible Code capabilities");
 assert(graphs.knowledge.nodes.some(n => n.id === "s.sae.capture"));
 assert(!graphs.knowledge.nodes.some(n => /cub/i.test(n.id)));
 
