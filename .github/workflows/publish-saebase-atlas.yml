@@ -3,9 +3,11 @@ name: Publish isolated SAEBase Atlas
 on:
   push:
     branches:
+      - main
       - fix/isolate-saebase-openresearch-atlases-20261027
     paths:
       - ".github/workflows/publish-saebase-atlas.yml"
+      - "opensae/saebase/atlas/**"
   workflow_dispatch:
 
 permissions:
@@ -56,6 +58,17 @@ jobs:
           node --check opensae/saebase/atlas/i18n.js
           node --check opensae/saebase/atlas/locale-runtime.js
           node --check opensae/saebase/atlas/locale-data.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Chromium integration-test runtime
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Verify both Atlas projects in a real browser
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/atlas-http.log 2>&1 &
+          node test/saebase_atlas_browser.cjs
       - name: Commit verified website snapshot
         run: |
           git config user.name "github-actions[bot]"
