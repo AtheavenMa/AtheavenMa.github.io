@@ -1,0 +1,1 @@
+!function(){const t=24,e=window.SAEBASE_ATLAS_PARTS;if(!Array.isArray(e)||e.length!==t||e.some(t=>"string"!=typeof t))throw new Error("Incomplete SAEBase Atlas source snapshot");const r=JSON.parse(e.join(""));if(!String(r.context?.project||"").startsWith("SAEBase"))throw new Error("Foreign Atlas project rejected");window.OPENRESEARCH_ATLAS=r,delete window.SAEBASE_ATLAS_PARTS}();
