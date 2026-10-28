@@ -1,4 +1,4 @@
-name: Verify published OpenResearch Atlas structure
+name: Verify independent SAEBase and OpenResearch Atlas structures
 on:
   push:
     branches:
@@ -6,6 +6,8 @@ on:
     paths:
       - "test/atlas_public_structure.cjs"
       - "opensae/openresearch/atlas/**"
+      - "opensae/saebase/atlas/**"
+      - "test/saebase_atlas_structure.cjs"
       - ".github/workflows/check-atlas-public.yml"
   pull_request:
     branches:
@@ -13,6 +15,8 @@ on:
     paths:
       - "test/atlas_public_structure.cjs"
       - "opensae/openresearch/atlas/**"
+      - "opensae/saebase/atlas/**"
+      - "test/saebase_atlas_structure.cjs"
       - ".github/workflows/check-atlas-public.yml"
   workflow_dispatch:
 
@@ -30,3 +34,5 @@ jobs:
           node-version: "22"
       - name: Validate source identity, research branches and tree fanout
         run: node test/atlas_public_structure.cjs
+      - name: Verify independent SAEBase graph, translations and language round-trip
+        run: node test/saebase_atlas_structure.cjs

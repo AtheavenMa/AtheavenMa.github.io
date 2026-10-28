@@ -58,6 +58,42 @@ for (const [tree, data] of Object.entries(graphs)) {
     }
   }
 }
+// Exercise the actual node projection in both directions without changing IDs,
+// statuses, source paths, review decisions, or the authoritative Chinese graph.
+const original = Object.fromEntries(Object.entries(graphs).map(([view, tree]) => [
+  view, tree.nodes.map(node => ({
+    id: node.id, title: node.title, status: node.status, path: node.path,
+    line: node.line, evidence: JSON.stringify(node.evidence || []),
+    context_ids: JSON.stringify(node.context_term_ids || [])
+  }))
+]));
+window.dispatchEvent = () => {};
+vm.runInNewContext(read("locale-runtime.js"), {window, Event: class Event {
+  constructor(type) { this.type = type; }
+}});
+assert.equal(typeof window.SAEBASE_ATLAS_SET_NODE_LANGUAGE, "function");
+window.SAEBASE_ATLAS_SET_NODE_LANGUAGE("en");
+for(const [view, tree] of Object.entries(graphs)) {
+  tree.nodes.forEach((node, index) => {
+    const before = original[view][index];
+    assert.equal(node.id, before.id);
+    assert.equal(node.status, before.status);
+    assert.equal(node.path, before.path);
+    assert.equal(node.line, before.line);
+    assert.equal(JSON.stringify(node.evidence || []), before.evidence);
+    assert.equal(JSON.stringify(node.context_term_ids || []), before.context_ids);
+    for(const key of ["title", "summary", "description"])
+      assert(!/[\u3400-\u9fff\ufffd]/.test(node[key] || ""),
+        "English view has untranslated or corrupted prose: " + view + "/" + node.id + "/" + key);
+  });
+}
+window.SAEBASE_ATLAS_SET_NODE_LANGUAGE("zh");
+for(const [view, tree] of Object.entries(graphs))
+  tree.nodes.forEach((node,index) => {
+    assert.equal(node.id, original[view][index].id);
+    assert.equal(node.title, original[view][index].title,
+      "Chinese title did not survive round-trip: " + view + "/" + node.id);
+  });
 assert(en.nodes.context["term.sae"].why_it_matters);
 assert(en.nodes.context["term.saebase_runtime"].why_it_matters);
 assert(!fs.existsSync(path.join(root, "demo-knowledge-plan.json")),
