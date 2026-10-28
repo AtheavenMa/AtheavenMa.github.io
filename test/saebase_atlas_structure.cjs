@@ -93,6 +93,21 @@ for(const [parent, ids] of children) {
     }
   }
 }
+const globalRoles = {
+  title: new Map(),
+  summary: new Map()
+};
+for(const node of publicCode.nodes) {
+  for(const field of ["title","summary"]) {
+    const value = normalizeMeaning(node[field]);
+    if(!value)continue;
+    const known = globalRoles[field].get(value);
+    assert(!known,
+      "Repeated semantic Code " + field + " across branches: " +
+      (known || "") + " and " + node.id);
+    globalRoles[field].set(value,node.id);
+  }
+}
 assert(!publicCode.nodes.some(node =>
   /源码依据和调用参数可在节点的展开说明中查看/.test(node.summary || "")),
   "Old generated filler leaked into visible Code capabilities");
