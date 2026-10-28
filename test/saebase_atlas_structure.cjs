@@ -111,6 +111,17 @@ for(const node of publicCode.nodes) {
 assert(!publicCode.nodes.some(node =>
   /源码依据和调用参数可在节点的展开说明中查看/.test(node.summary || "")),
   "Old generated filler leaked into visible Code capabilities");
+// Regression for the exact cross-parent collapse reported in October 2026.
+// These two source methods perform different work and must remain distinct.
+const batchRun = byId.get("code:method:saebase.interventions.engine:BatchEngine.run");
+const taskRun = byId.get("code:method:saebase.registry:TaskModule.run");
+assert(batchRun && taskRun, "Source-reviewed intervention and task contract missing");
+assert.notEqual(batchRun.title, taskRun.title, "Different run methods collapsed to one title");
+assert.notEqual(batchRun.summary, taskRun.summary, "Different run methods share one description");
+assert(/微批/.test(batchRun.summary), "Batched intervention lost its concrete retry purpose");
+assert(/DictConfig/.test(taskRun.summary), "Task contract lost its declared input type");
+assert(!publicCode.nodes.some(node => /稀疏特征研究软件与运行接口/.test(node.title || "")),
+  "A generic research-interface title has reappeared");
 assert(graphs.knowledge.nodes.some(n => n.id === "s.sae.capture"));
 assert(!graphs.knowledge.nodes.some(n => /cub/i.test(n.id)));
 
