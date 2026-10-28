@@ -80,6 +80,37 @@ async function run() {
       assert.equal(errors.length,0,view+" browser errors: "+errors.join(" | "));
       console.log(view+": English/Chinese identity, UI and source scope verified");
     }
+    // Verify actual nested SAR parameter meanings in the published locale.
+    errors.length=0;
+    await page.goto(base + "knowledge.html?lang=en&focus=g.sae.sar_adapter", {
+      waitUntil:"networkidle", timeout:90000
+    });
+    const semantic=await page.evaluate(() => {
+      const atlas=window.OPENRESEARCH_ATLAS;
+      const node=atlas.knowledge.nodes.find(n=>n.id==="g.sae.sar_adapter");
+      const reference=node?.attributes?.find(a=>a.type==="code_reference");
+      const params=Object.fromEntries((reference?.interface?.parameters||[])
+        .map(p=>[p.name,p.meaning]));
+      const groups=atlas.code.nodes.filter(n=>n.kind==="group");
+      return {params,groupSummaries:groups.map(n=>n.summary)};
+    });
+    for (const [key,word] of [
+      ["p","coalition"], ["readout_position","Token"],
+      ["verify_replay","baseline"], ["identity","SAEIdentity"]
+    ]) {
+      const description=semantic.params[key]||"";
+      assert(description.includes(word),
+        "SAR " + key + " lost its source-checked explanation: " + description);
+      assert(!CJK.test(description) && !description.includes("translation unavailable"),
+        "Untranslated SAR parameter: " + key);
+    }
+    assert(!semantic.groupSummaries.some(s =>
+      /^Browse \\d+ source-backed child interfaces\\.$/.test(s)),
+      "Published Code Tree still uses child-count-only explanations");
+    assert.equal(errors.length,0,
+      "SAR localization browser errors: "+errors.join(" | "));
+    console.log("SAR parameters and functional Code group summaries verified in Chromium");
+
     errors.length=0;
     await page.goto(origin+"/opensae/openresearch/atlas/context.html?lang=en",{
       waitUntil:"networkidle",timeout:90000
