@@ -8,6 +8,7 @@ on:
       - "opensae/openresearch/atlas/**"
       - "opensae/saebase/atlas/**"
       - "test/saebase_atlas_structure.cjs"
+      - "test/saebase_atlas_browser.cjs"
       - ".github/workflows/check-atlas-public.yml"
   pull_request:
     branches:
@@ -17,6 +18,7 @@ on:
       - "opensae/openresearch/atlas/**"
       - "opensae/saebase/atlas/**"
       - "test/saebase_atlas_structure.cjs"
+      - "test/saebase_atlas_browser.cjs"
       - ".github/workflows/check-atlas-public.yml"
   workflow_dispatch:
 
@@ -36,3 +38,22 @@ jobs:
         run: node test/atlas_public_structure.cjs
       - name: Verify independent SAEBase graph, translations and language round-trip
         run: node test/saebase_atlas_structure.cjs
+
+  browser:
+    name: Verify SAEBase / OpenResearch separation in Chromium
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install browser test dependencies
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Exercise five bilingual trees and restored OpenResearch UI
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/atlas-http.log 2>&1 &
+          node test/saebase_atlas_browser.cjs
