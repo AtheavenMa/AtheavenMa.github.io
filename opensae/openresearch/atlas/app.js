@@ -34,46 +34,109 @@
   // application. Upgrade only older, generic headings from actual node IDs,
   // Python symbols and paths, without touching the authoritative source files.
   const LEGACY_TITLES = {
-    "core:existing":"SAEBase 研究架构与任务注册",
-    "knowledge:existing":"LLM SAE 科研方法与实现依据",
-    "context:root":"SAE 技术术语及源码依据",
-    "env:root":"CPU、GPU 与任务执行环境",
-    "code:root":"SAEBase Python 实现树",
-    "q.modularity":"Dataset、Model、SAE Task Registry",
+    "core:existing":"OpenResearch 双核心与任务注册",
+    "knowledge:existing":"CUB-200 的 ResNet-18 训练与评测",
+    "context:root":"科研术语定义与源码依据",
+    "env:root":"CPU、GPU 与科研任务执行环境",
+    "code:root":"OpenResearch Python 实现树",
+    "q.modularity":"Dataset、Model、Task Registry 解耦",
     "q.transparency":"Atlas 五棵 Tree 的职责与关联",
-    "g.registry":"模型、数据与 SAE Task 插件注册",
-    "g.pipeline":"SAE Task 运行前的兼容检查",
-    "code:concrete:datasets":"Prompt 数据集",
-    "code:concrete:models":"LLM 模型实现",
-    "code:concrete:tasks":"LLM SAE 任务执行",
-    "code:group:tasks":"SAE 研究任务",
+    "q.cub.reproducibility":"Hydra 配置、随机种子与实验结果追溯",
+    "g.cub.dataset":"CUB-200 图像与标签读取",
+    "g.cub.transforms":"CUB-200 输入尺寸与图像增强",
+    "g.cub.loss":"CUB-200 分类训练损失",
+    "g.cub.config":"CUB-200 Hydra 训练配置记录",
+    "g.cub.seed":"训练随机种子与运行环境记录",
+    "g.cub.artifacts":"CUB-200 训练结果文件追溯",
+    "g.registry":"Dataset、Model、Task 插件注册",
+    "g.pipeline":"Task 执行前的注册与兼容检查",
+    "code:concrete:datasets":"CUB-200 与 NLP 数据集",
+    "code:concrete:models":"Vision 与 LLM 模型实现",
+    "code:concrete:tasks":"分类训练与 LLM SAE 任务",
+    "code:group:dlbase":"DLBase 训练配置、运行与实验产物",
+    "code:group:saebase":"SAEBase 特征表示与模型干预",
+    "code:group:datasets":"Dataset 读取、划分与注册",
+    "code:group:models":"Model 构建、插件与兼容性",
+    "code:group:tasks":"Vision 分类与 LLM SAE 任务",
+    "code:group:harness":"Harness 代码树、环境与知识验证",
+    "code:family:datasets:vision":"Vision 图像数据集",
+    "code:family:datasets:NLP":"NLP 文本输入数据集",
+    "code:family:models:vision":"Vision 图像模型",
+    "code:family:models:LLM":"LLM 语言模型",
+    "code:family:tasks:vision":"Vision 分类训练任务",
+    "code:family:tasks:LLM":"LLM 稀疏特征任务"
   };
-  const LEGACY_ONLY = new Set([
-    "已有的项目功能","研究概念与依据","机器与执行条件",
-    "现有代码能力","已有的模块化组件架构","已有的项目上下文组织",
-    "已有的训练配置与产物管理",
-    "定义训练损失","记录 Hydra 组合配置",
-    "确定随机性与执行环境","保存可追溯的结果文件",
-    "可插拔组件注册","Task 运行前检查"
+  const LEGACY_GENERIC = new Set([
+    "代码模块","代码组件","组件内部操作","已实现的处理步骤",
+    "已有代码模块","任务配置","默认任务配置"
   ]);
-  // Code titles are authored in the Python semantic presentation layer.
-  // Browsers must never append paths, class names or Python identifiers.
+  const LEGACY_ONLY = new Set([
+    "已有的项目功能","已有的分类研究组件","研究概念与依据","机器与执行条件",
+    "现有代码能力","已有的模块化组件架构","已有的项目上下文组织",
+    "已有的训练配置与产物管理","正确读取图像与标签",
+    "保持输入尺寸与增强协议","定义训练损失","记录 Hydra 组合配置",
+    "确定随机性与执行环境","保存可追溯的结果文件",
+    "可插拔组件注册","Task 运行前检查",
+    "通用训练基础","LLM SAE 研究基础","数据读取与准备","模型组件",
+    "训练与评测任务","可选辅助工具","具体数据集","具体模型",
+    "具体任务","Vision","NLP","LLM"
+  ]);
+  function sourceWords(value){
+    return String(value||"").replace(/\.py$/,"").replace(/^_+|_+$/g,"")
+      .replace(/_+/g," ").replace(/([a-z0-9])([A-Z])/g,"$1 $2").trim();
+  }
+  function sourceScope(path){
+    const parts=String(path||"").replace(/\.py$/,"").split("/").filter(Boolean);
+    const scope=[parts[0],parts[1],parts.length>3?parts[2]:null,parts[parts.length-1]]
+      .filter(Boolean).map(sourceWords);
+    return [...new Set(scope)].join(" · ")||"Python 源码";
+  }
+  function legacySourceTitle(node){
+    const kind=node.kind||node.type;
+    const raw=sourceWords(node.source_symbol||node.title);
+    if(kind==="module")return sourceScope(node.path);
+    if(kind==="class")return raw+" · "+sourceScope(node.path);
+    if(kind==="method"){
+      const parts=String(node.id||"").split(":").pop().split(".");
+      return sourceWords(parts[0])+" · "+raw;
+    }
+    if(kind==="function")return sourceScope(node.path)+" · "+raw;
+    if(kind==="group"){
+      const id=String(node.id||"");
+      if(id.startsWith("code:configurations:tasks:"))
+        return sourceWords(id.split(":").pop())+" 的 Hydra 任务配置";
+      if(id.startsWith("code:config:tasks:")){
+        const parts=id.split(":");
+        return sourceWords(parts[3])+" · "+sourceWords(parts[4])+" 参数";
+      }
+      return sourceWords(id.split(":").pop())+" 源码与接口";
+    }
+    return raw;
+  }
   function improveLegacyTitles(){
     for(const [view,tree] of Object.entries(DATA)){
       for(const node of tree?.nodes||[]){
         const old=node.title||"";
-        const replacement=view==="code" ? null :
-          (LEGACY_ONLY.has(old) ? LEGACY_TITLES[node.id] : null);
+        const kind=node.kind||node.type;
+        const replacement=(LEGACY_ONLY.has(old)?LEGACY_TITLES[node.id]:null)||
+          (view==="code"&&LEGACY_GENERIC.has(old)?legacySourceTitle(node):null)||
+          (view==="code"&&["method","function"].includes(kind)&&!old.includes(" · ")
+            ? old+" · "+legacySourceTitle(node):null);
         if(!replacement||replacement===old)continue;
         node.title=replacement;
         if(node.reader_explanation)
           node.reader_explanation=node.reader_explanation.replaceAll(old,replacement);
+        if(view==="code"&&LEGACY_GENERIC.has(old)){
+          node.summary="源文件 "+(node.path||"当前节点")+" 对应实际的 "+
+            (node.source_symbol||"源码组件")+"，可展开查看接口与实现。";
+          node.description=node.summary;
+        }
       }
     }
   }
   improveLegacyTitles();
-  // Legacy public snapshots may contain older Code source entities. Group only
-  // nodes actually present after the source-backed Atlas structure overlay.
+  // The public Pages snapshot may precede the private source-backed export.
+  // Rebalance only the real entities present in this public snapshot.
   if(typeof window.OPENRESEARCH_ATLAS_BALANCE==="function"){
     window.OPENRESEARCH_ATLAS_BALANCE(DATA.code,"code");
     window.OPENRESEARCH_ATLAS_BALANCE(DATA.context,"context");
@@ -173,7 +236,9 @@
               ? item.parent_id.split(":").pop() : "";
             if(view==="code" && parentSymbol && !original.includes(parentSymbol))
               return parentSymbol+" · "+original;
-
+            if(view==="knowledge" && item.node_id.startsWith("g.cub.") &&
+               !original.includes("CUB"))
+              return "CUB-200 · "+original;
             return original;
           })(),
           description: after.description || origin.description || baseNode.description || "",
@@ -1200,7 +1265,7 @@
       toggle.appendChild(svg("text",{
         x:20,y:p.h-13
       },p.expanded ? "收起节点属性" :
-         shortFunction ? "查看功能说明与源码依据" :
+         shortFunction ? "关键函数 " + shortFunction + " · 展开属性" :
          "展开节点说明与依据"));
       const show = event => {
         event.preventDefault?.();
@@ -1404,7 +1469,7 @@
         path.startsWith("/") || path.includes("..") || path.includes("\\"))
       return null;
     const suffix = typeof line === "number" && line > 0 ? "#L" + line : "";
-    return "https://github.com/OpenSAE/SAEBase/blob/main/" +
+    return "https://github.com/OpenSAE/OpenResearch/blob/main/" +
       path.split("/").map(encodeURIComponent).join("/") + suffix;
   }
   function diagramShape(group, tag, attributes, value) {
@@ -1414,7 +1479,8 @@
   }
   function attributeDiagram(type) {
     const diagram = svg("svg",{viewBox:"0 0 390 128",class:"attribute-diagram",
-      role:"img", "aria-label":"可核对的科研概念示意"});
+      role:"img", "aria-label":type==="residual"?
+      "残差路径 F(x) 与捷径 x 相加的结构示意":"CUB 官方训练与测试分开的结构示意"});
     if (type==="residual") {
       diagramShape(diagram,"rect",{x:10,y:46,width:62,height:34,rx:7,class:"diagram-box"});
       diagramShape(diagram,"text",{x:41,y:67,"text-anchor":"middle"},"输入 x");
@@ -1428,6 +1494,14 @@
       diagramShape(diagram,"path",{d:"M303 64 L329 64",class:"diagram-edge"});
       diagramShape(diagram,"text",{x:356,y:67,"text-anchor":"middle"},"输出");
       diagramShape(diagram,"text",{x:185,y:89,"text-anchor":"middle"},"捷径连接");
+    } else if(type==="cub_split") {
+      diagramShape(diagram,"text",{x:195,y:23,"text-anchor":"middle"},"CUB-200-2011 官方数据");
+      diagramShape(diagram,"rect",{x:16,y:42,width:166,height:62,rx:8,class:"diagram-box"});
+      diagramShape(diagram,"rect",{x:208,y:42,width:166,height:62,rx:8,class:"diagram-box"});
+      diagramShape(diagram,"text",{x:99,y:67,"text-anchor":"middle"},"训练数据");
+      diagramShape(diagram,"text",{x:99,y:84,"text-anchor":"middle"},"Official Train");
+      diagramShape(diagram,"text",{x:291,y:67,"text-anchor":"middle"},"测试数据");
+      diagramShape(diagram,"text",{x:291,y:84,"text-anchor":"middle"},"Official Test");
     }
     return diagram;
   }
@@ -1629,7 +1703,7 @@
     if (n.foundation) {
       const block = section(area, "Background");
       const a = el("a", "context-link", n.foundation);
-      a.href = "https://github.com/OpenSAE/SAEBase/blob/main/" + n.foundation;
+      a.href = "https://github.com/OpenSAE/OpenResearch/blob/main/" + n.foundation;
       a.target = "_blank"; a.rel = "noopener noreferrer"; block.appendChild(a);
     }
     if (n.evidence?.length) {
@@ -1639,7 +1713,7 @@
         const path = source.split(":")[0];
         if (path.startsWith("https://")) a.href = path;
         else if (!path.startsWith("/") && !path.includes("..")) {
-          a.href = "https://github.com/OpenSAE/SAEBase/blob/main/" + path;
+          a.href = "https://github.com/OpenSAE/OpenResearch/blob/main/" + path;
         }
         a.target = "_blank"; a.rel = "noopener noreferrer"; block.appendChild(a);
       }

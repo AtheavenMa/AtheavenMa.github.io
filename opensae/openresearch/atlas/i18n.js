@@ -11,13 +11,20 @@ const EXACT={
 "展开节点属性与依据":"Expand attributes and evidence","这个节点在做什么":"What this node does",
 "专业词汇 · Context":"Technical terms · Context","科研术语定义与源码依据":"Research concepts and source evidence",
 "OpenResearch 双核心与任务注册":"OpenResearch architecture and task registration",
+"Vision 分类与 LLM SAE 研究方法":"Vision classification and LLM SAE research methods",
 "OpenResearch Python 实现树":"OpenResearch Python implementation tree",
 "CPU、GPU 与科研任务执行环境":"CPU, GPU, and research execution environment",
 "Atlas 五棵 Tree 的职责与关联":"Responsibilities and connections of the five Atlas trees",
 "Dataset、Model、Task 插件注册":"Dataset, Model, and Task plugin registration",
 "Task 执行前的注册与兼容检查":"Registration and compatibility checks before task execution",
 "Hydra 配置、随机种子与实验结果追溯":"Hydra configuration, random seeds, and experiment traceability",
+"CUB-200 图像与标签读取":"CUB-200 image and label loading",
+"CUB-200 输入尺寸与图像增强":"CUB-200 input resizing and augmentation",
+"CUB-200 分类训练损失":"CUB-200 classification training loss",
+"CUB-200 Hydra 训练配置记录":"CUB-200 Hydra training configuration",
+"CUB-200 训练结果文件追溯":"CUB-200 training artifact traceability",
 "训练随机种子与运行环境记录":"Training random seeds and runtime records",
+"Vision 图像数据集":"Vision image datasets","Vision 图像模型":"Vision image models",
 "LLM 语言模型":"LLM language models","LLM 稀疏特征任务":"LLM sparse feature tasks",
 "具体数据集":"Specific datasets","具体模型":"Specific models","具体任务":"Specific tasks",
 "暂无经过验证的功能说明，请结合源代码审核。":"Source-linked description pending review.",
@@ -42,8 +49,6 @@ const technical=(el)=>!!el?.closest?.("code,pre,kbd,.code-source,.source-code,.s
 function localize(raw,el){
  if(!raw||!CJK.test(raw))return raw;
  if(EXACT[raw.trim()])return raw.replace(raw.trim(),EXACT[raw.trim()]);
- const known=window.OPENRESEARCH_ATLAS_I18N?.en?.[raw.trim()];
- if(typeof known==="string"&&known.trim())return raw.replace(raw.trim(),known);
  // Preserve exact code excerpts and recorded source facts.
  if(technical(el))return raw;
  // Localized overlays can provide translated strings without changing underlying graph data.
@@ -57,18 +62,6 @@ function updateText(node){
  const source=native.get(node);
  const next=locale==="en"?localize(source,el):(ZH_UI[source.trim()]||source);
  if(node.nodeValue!==next)node.nodeValue=next;
-}
-// Documentation links follow stable source document IDs across languages.
-function translateLinks(root=document){
- const english=window.OPENRESEARCH_ATLAS_I18N?.docs||{};
- for(const anchor of root.querySelectorAll?.("a[href]")||[]){
-  if(!anchor.dataset.atlasOriginalHref)anchor.dataset.atlasOriginalHref=anchor.getAttribute("href");
-  const raw=anchor.dataset.atlasOriginalHref;
-  let resolved=raw;
-  const hit=raw.match(/^(https:\/\/github\.com\/OpenSAE\/SAEBase\/blob\/main\/)([^?#]+)(.*)$/);
-  if(hit&&locale==="en"&&english[hit[2]])resolved=hit[1]+english[hit[2]]+hit[3];
-  if(resolved!==anchor.getAttribute("href"))anchor.setAttribute("href",resolved);
- }
 }
 function translate(root=document){
  const walk=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node;
@@ -84,7 +77,6 @@ function translate(root=document){
    if(el.getAttribute(attr)!==value)el.setAttribute(attr,value);
   }
  }
- translateLinks(root);
  document.documentElement.lang=locale==="zh"?"zh-CN":"en";
  document.querySelectorAll("#atlasLanguageSwitch button").forEach(button=>{
   const selected=button.dataset.lang===locale;
