@@ -35,6 +35,9 @@ async function run() {
           docLang:document.documentElement.lang,
           source:window.location.pathname,
           ids:data.map(n=>n.id),
+          invalid:data.filter(n=>/:(?:nav|public-nav):/.test(n.id) ||
+            /第\\d+组|按源码职责浏览相关操作|分组浏览相关接口/.test(n.title||""))
+            .map(n=>n.id),
           translated:Object.keys(en.nodes[viewName]||{}).length,
           examples:data.slice(0,8).map(n=>n.title),
           term:graph.context.nodes.find(n=>n.id==="term.sae.capture")?.title,
@@ -45,6 +48,8 @@ async function run() {
       assert.equal(snapshot.docLang,"en");
       assert(snapshot.ids.length>0 && snapshot.ids.length===snapshot.translated,
         view+" has incomplete English coverage");
+      assert.equal(snapshot.invalid.length,0,
+        view+" contains fabricated navigation groups: "+snapshot.invalid.join(", "));
       assert(!snapshot.examples.some(x=>CJK.test(x)||x.includes("�")),
         view+" displayed invalid English title");
       assert(!CJK.test(snapshot.term),view+" did not localize the Context term");
