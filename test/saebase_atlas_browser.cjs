@@ -48,6 +48,20 @@ async function run() {
       assert(!snapshot.examples.some(x=>CJK.test(x)||x.includes("�")),
         view+" displayed invalid English title");
       assert(!CJK.test(snapshot.term),view+" did not localize the Context term");
+      const visibleTitles = await page.locator(".graph-node .node-title").allTextContents();
+      assert(visibleTitles.length > 0,view+" rendered no source-backed nodes");
+      assert(!visibleTitles.some(text => CJK.test(text) || text.includes("�")),
+        view+" contains untranslated or corrupted visible node headings");
+      assert(!visibleTitles.some(text => text.includes("English translation unavailable")),
+        view+" contains untranslated placeholder headings");
+      const expandable = page.locator('[data-attribute-toggle]').first();
+      if (await expandable.count()) {
+        await expandable.click({timeout:15000});
+        const headings = await page.locator(".node-attribute-heading").allTextContents();
+        assert(!headings.some(text => CJK.test(text) || text.includes("�") ||
+          text.includes("English translation unavailable")),
+          view+" contains untranslated expanded attributes");
+      }
 
       await page.locator('#atlasLanguageSwitch button[data-lang="zh"]').click();
       await page.waitForFunction(() => document.documentElement.lang==="zh-CN");
