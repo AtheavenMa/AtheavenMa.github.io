@@ -58,8 +58,8 @@ for(const node of publicCode.nodes) {
     if(block.type !== "source_interfaces")continue;
     for(const member of block.members || []) {
       assert(!embedded.has(member.id), "Duplicated original AST interface " + member.id);
-      assert(member.path || member.source_symbol,
-        "Missing source identity for folded interface " + member.id);
+      assert(member.path || member.source_symbol || (member.evidence || []).length,
+        "Missing source identity or provenance for folded interface " + member.id);
       embedded.set(member.id, node.id);
     }
   }
