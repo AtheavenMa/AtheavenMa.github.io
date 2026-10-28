@@ -1,0 +1,67 @@
+name: Publish isolated SAEBase Atlas
+
+on:
+  push:
+    branches:
+      - fix/isolate-saebase-openresearch-atlases-20261027
+    paths:
+      - ".github/workflows/publish-saebase-atlas.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-saebase-atlas-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[atlas published]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Clone source-owned SAEBase Atlas
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            SOURCE_REF=main
+          else
+            SOURCE_REF=fix/atlas-project-isolation-20261027
+          fi
+          git clone --depth 1 --branch "$SOURCE_REF" https://github.com/OpenSAE/SAEBase.git "$RUNNER_TEMP/SAEBase"
+          echo "SAEBASE_SOURCE=$RUNNER_TEMP/SAEBase" >> "$GITHUB_ENV"
+      - name: Generate real Code and scientific Context snapshots
+        shell: bash
+        run: |
+          cd "$SAEBASE_SOURCE"
+          python harness/core/validate.py
+          python harness/knowledge/validate.py
+          python harness/code/build.py
+          python harness/visualization/export.py
+          python harness/visualization/build_pages.py
+          python harness/visualization/build_language.py
+          python harness/visualization/build_language.py --check
+          python harness/visualization/package_site.py --output "$GITHUB_WORKSPACE/opensae/saebase/atlas"
+      - name: Validate independence and all English Tree nodes
+        run: |
+          node test/saebase_atlas_structure.cjs
+          node --check opensae/saebase/atlas/app.js
+          node --check opensae/saebase/atlas/i18n.js
+          node --check opensae/saebase/atlas/locale-runtime.js
+          node --check opensae/saebase/atlas/locale-data.js
+      - name: Commit verified website snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A opensae/saebase/atlas
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(atlas): publish verified independent SAEBase pages [atlas published] [skip ci]"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
