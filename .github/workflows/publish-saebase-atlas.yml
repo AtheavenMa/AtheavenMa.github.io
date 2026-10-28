@@ -8,6 +8,8 @@ on:
     paths:
       - ".github/workflows/publish-saebase-atlas.yml"
       - "opensae/saebase/atlas/**"
+      - "test/saebase_atlas_browser.cjs"
+      - "test/saebase_atlas_structure.cjs"
   workflow_dispatch:
 
 permissions:
