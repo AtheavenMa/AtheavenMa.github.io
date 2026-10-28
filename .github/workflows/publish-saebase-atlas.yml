@@ -71,12 +71,14 @@ jobs:
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/atlas-http.log 2>&1 &
           node test/saebase_atlas_browser.cjs
+      # The [atlas published] marker prevents another publisher run, while
+      # leaving CI enabled is essential for the Pages deployment workflow.
       - name: Commit verified website snapshot
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A opensae/saebase/atlas
           if ! git diff --cached --quiet; then
-            git commit -m "chore(atlas): publish verified independent SAEBase pages [atlas published] [skip ci]"
+            git commit -m "chore(atlas): publish verified independent SAEBase pages [atlas published]"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
