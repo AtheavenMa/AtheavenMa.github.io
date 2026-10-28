@@ -16,6 +16,9 @@ assert.equal(manifest.schema, "saebase.atlas.deployment.v1");
 assert.equal(manifest.project, "SAEBase");
 assert.match(manifest.source_sha, /^[0-9a-f]{40}$/);
 assert(manifest.chunks.length >= 2, "Code and Context data must be source-backed");
+const allChunks = fs.readdirSync(root).filter(name => /^data-\d{3}\.js$/.test(name));
+assert.deepEqual(allChunks.sort(), manifest.chunks.slice().sort(),
+  "A new source snapshot must remove obsolete data shards");
 const window = {};
 for (const chunk of manifest.chunks) {
   const body = read(chunk);
