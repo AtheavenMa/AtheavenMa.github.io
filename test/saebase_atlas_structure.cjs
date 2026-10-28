@@ -52,14 +52,16 @@ assert(Number.isInteger(publicCode.source_api_total) &&
 assert.equal(publicCode.source_api_total,
   publicCode.nodes.length + Object.keys(sourceOwner).length,
   "Loss of original Python source symbols during semantic projection");
+assert(!Object.keys(sourceOwner).some(source => visibleIds.has(source)),
+  "A folded source ID must not also appear as a separate research capability");
 const embedded = new Map();
 for(const node of publicCode.nodes) {
   for(const block of node.attributes || []) {
     if(block.type !== "source_interfaces")continue;
     for(const member of block.members || []) {
       assert(!embedded.has(member.id), "Duplicated original AST interface " + member.id);
-      assert(member.path || member.source_symbol,
-        "Missing source identity for folded interface " + member.id);
+      assert(member.path || member.source_symbol || (member.evidence || []).length,
+        "Missing source identity or provenance for folded interface " + member.id);
       embedded.set(member.id, node.id);
     }
   }
@@ -78,7 +80,7 @@ for(const edge of publicCode.edges || []) {
   children.set(edge.source,entries);
 }
 const byId = new Map(publicCode.nodes.map(node => [node.id,node]));
-const normalizeMeaning = value => String(value || "").replace(/[\\W_]+/gu,"").toLowerCase();
+const normalizeMeaning = value => String(value || "").normalize("NFKC").replace(/[^\p{L}\p{N}]+/gu,"").toLowerCase();
 for(const [parent, ids] of children) {
   for(const field of ["title","summary"]) {
     const seen = new Set();
@@ -89,6 +91,21 @@ for(const [parent, ids] of children) {
         "Repeated semantic sibling " + field + " below " + parent + ": " + value);
       seen.add(value);
     }
+  }
+}
+const globalRoles = {
+  title: new Map(),
+  summary: new Map()
+};
+for(const node of publicCode.nodes) {
+  for(const field of ["title","summary"]) {
+    const value = normalizeMeaning(node[field]);
+    if(!value)continue;
+    const known = globalRoles[field].get(value);
+    assert(!known,
+      "Repeated semantic Code " + field + " across branches: " +
+      (known || "") + " and " + node.id);
+    globalRoles[field].set(value,node.id);
   }
 }
 assert(!publicCode.nodes.some(node =>

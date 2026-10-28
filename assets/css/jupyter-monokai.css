@@ -482,7 +482,22 @@ div.cell.selected {
   border-radius: 5px;
 }
 
+.edit_mode div.cell.selected {
+  padding: 0px;
+  background: #282828;
+  background-color: #282828;
+  border: medium solid #1e1e1e;
+  border-radius: 5px;
+}
+
+div.cell.edit_mode {
+  padding: 0px;
+  background: #282828;
+  background-color: #282828;
+}
+
 div.cell.selected:before,
+.edit_mode div.cell.selected:before,
 div.cell.selected:before {
   background: #282828 !important;
   border: none;
@@ -493,6 +508,12 @@ div.cell.selected:before {
   left: 0px;
   width: 0px;
   height: 100%;
+}
+
+.edit_mode div.cell.selected:before {
+  height: 100%;
+  border-left: 5px solid #33322b !important;
+  border-radius: 3px;
 }
 
 div.prompt,
@@ -512,6 +533,14 @@ div.prompt,
 }
 
 div.cell.selected .prompt {
+  top: 0;
+}
+
+.edit_mode div.cell.selected .prompt {
+  top: 0;
+}
+
+.edit_mode div.cell.selected .prompt {
   top: 0;
 }
 
