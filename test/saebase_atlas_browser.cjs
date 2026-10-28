@@ -85,6 +85,57 @@ async function run() {
       assert.equal(errors.length,0,view+" browser errors: "+errors.join(" | "));
       console.log(view+": English/Chinese identity, UI and source scope verified");
     }
+    // Switching the top-level Atlas tabs must not reload the document or
+    // discard the working position and selected node in the previous tree.
+    await page.goto(base + "index.html?lang=en", {
+      waitUntil:"networkidle", timeout:90000
+    });
+    await page.evaluate(() => { window.__atlasMountIdentity = "same-document"; });
+    await page.locator('.tabs [data-graph="knowledge"]').click();
+    await page.waitForFunction(() => document.body.dataset.atlasView === "knowledge");
+    assert.equal(await page.evaluate(() => window.__atlasMountIdentity), "same-document",
+      "Knowledge tab reloaded the Atlas document");
+    await page.locator("#zoomIn").click();
+    const knowledgeZoom = await page.locator("#zoomValue").innerText();
+    await page.locator(".graph-node").first().click({timeout:15000});
+    await page.waitForFunction(() => new URLSearchParams(location.search).has("focus"));
+    const knowledgeFocus = await page.evaluate(() =>
+      new URLSearchParams(location.search).get("focus"));
+    assert(knowledgeFocus, "Could not focus a Knowledge node");
+    for(const view of ["code","environment","context","core","knowledge"]) {
+      await page.locator('.tabs [data-graph="' + view + '"]').click();
+      await page.waitForFunction(name => document.body.dataset.atlasView === name, view);
+      assert.equal(await page.evaluate(() => window.__atlasMountIdentity),
+        "same-document", view + " loaded a new document");
+      assert.equal(await page.evaluate(() => location.pathname.split("/").pop()),
+        view + ".html", view + " has an incorrect deep-link URL");
+      assert.equal(await page.locator(".tabs .tab.active").getAttribute("data-graph"),
+        view, view + " has an incorrect active tab");
+    }
+    assert.equal(await page.locator("#zoomValue").innerText(), knowledgeZoom,
+      "Knowledge zoom was discarded after a full five-tree round trip");
+    assert.equal(await page.evaluate(() =>
+      new URLSearchParams(location.search).get("focus")), knowledgeFocus,
+      "Knowledge focus was discarded after a full five-tree round trip");
+    await page.goBack({waitUntil:"domcontentloaded"});
+    await page.waitForFunction(() => document.body.dataset.atlasView === "core");
+    assert.equal(await page.evaluate(() => window.__atlasMountIdentity),
+      "same-document", "Browser Back caused a page reload");
+    await page.goForward({waitUntil:"domcontentloaded"});
+    await page.waitForFunction(() => document.body.dataset.atlasView === "knowledge");
+    assert.equal(await page.evaluate(() =>
+      new URLSearchParams(location.search).get("focus")), knowledgeFocus,
+      "Browser Forward lost Knowledge focus");
+    await page.locator('#atlasLanguageSwitch button[data-lang="zh"]').click();
+    await page.waitForFunction(() => document.documentElement.lang === "zh-CN");
+    await page.locator('.tabs [data-graph="code"]').click();
+    await page.locator('.tabs [data-graph="knowledge"]').click();
+    assert.equal(await page.evaluate(() => document.documentElement.lang), "zh-CN",
+      "Switching Atlas trees reset the selected language");
+    assert.equal(await page.evaluate(() => window.__atlasMountIdentity),
+      "same-document", "Switching languages and trees reloaded the document");
+    console.log("In-place five-tree navigation, focus, zoom, language and history verified");
+
     // Verify actual nested SAR parameter meanings in the published locale.
     errors.length=0;
     await page.goto(base + "knowledge.html?lang=en&focus=g.sae.sar_adapter", {
