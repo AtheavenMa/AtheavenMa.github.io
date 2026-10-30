@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: publish-saebase-atlas-${{ github.ref }}
@@ -84,3 +85,10 @@ jobs:
             git commit -m "chore(atlas): publish verified independent SAEBase pages [atlas published]"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
+      # GITHUB_TOKEN commits do not trigger ordinary push workflows. Dispatch
+      # the site deployment explicitly after the Atlas snapshot is verified.
+      - name: Deploy refreshed Pages snapshot
+        if: github.ref_name == 'main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
