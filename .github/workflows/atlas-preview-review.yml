@@ -1,0 +1,34 @@
+name: Atlas Preview UI Review
+on:
+  push:
+    branches: [main]
+    paths:
+      - "opensae/saebase/atlas-preview/**"
+      - "test/atlas_preview_ui.cjs"
+      - ".github/workflows/atlas-preview-review.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install browser dependencies
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Test preview and capture screenshots
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/atlas-preview.log 2>&1 &
+          node test/atlas_preview_ui.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: atlas-preview-review-screenshots
+          path: atlas-preview-screenshots/
+          if-no-files-found: ignore
