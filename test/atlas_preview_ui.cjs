@@ -1,0 +1,57 @@
+"use strict";
+const { chromium }=require("@playwright/test");
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const origin="http://127.0.0.1:8765";
+const root=origin+"/opensae/saebase/atlas-preview/";
+(async()=>{
+  const browser=await chromium.launch({headless:true,args:["--no-sandbox"]});
+  const context=await browser.newContext({viewport:{width:1440,height:900},
+    permissions:["clipboard-read","clipboard-write"]});
+  const page=await context.newPage(),errors=[];
+  page.on("pageerror",e=>errors.push(e.message));
+  try{
+    await page.goto(root+"code.html?lang=en",{waitUntil:"networkidle",timeout:90000});
+    await page.waitForFunction(()=>!!window.OPENRESEARCH_ATLAS?.context?.nodes?.length);
+    assert.equal(await page.locator("#atlasGlobalSearchButton").count(),1);
+    await page.keyboard.press("Control+k");
+    assert(await page.locator("#atlasGlobalSearch").isVisible());
+    await page.locator("#atlasGlobalSearchInput").fill("SAE");
+    assert((await page.locator(".atlas-search-result").count())>0);
+    assert((await page.locator(".atlas-search-filter").count())===6);
+    fs.mkdirSync("atlas-preview-screenshots",{recursive:true});
+    await page.screenshot({path:"atlas-preview-screenshots/01-global-search.png"});
+    await page.keyboard.press("Escape");
+    assert(await page.locator("#atlasGlobalSearch").isHidden());
+    const zoom=await page.locator("#zoomValue").innerText();
+    const focus=await page.evaluate(()=>new URLSearchParams(location.search).get("focus"));
+    await page.keyboard.press("Control+k");
+    await page.keyboard.press("Escape");
+    assert.equal(await page.locator("#zoomValue").innerText(),zoom);
+    assert.equal(await page.evaluate(()=>new URLSearchParams(location.search).get("focus")),focus);
+    await page.keyboard.press("Control+k");
+    await page.locator("#atlasGlobalSearchInput").fill("term.sae.capture");
+    const target=page.locator(".atlas-search-result").first();
+    assert(await target.count());
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(()=>document.body.dataset.atlasView==="context");
+    assert.equal(new URL((await page.url())).pathname.split("/").pop(),"context.html");
+    assert.equal((new URL(await page.url())).searchParams.get("focus"),"term.sae.capture");
+    await page.locator("#detailsToggle").click();
+    assert(await page.locator("#detailDrawer").isVisible());
+    assert.equal(await page.locator(".atlas-detail-layer").count(),3);
+    assert.equal(await page.locator(".atlas-copy-link").count(),1);
+    await page.locator(".atlas-copy-link").click();
+    const copied=await page.evaluate(()=>navigator.clipboard.readText());
+    assert(copied.includes("context.html")&&copied.includes("focus=term.sae.capture"));
+    assert(!copied.includes("review="));
+    await page.screenshot({path:"atlas-preview-screenshots/02-provenance-details.png"});
+    await page.locator('#atlasLanguageSwitch button[data-lang="zh"]').click();
+    await page.waitForFunction(()=>document.documentElement.lang==="zh-CN");
+    await page.keyboard.press("Control+k");
+    assert(await page.locator("#atlasGlobalSearch").isVisible());
+    await page.screenshot({path:"atlas-preview-screenshots/03-chinese-search.png"});
+    assert.deepEqual(errors,[],"Browser JS errors: "+errors.join("; "));
+    console.log("PREVIEW PASS: search across trees, keys, focus, clipboard, details, locale");
+  }finally{await browser.close();}
+})().catch(e=>{console.error(e);process.exit(1)});
