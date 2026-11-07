@@ -127,17 +127,6 @@ const publications = [
     code: "https://github.com/haotianSustc/deepinfo",
   },
   {
-    year: 2020,
-    badge: "iclr",
-    venueBadge: "ICLR",
-    tags: ["published", "selected"],
-    category: "safety",
-    title: "Interpretable Complex-Valued Neural Networks for Privacy Protection",
-    authors: "Liyao Xiang, Hao Zhang, Haotian Ma, Yifan Zhang, Jie Ren, Quanshi Zhang",
-    venueFull: "ICLR 2020",
-    pdf: "https://openreview.net/pdf?id=S1xFl64tDr",
-  },
-  {
     year: 2019,
     badge: "cvpr",
     venueBadge: "CVPR",
@@ -160,6 +149,26 @@ const publications = [
 ];
 
 const researchExperience = [
+  {
+    title: "Compositionality, Intervention, and Systematic Reasoning in LLMs",
+    lines: [
+      {
+        text: "Study when model components and structural transformations can be combined, reused, or generalized reliably in unseen settings.",
+        em: true,
+      },
+    ],
+    items: [
+      {
+        title: "Behavioral Compositionality of Sparse Autoencoder Representations",
+        aside: "Preprint",
+        lines: [{ text: "Haotian Ma, Ziye Mei, Frederic Sala", em: true }],
+        points: [
+          "Characterized downstream interactions among SAE features, revealing combined effects differ from the sum of individual feature effects.",
+          "Pairwise modeling improved combined steering prediction in Llama-3.1 8B by 33%.",
+        ],
+      },
+    ],
+  },
   {
     title: "Faithful Representations and Mechanistic Interpretability",
     lines: [
@@ -236,46 +245,6 @@ const researchExperience = [
         points: [
           "Learned joint representations of disease phenotype, gene expression, and spatial organization to identify cellular niches associated with disease.",
           "Integrated single cell RNA sequencing with spatial transcriptomics to transfer phenotype signals across cohorts and map disease pathology.",
-        ],
-      },
-    ],
-  },
-  {
-    title: "Compositionality, Intervention, and Systematic Reasoning in LLMs",
-    lines: [
-      {
-        text: "Study when model components and structural transformations can be combined, reused, or generalized reliably in unseen settings.",
-        em: true,
-      },
-    ],
-    items: [
-      {
-        title: "Behavioral Compositionality of Sparse Autoencoder Representations",
-        aside: "Preprint",
-        lines: [{ text: "Haotian Ma, Ziye Mei, Frederic Sala", em: true }],
-        points: [
-          "Characterized downstream interactions among SAE features, revealing combined effects differ from the sum of individual feature effects.",
-          "Pairwise modeling improved combined steering prediction in Llama-3.1 8B by 33%.",
-        ],
-      },
-    ],
-  },
-  {
-    title: "Reliable LLMs and AI Safety",
-    lines: [
-      {
-        text: "Characterize how AI systems remain reliable under uncertain preferences, underspecified user identities, and risks of private information leakage.",
-        em: true,
-      },
-    ],
-    items: [
-      {
-        title: "Interpretable Complex-Valued Neural Networks for Privacy Protection",
-        aside: "ICLR 2020",
-        lines: [{ text: "Liyao Xiang, Hao Zhang, Haotian Ma, Yifan Zhang, Jie Ren, Quanshi Zhang", em: true }],
-        points: [
-          "Designed neural networks that encode intermediate features as complex values with randomized phases while preserving accurate predictions.",
-          "Reduced attackers’ ability to reconstruct inputs or infer hidden properties across 8 neural networks.",
         ],
       },
     ],
