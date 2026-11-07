@@ -46,10 +46,7 @@
 } /* Generic.Inserted */
 .highlight .go {
   color: #888888;
-} /* Generic.Output */ /* Generic.Prompt */ /* Generic.Strong */
-.highlight .gu {
-  color: #aaaaaa;
-} /* Generic.Subheading */
+} /* Generic.Output */ /* Generic.Prompt */ /* Generic.Strong */ /* Generic.Subheading */
 .highlight .gt {
   color: #aa0000;
 } /* Generic.Traceback */

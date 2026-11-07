@@ -221,13 +221,6 @@ body > #header .header-bar {
   transition: 200ms ease;
 }
 
-.dropdown-menu .divider {
-  height: 1px;
-  margin: 0px 0px;
-  overflow: hidden;
-  background-color: rgba(93, 92, 82, 0.5);
-}
-
 .dropdown-menu > .disabled > a,
 .dropdown-menu > .disabled > a:hover,
 .dropdown-menu > .disabled > a:focus {
@@ -553,8 +546,7 @@ div.cell.selected .prompt {
 
 pre,
 code,
-kbd,
-samp {
+kbd {
   white-space: pre-wrap;
 }
 
