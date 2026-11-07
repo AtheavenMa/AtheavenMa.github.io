@@ -3,7 +3,7 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/AtheavenMa", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261022-latest", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261107-preprint", icon: "cv" },
 ];
 
 const news = [
@@ -47,81 +47,28 @@ const awards = [
 
 const publications = [
   {
-    year: 2027,
-    badge: "naacl",
-    venueBadge: "NAACL Submission",
-    tags: ["selected"],
-    category: "reasoning",
-    title: "SymSelect: Learning Which Transformations to Trust for Systematic Reasoning",
-    authors: "Haotian Ma, Ruqi Yang",
-    venueFull: "NAACL 2027 Submission",
-    code: "https://github.com/AtheavenMa/SymSelect",
-  },
-  {
-    year: 2027,
-    badge: "submitted",
-    venueBadge: "COLING Submission",
-    tags: ["selected"],
-    category: "safety",
-    title: "The Limits of Reward Guidance under Finite Adaptation",
-    authors: "Haotian Ma",
-    venueFull: "COLING 2027 Submission",
-    code: "https://github.com/AtheavenMa/The-Limits-of-Reward-Guidance-under-Finite-Adaptation",
-  },
-  {
-    year: 2027,
-    badge: "iclr",
-    venueBadge: "ICLR Submission",
-    tags: ["selected"],
-    category: "mech",
-    title: "Sparse Autoencoders Do Not Guarantee Local Features",
-    authors: "Haotian Ma",
-    venueFull: "ICLR 2027 Submission",
-    code: "https://github.com/OpenSAE/SAE-Input-Localization",
-  },
-  {
-    year: 2027,
-    badge: "iclr",
-    venueBadge: "ICLR Submission",
-    tags: ["selected"],
-    category: "reasoning",
-    title: "Certifying Reuse for LLM Components from Local Interventions",
-    authors: "Haotian Ma, Ruqi Yang",
-    venueFull: "ICLR 2027 Submission",
-  },
-  {
-    year: 2027,
-    badge: "iclr",
-    venueBadge: "ICLR Submission",
-    tags: ["selected"],
+    year: 2026,
+    badge: "preprint",
+    venueBadge: "Preprint",
+    tags: ["selected", "preprint"],
     category: "reasoning",
     title: "Behavioral Compositionality of Sparse Autoencoder Representations",
     authors: "Haotian Ma, Ziye Mei, Frederic Sala",
-    venueFull: "ICLR 2027 Submission",
+    venueFull: "Preprint",
     pdf: "https://arxiv.org/pdf/2610.21261",
     code: "https://github.com/OpenSAE/SAE-Behavioral-Compositionality",
   },
   {
-    year: 2027,
-    badge: "aaai",
-    venueBadge: "AAAI Submission",
-    tags: ["selected"],
+    year: 2026,
+    badge: "preprint",
+    venueBadge: "Preprint",
+    tags: ["selected", "preprint"],
     category: "mech",
     title: "Representation Redistribution in Sparse Autoencoders",
     authors: "Ziye Mei, Haotian Ma",
-    venueFull: "AAAI 2027 Submission",
+    venueFull: "Preprint",
     pdf: "https://arxiv.org/pdf/2610.21240",
     code: "https://github.com/OpenSAE/Redistribution-Sensitivity-Score",
-  },
-  {
-    year: 2027,
-    badge: "aaai",
-    venueBadge: "AAAI Submission",
-    tags: ["selected"],
-    category: "safety",
-    title: "Gender Attribution by Proxy: Restraint, Fallback, and Rationalization in LLMs",
-    authors: "Chenkun Jiang*, Haotian Ma*, Kai Chen, Haiyuan Liu",
-    venueFull: "AAAI 2027 Submission",
   },
   {
     year: 2026,
@@ -223,17 +170,8 @@ const researchExperience = [
     ],
     items: [
       {
-        title: "Sparse Autoencoders Do Not Guarantee Local Features",
-        aside: "ICLR 2027 Submission",
-        lines: [{ text: "Haotian Ma", em: true }],
-        points: [
-          "Demonstrated that accurate sparse autoencoder (SAE) reconstruction does not guarantee localized, interpretable features.",
-          "Proved the same SAE can exhibit different input dependencies despite identical representation samples, and validated this across 5 trained SAEs.",
-        ],
-      },
-      {
         title: "Representation Redistribution in Sparse Autoencoders",
-        aside: "AAAI 2027 Submission",
+        aside: "Preprint",
         lines: [{ text: "Ziye Mei, Haotian Ma", em: true }],
         points: [
           "Found that prompt changes preserving the same request can redistribute sparse feature activity, with patterns persisting across unseen prompt variants.",
@@ -313,29 +251,11 @@ const researchExperience = [
     items: [
       {
         title: "Behavioral Compositionality of Sparse Autoencoder Representations",
-        aside: "ICLR 2027 Submission",
+        aside: "Preprint",
         lines: [{ text: "Haotian Ma, Ziye Mei, Frederic Sala", em: true }],
         points: [
           "Characterized downstream interactions among SAE features, revealing combined effects differ from the sum of individual feature effects.",
           "Pairwise modeling improved combined steering prediction in Llama-3.1 8B by 33%.",
-        ],
-      },
-      {
-        title: "Certifying Reuse for LLM Components from Local Interventions",
-        aside: "ICLR 2027 Submission",
-        lines: [{ text: "Haotian Ma, Ruqi Yang", em: true }],
-        points: [
-          "Formulated a framework to certify when locally tested LLM components can be reused in combinations never evaluated directly.",
-          "Proved a few targeted tests can certify component reuse in untested combinations without evaluating every combination.",
-        ],
-      },
-      {
-        title: "SymSelect: Learning Which Transformations to Trust for Systematic Reasoning",
-        aside: "NAACL 2027 Submission",
-        lines: [{ text: "Haotian Ma, Ruqi Yang", em: true }],
-        points: [
-          "Established representation similarity as a signal for selecting useful transformations without validity labels.",
-          "Recovered 77 to 92% of supervised alignment gains on MNS and I-RAVEN across ResNet, ViT, CLIP, and Context Choice Transformer.",
         ],
       },
     ],
@@ -349,24 +269,6 @@ const researchExperience = [
       },
     ],
     items: [
-      {
-        title: "The Limits of Reward Guidance under Finite Adaptation",
-        aside: "COLING 2027 Submission",
-        lines: [{ text: "Haotian Ma", em: true }],
-        points: [
-          "Derived an exact scalar support horizon for how long preference data can certify improvement under finite reward adaptation.",
-          "Proved certification can fail under policy gradient despite pointwise feasible rewards; bounded labels needed to extend the horizon.",
-        ],
-      },
-      {
-        title: "Gender Attribution by Proxy: Restraint, Fallback, and Rationalization in LLMs",
-        aside: "AAAI 2027 Submission",
-        lines: [{ text: "Chenkun Jiang*, Haotian Ma*, Kai Chen, Haiyuan Liu", em: true }],
-        points: [
-          "Introduced gender attribution by proxy, showing how LLMs turn ordinary user context into unsupported gender assumptions.",
-          "Found that 6 LLMs systematically converted ordinary contextual cues into unsupported gender attributions when user gender was unspecified.",
-        ],
-      },
       {
         title: "Interpretable Complex-Valued Neural Networks for Privacy Protection",
         aside: "ICLR 2020",
