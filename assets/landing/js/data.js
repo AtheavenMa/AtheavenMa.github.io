@@ -3,7 +3,7 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/AtheavenMa", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261107-preprint", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261107-revised-final", icon: "cv" },
 ];
 
 const news = [
