@@ -12,6 +12,6 @@ description: Current academic curriculum vitae of Haotian Ma.
 My current two-page academic CV includes research in mechanistic interpretability,
 AI safety, LLM reasoning, scientific discovery, and open-source research infrastructure.
 
-[Download my CV (PDF)](/CV.pdf){: .btn .btn-primary }
+[Download my CV (PDF)](/CV.pdf?v=20261107-revised-final){: .btn .btn-primary }
 
 [Research and publications](/#papers) · [Experience](/#work) · [OpenSAE](https://github.com/OpenSAE)
