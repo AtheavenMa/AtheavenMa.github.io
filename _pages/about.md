@@ -114,7 +114,6 @@ search_exclude: true
           <button class="filter-btn" data-filter="mech">Mechanistic Interpretability</button>
           <button class="filter-btn" data-filter="discovery">AI for Scientific Discovery</button>
           <button class="filter-btn" data-filter="reasoning">LLM Reasoning</button>
-          <button class="filter-btn" data-filter="safety">AI Safety</button>
           <input type="search" id="pubSearch" class="pub-search" placeholder="Search title, venue, author..." aria-label="Search papers" />
         </div>
         <div class="pub-list" id="pubList"></div>
