@@ -29,6 +29,7 @@ search_exclude: true
     .venue-iclr { background: rgba(245, 158, 11, 0.18); color: #92400e; }
     .venue-ismb { background: rgba(13, 148, 136, 0.14); color: #0f766e; }
     .venue-neurips { background: rgba(220, 38, 38, 0.15); color: #991b1b; }
+    .venue-preprint { background: rgba(99, 102, 241, 0.14); color: #4338ca; }
     .venue-submitted { background: rgba(99, 102, 241, 0.14); color: #4338ca; }
     [data-theme="dark"] .venue-cvpr { background: rgba(96, 165, 250, 0.16); color: #93c5fd; }
     [data-theme="dark"] .venue-icml { background: rgba(251, 113, 60, 0.16); color: #fb923c; }
@@ -36,6 +37,7 @@ search_exclude: true
     [data-theme="dark"] .venue-iclr { background: rgba(250, 204, 21, 0.18); color: #facc15; }
     [data-theme="dark"] .venue-ismb { background: rgba(45, 212, 191, 0.16); color: #2dd4bf; }
     [data-theme="dark"] .venue-neurips { background: rgba(248, 113, 113, 0.17); color: #fca5a5; }
+    [data-theme="dark"] .venue-preprint { background: rgba(129, 140, 248, 0.16); color: #a5b4fc; }
     [data-theme="dark"] .venue-submitted { background: rgba(129, 140, 248, 0.16); color: #a5b4fc; }
   </style>
   <link rel="icon" href="/favicon.ico?v=20261017-opensae" sizes="any" />
@@ -213,7 +215,7 @@ search_exclude: true
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg class="btt-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
   <div class="toast" id="toast">Copied to clipboard</div>
 
-  <script src="/assets/landing/js/data.js?v=20261022-no-sar-rss-demo"></script>
+  <script src="/assets/landing/js/data.js?v=20261107-preprint"></script>
   <script>
     (() => {
       const people = [
