@@ -325,11 +325,11 @@ const workExperience = [
 const service = [
   {
     title: "Journal Reviewer",
-    muted: "Pattern Recognition (Elsevier) and IEEE Transactions on Neural Networks and Learning Systems (TNNLS)",
+    muted: "Pattern Recognition (Elsevier) and IEEE Transactions on Neural Networks and Learning Systems (TNNLS), IEEE TCSVT",
   },
   {
-    title: "Conference Program Committee",
-    muted: "NeurIPS 2026, ECCV 2026, ICML 2026, CVPR 2026, etc.",
+    title: "Conference Service",
+    muted: "NeurIPS 2026, ECCV 2026, ICML 2026, CVPR 2026 (PC), AAAI 2027 Doctoral Consortium (Reviewer), etc.",
   },
 ];
 
