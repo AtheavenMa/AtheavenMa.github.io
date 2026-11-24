@@ -53,14 +53,14 @@ search_exclude: true
     <div class="nav-inner">
       <a href="#top" class="nav-brand">Haotian&nbsp;Ma</a>
       <nav class="nav-links" id="navLinks">
+        <a href="#education" class="nav-link">Education</a>
         <a href="#research" class="nav-link">Research</a>
         <a href="#papers" class="nav-link">Papers</a>
-        <a href="#work" class="nav-link">Experience</a>
-        <a href="#education" class="nav-link">Education</a>
-        <a href="#awards" class="nav-link">Awards</a>
-        <a href="#service" class="nav-link">Service</a>
         <a href="#open-source" class="nav-link">Open Source</a>
         <a href="#skills" class="nav-link">Skills</a>
+        <a href="#work" class="nav-link">Experience</a>
+        <a href="#awards" class="nav-link">Awards</a>
+        <a href="#service" class="nav-link">Service</a>
         <a href="#news" class="nav-link">News</a>
         <a href="#life" class="nav-link">Life</a>
         <a href="#contact" class="nav-link">Contact</a>
@@ -98,6 +98,13 @@ search_exclude: true
       </div>
     </section>
 
+    <section class="section section-alt" id="education">
+      <div class="container">
+        <h2 class="section-title reveal">Education</h2>
+        <div class="cv-module" id="educationList"></div>
+      </div>
+    </section>
+
     <section class="section" id="research">
       <div class="container">
         <h2 class="section-title reveal">Research</h2>
@@ -122,17 +129,24 @@ search_exclude: true
       </div>
     </section>
 
+    <section class="section section-alt" id="open-source">
+      <div class="container">
+        <h2 class="section-title reveal">Open Source</h2>
+        <ul class="box-list" id="openSourceList"></ul>
+      </div>
+    </section>
+
+    <section class="section" id="skills">
+      <div class="container">
+        <h2 class="section-title reveal">Skills</h2>
+        <ul class="box-list" id="skillsList"></ul>
+      </div>
+    </section>
+
     <section class="section" id="work">
       <div class="container">
         <h2 class="section-title reveal">Experience</h2>
         <div class="cv-module" id="workList"></div>
-      </div>
-    </section>
-
-    <section class="section section-alt" id="education">
-      <div class="container">
-        <h2 class="section-title reveal">Education</h2>
-        <div class="cv-module" id="educationList"></div>
       </div>
     </section>
 
@@ -153,20 +167,6 @@ search_exclude: true
           <h2 class="section-title reveal">Teaching</h2>
           <ul class="simple-list" id="teachingList"></ul>
         </div>
-      </div>
-    </section>
-
-    <section class="section section-alt" id="open-source">
-      <div class="container">
-        <h2 class="section-title reveal">Open Source</h2>
-        <ul class="box-list" id="openSourceList"></ul>
-      </div>
-    </section>
-
-    <section class="section" id="skills">
-      <div class="container">
-        <h2 class="section-title reveal">Skills</h2>
-        <ul class="box-list" id="skillsList"></ul>
       </div>
     </section>
 
