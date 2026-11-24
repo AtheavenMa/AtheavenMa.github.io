@@ -29,7 +29,7 @@ const openSource = [
   { html: '<strong>Founder of <a href="https://github.com/OpenSAE">OpenSAE</a>:</strong> Founded an open research initiative to make mechanistic interpretability more accessible, connecting reusable research infrastructure with reproducible experiments and collaborative AI research.' },
   { html: '<strong>Owner of <a href="https://github.com/OpenSAE/ResearchHarness">ResearchHarness</a>:</strong> Built a research framework that enables AI agents to understand, organize, and maintain complex research projects, allowing scientists to focus on discovery rather than managing code and experiments.' },
   { html: '<strong>Owner of <a href="https://github.com/OpenSAE/SAEBase">SAEBase</a>:</strong> Built an open research platform that turns interpretability methods into reusable building blocks, enabling researchers and AI agents to investigate language model behavior and test new scientific ideas.' },
-  { html: "<strong>Owner of ExtractStructure:</strong> Developed an AI tool that transforms complex papers and codebases into interactive maps, enabling researchers to explore knowledge, understand relationships, and critically examine AI-generated interpretations." },
+  { html: '<strong>Owner of <a href="https://github.com/AtheavenMa/ExtractStructure">ExtractStructure</a>:</strong> Developed an AI tool that transforms complex papers and codebases into interactive maps, enabling researchers to explore knowledge, understand relationships, and critically examine AI-generated interpretations.' },
 ];
 
 const skills = [
@@ -311,14 +311,6 @@ const education = [
 ];
 
 const workExperience = [
-  {
-    title: '<a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer">OpenSAE</a>',
-    aside: "Oct 2026 – Present",
-    lines: [
-      { text: "Madison, WI" },
-      { text: "Founder &amp; Maintainer. Built research infrastructure for large-scale LLM evaluation, SAE interventions, and benchmarking." },
-    ],
-  },
   {
     title: '<a href="https://www.waisman.wisc.edu/" target="_blank" rel="noopener noreferrer">Waisman Center</a>, University of Wisconsin–Madison',
     aside: "Sep 2023 – Present",
