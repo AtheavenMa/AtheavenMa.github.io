@@ -3,7 +3,7 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/AtheavenMa", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf?v=20261107-revised-final", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=4efd2d217f43", icon: "cv" },
 ];
 
 const news = [
@@ -23,6 +23,13 @@ const news = [
   },
   { date: "Jul 12, 2026", html: "Presented <strong>Spatial Phenotyping</strong> at ISMB." },
   { date: "Oct 17, 2025", html: "Presented <strong>SegJointGene</strong> at ACM BCB." },
+];
+
+const openSource = [
+  { html: '<strong>Founder of <a href="https://github.com/OpenSAE">OpenSAE</a>:</strong> Founded an open research initiative to make mechanistic interpretability more accessible, connecting reusable research infrastructure with reproducible experiments and collaborative AI research.' },
+  { html: '<strong>Owner of <a href="https://github.com/OpenSAE/ResearchHarness">ResearchHarness</a>:</strong> Built a research framework that enables AI agents to understand, organize, and maintain complex research projects, allowing scientists to focus on discovery rather than managing code and experiments.' },
+  { html: '<strong>Owner of <a href="https://github.com/OpenSAE/SAEBase">SAEBase</a>:</strong> Built an open research platform that turns interpretability methods into reusable building blocks, enabling researchers and AI agents to investigate language model behavior and test new scientific ideas.' },
+  { html: "<strong>Owner of ExtractStructure:</strong> Developed an AI tool that transforms complex papers and codebases into interactive maps, enabling researchers to explore knowledge, understand relationships, and critically examine AI-generated interpretations." },
 ];
 
 const skills = [
@@ -46,6 +53,17 @@ const awards = [
 ];
 
 const publications = [
+  {
+    year: 2027,
+    badge: "submitted",
+    venueBadge: "Submitted",
+    tags: ["selected", "submitted"],
+    category: "reasoning",
+    title: "SymSelect: Recovering Symmetry Alignment When Validity Depends on the Sample",
+    authors: "Haotian Ma, Ruqi Yang",
+    venueFull: "ICLR 2027 Submission",
+    code: "https://github.com/AtheavenMa/SymSelect",
+  },
   {
     year: 2026,
     badge: "preprint",
@@ -127,6 +145,16 @@ const publications = [
     code: "https://github.com/haotianSustc/deepinfo",
   },
   {
+    year: 2020,
+    badge: "iclr",
+    venueBadge: "ICLR",
+    tags: ["selected", "published"],
+    category: "reasoning",
+    title: "Interpretable Complex-Valued Neural Networks for Privacy Protection",
+    authors: "Liyao Xiang, Hao Zhang, Haotian Ma, Yifan Zhang, Jie Ren, Quanshi Zhang",
+    venueFull: "ICLR 2020",
+  },
+  {
     year: 2019,
     badge: "cvpr",
     venueBadge: "CVPR",
@@ -149,63 +177,6 @@ const publications = [
 ];
 
 const researchExperience = [
-  {
-    title: "Compositionality, Intervention, and Systematic Reasoning in LLMs",
-    lines: [
-      {
-        text: "Study when model components and structural transformations can be combined, reused, or generalized reliably in unseen settings.",
-        em: true,
-      },
-    ],
-    items: [
-      {
-        title: "Behavioral Compositionality of Sparse Autoencoder Representations",
-        aside: "Preprint",
-        lines: [{ text: "Haotian Ma, Ziye Mei, Frederic Sala", em: true }],
-        points: [
-          "Characterized downstream interactions among SAE features, revealing combined effects differ from the sum of individual feature effects.",
-          "Pairwise modeling improved combined steering prediction in Llama-3.1 8B by 33%.",
-        ],
-      },
-    ],
-  },
-  {
-    title: "Faithful Representations and Mechanistic Interpretability",
-    lines: [
-      {
-        text: "Understand feature representations and how those representations support faithful explanations and interventions.",
-        em: true,
-      },
-    ],
-    items: [
-      {
-        title: "Representation Redistribution in Sparse Autoencoders",
-        aside: "Preprint",
-        lines: [{ text: "Ziye Mei, Haotian Ma", em: true }],
-        points: [
-          "Found that prompt changes preserving the same request can redistribute sparse feature activity, with patterns persisting across unseen prompt variants.",
-          "Validated across 27 SAEs spanning Gemma, Llama, Mistral, GPT, and Pythia, and assessed how they helped predict failures in frozen safety probes.",
-        ],
-      },
-      {
-        title: "Quantification and Analysis of Layer-wise and Pixel-wise Information Discarding",
-        aside: "ICML 2022 Spotlight",
-        lines: [{ text: "Haotian Ma*, Hao Zhang*, Fan Zhou, Yinqing Zhang, Quanshi Zhang", em: true }],
-        points: [
-          "Introduced information entropy measures that compare how neural networks discard input information across layers, models, and individual pixels.",
-          "Derived a theoretical link between selective information discarding and the efficiency of extracting features relevant to the task.",
-        ],
-      },
-      {
-        title: "Interpreting CNNs via Decision Trees",
-        aside: "CVPR 2019",
-        lines: [{ text: "Quanshi Zhang, Yu Yang, Haotian Ma, Ying Nian Wu", em: true }],
-        points: [
-          "Converted hidden CNN features into object part concepts and quantified how those parts drive individual predictions.",
-        ],
-      },
-    ],
-  },
   {
     title: "Interpretable AI for Scientific Discovery",
     lines: [
@@ -245,6 +216,79 @@ const researchExperience = [
         points: [
           "Learned joint representations of disease phenotype, gene expression, and spatial organization to identify cellular niches associated with disease.",
           "Integrated single cell RNA sequencing with spatial transcriptomics to transfer phenotype signals across cohorts and map disease pathology.",
+        ],
+      },
+    ],
+  },
+  {
+    title: "Faithful Representations and Mechanistic Interpretability",
+    lines: [
+      {
+        text: "Understand feature representations and how those representations support faithful explanations and interventions.",
+        em: true,
+      },
+    ],
+    items: [
+      {
+        title: "Representation Redistribution in Sparse Autoencoders",
+        aside: "ICLR 2027 Submission",
+        lines: [{ text: "Ziye Mei, Haotian Ma", em: true }],
+        points: [
+          "Found that prompt changes preserving the same request can redistribute sparse feature activity, with patterns persisting across unseen prompt variants.",
+          "Validated across 27 SAEs spanning Gemma, Llama, Mistral, GPT, and Pythia, and used redistribution patterns to localize risk features without training a safety probe.",
+        ],
+      },
+      {
+        title: "Quantification and Analysis of Layer-wise and Pixel-wise Information Discarding",
+        aside: "ICML 2022 Spotlight",
+        lines: [{ text: "Haotian Ma*, Hao Zhang*, Fan Zhou, Yinqing Zhang, Quanshi Zhang", em: true }],
+        points: [
+          "Introduced information entropy measures that compare how neural networks discard input information across layers, models, and individual pixels.",
+          "Derived a theoretical link between selective information discarding and the efficiency of extracting features relevant to the task.",
+        ],
+      },
+      {
+        title: "Interpreting CNNs via Decision Trees",
+        aside: "CVPR 2019",
+        lines: [{ text: "Quanshi Zhang, Yu Yang, Haotian Ma, Ying Nian Wu", em: true }],
+        points: [
+          "Converted hidden CNN features into object part concepts and quantified how those parts drive individual predictions.",
+        ],
+      },
+    ],
+  },
+  {
+    title: "LLM Reasoning and Trustworthy AI",
+    lines: [
+      {
+        text: "Study when model components and structural transformations can be combined, reused, or generalized reliably in unseen settings, and how models can protect sensitive information.",
+        em: true,
+      },
+    ],
+    items: [
+      {
+        title: "Behavioral Compositionality of Sparse Autoencoder Representations",
+        aside: "ICLR 2027 Submission",
+        lines: [{ text: "Haotian Ma, Ziye Mei, Frederic Sala", em: true }],
+        points: [
+          "Characterized downstream interactions among SAE features, revealing combined effects differ from the sum of individual feature effects.",
+          "Pairwise modeling improved combined steering prediction in Llama-3.1 8B by 33%.",
+        ],
+      },
+      {
+        title: "SymSelect: Recovering Symmetry Alignment When Validity Depends on the Sample",
+        aside: "ICLR 2027 Submission",
+        lines: [{ text: "Haotian Ma, Ruqi Yang", em: true }],
+        points: [
+          "Built reliable alignment by selecting symmetrical pairs, derived conditions for beneficial alignment updates, and recovered 77–92% of supervised gains.",
+        ],
+      },
+      {
+        title: "Interpretable Complex-Valued Neural Networks for Privacy Protection",
+        aside: "ICLR 2020",
+        lines: [{ text: "Liyao Xiang, Hao Zhang, Haotian Ma, Yifan Zhang, Jie Ren, Quanshi Zhang", em: true }],
+        points: [
+          "Designed neural networks that encode intermediate features as complex values with randomized phases while preserving accurate predictions.",
         ],
       },
     ],

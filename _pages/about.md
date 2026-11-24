@@ -59,6 +59,7 @@ search_exclude: true
         <a href="#education" class="nav-link">Education</a>
         <a href="#awards" class="nav-link">Awards</a>
         <a href="#service" class="nav-link">Service</a>
+        <a href="#open-source" class="nav-link">Open Source</a>
         <a href="#skills" class="nav-link">Skills</a>
         <a href="#news" class="nav-link">News</a>
         <a href="#life" class="nav-link">Life</a>
@@ -111,9 +112,9 @@ search_exclude: true
         <div class="pub-filters reveal" id="pubFilters">
           <button class="filter-btn active" data-filter="selected">Selected</button>
           <button class="filter-btn" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="mech">Mechanistic Interpretability</button>
-          <button class="filter-btn" data-filter="discovery">AI for Scientific Discovery</button>
-          <button class="filter-btn" data-filter="reasoning">LLM Reasoning</button>
+          <button class="filter-btn" data-filter="mech">Faithful Representations and Mechanistic Interpretability</button>
+          <button class="filter-btn" data-filter="discovery">Interpretable AI for Scientific Discovery</button>
+          <button class="filter-btn" data-filter="reasoning">LLM Reasoning and Trustworthy AI</button>
           <input type="search" id="pubSearch" class="pub-search" placeholder="Search title, venue, author..." aria-label="Search papers" />
         </div>
         <div class="pub-list" id="pubList"></div>
@@ -152,6 +153,13 @@ search_exclude: true
           <h2 class="section-title reveal">Teaching</h2>
           <ul class="simple-list" id="teachingList"></ul>
         </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="open-source">
+      <div class="container">
+        <h2 class="section-title reveal">Open Source</h2>
+        <ul class="box-list" id="openSourceList"></ul>
       </div>
     </section>
 
@@ -214,7 +222,7 @@ search_exclude: true
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg class="btt-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
   <div class="toast" id="toast">Copied to clipboard</div>
 
-  <script src="/assets/landing/js/data.js?v=20261107-cv-final"></script>
+  <script src="/assets/landing/js/data.js?v=4efd2d217f43"></script>
   <script>
     (() => {
       const people = [
@@ -261,6 +269,6 @@ search_exclude: true
       );
     })();
   </script>
-  <script src="/assets/landing/js/main-20260813-landing-4.js?v=20261021-paper-links"></script>
+  <script src="/assets/landing/js/main-20260813-landing-4.js?v=4efd2d217f43"></script>
 </body>
 </html>

@@ -117,6 +117,7 @@ function renderContent() {
     if (!el || !items) return;
     el.innerHTML = items.map((item) => `<li class="reveal">${item.html}</li>`).join("");
   };
+  renderFacts("openSourceList", openSource);
   renderFacts("skillsList", skills);
   renderFacts("awardsList", awards);
 
