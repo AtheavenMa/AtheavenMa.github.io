@@ -8,6 +8,10 @@ const socials = [
 
 const news = [
   {
+    date: "Nov 25, 2026",
+    html: 'Released <a href="https://github.com/OpenSAE/EverResearch/releases/tag/v0.3.1" target="_blank" rel="noopener">EverResearch 0.3.1</a>, an open-source toolkit for maintaining research projects and reproducing experiments.',
+  },
+  {
     date: "Oct 16, 2026",
     html: 'Founded <a href="https://github.com/OpenSAE" target="_blank" rel="noopener">OpenSAE</a> and released <a href="https://github.com/OpenSAE/SAEBase/releases/tag/v0.3.0" target="_blank" rel="noopener">SAEBase v0.3.0</a>, open infrastructure for evaluating SAE interventions and reproducibility.',
   },
