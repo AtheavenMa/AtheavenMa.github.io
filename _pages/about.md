@@ -88,10 +88,7 @@ search_exclude: true
             My research focuses on <strong>mechanistic interpretability, agentic AI, and AI for scientific discovery</strong>. I investigate how neural networks represent knowledge and how learned features interact to shape model behavior. I combine theoretical analysis with large-scale experiments to develop more interpretable and reliable AI systems.
           </p>
           <p class="hero-bio reveal">
-            I founded <a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer"><strong>OpenSAE</strong></a> to build open research infrastructure for a future where humans and AI agents conduct scientific research together. My projects include <a href="https://github.com/OpenSAE/EverResearch" target="_blank" rel="noopener noreferrer"><strong>EverResearch</strong></a>, an agent harness for continuous and reproducible research, <a href="https://github.com/OpenSAE/SAEBase" target="_blank" rel="noopener noreferrer"><strong>SAEBase</strong></a>, an open platform for mechanistic interpretability, and <a href="https://github.com/AtheavenMa/ExtractStructure" target="_blank" rel="noopener noreferrer"><strong>ExtractStructure</strong></a>, an AI tool for exploring complex scientific knowledge.
-          </p>
-          <p class="hero-bio reveal">
-            My long-term goal is to make AI a powerful scientific collaborator, expanding what researchers can understand, investigate, and discover.
+            I founded <a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer"><strong>OpenSAE</strong></a> to build open research infrastructure for a future where humans and AI agents conduct scientific research together. My long-term goal is to make AI a powerful scientific collaborator, expanding what researchers can understand, investigate, and discover.
           </p>
           <p class="hero-bio reveal">
             I am seeking <strong>Research Scientist and postdoctoral opportunities</strong> in frontier AI research.
