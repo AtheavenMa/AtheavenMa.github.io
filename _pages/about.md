@@ -80,15 +80,21 @@ search_exclude: true
       <div class="container hero-inner">
         <div class="hero-text">
           <h1 class="hero-name">Haotian Ma</h1>
-          <p class="hero-lede reveal">Explaining AI from learned features to abstract concepts.</p>
+          <p class="hero-lede reveal"><strong><em>Connecting Human and Artificial Intelligence.</em></strong></p>
           <p class="hero-bio reveal">
             Hi, I’m Haotian, a Ph.D. candidate in <a href="https://www.cs.wisc.edu/" target="_blank" rel="noopener">Computer Science</a> at the <a href="https://www.wisc.edu/" target="_blank" rel="noopener">University of Wisconsin–Madison</a>, advised by Prof. <a href="https://daifengwanglab.org/" target="_blank" rel="noopener">Daifeng Wang</a>. I have also worked with Profs. <a href="https://pages.cs.wisc.edu/~aws/" target="_blank" rel="noopener">Aws Albarghouthi</a> and <a href="https://pages.cs.wisc.edu/~fredsala/" target="_blank" rel="noopener">Frederic Sala</a>, and previously with Prof. <a href="http://qszhang.com/" target="_blank" rel="noopener">Quanshi Zhang</a> during a research internship at the <a href="https://jhc.sjtu.edu.cn/" target="_blank" rel="noopener">John Hopcroft Center</a>.
           </p>
           <p class="hero-bio reveal">
-            My research focuses on <strong>mechanistic interpretability</strong> and the reliability of feature explanations. I study when learned features can explain model behavior, how they interact, and how their effects change under interventions and shifts in context. I combine theoretical analysis, controlled experiments, and evaluation at scale, with related research in <strong>LLM reasoning</strong>, <strong>AI safety</strong>, and <strong>interpretable AI for scientific discovery</strong>.
+            My research focuses on <strong>mechanistic interpretability, agentic AI, and AI for scientific discovery</strong>. I investigate how neural networks represent knowledge and how learned features interact to shape model behavior. I combine theoretical analysis with large-scale experiments to develop more interpretable and reliable AI systems.
           </p>
           <p class="hero-bio reveal">
-            I founded <a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer">OpenSAE</a> to develop open research infrastructure for studying and testing sparse autoencoder features in LLMs. I am seeking Research Scientist and postdoctoral research opportunities in mechanistic interpretability, AI safety, and frontier model evaluation.
+            I founded <a href="https://github.com/OpenSAE" target="_blank" rel="noopener noreferrer"><strong>OpenSAE</strong></a> to build open research infrastructure for a future where humans and AI agents conduct scientific research together. My projects include <a href="https://github.com/OpenSAE/EverResearch" target="_blank" rel="noopener noreferrer"><strong>EverResearch</strong></a>, an agent harness for continuous and reproducible research, <a href="https://github.com/OpenSAE/SAEBase" target="_blank" rel="noopener noreferrer"><strong>SAEBase</strong></a>, an open platform for mechanistic interpretability, and <a href="https://github.com/AtheavenMa/ExtractStructure" target="_blank" rel="noopener noreferrer"><strong>ExtractStructure</strong></a>, an AI tool for exploring complex scientific knowledge.
+          </p>
+          <p class="hero-bio reveal">
+            My long-term goal is to make AI a powerful scientific collaborator, expanding what researchers can understand, investigate, and discover.
+          </p>
+          <p class="hero-bio reveal">
+            I am seeking <strong>Research Scientist and postdoctoral opportunities</strong> in frontier AI research.
           </p>
           <div class="hero-socials reveal" id="heroSocials"></div>
         </div>
