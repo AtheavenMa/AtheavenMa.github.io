@@ -1,5 +1,5 @@
 // Generated from CV.pdf by bin/sync_cv.py.
-const cvUrl = "/CV.pdf?v=aad9870b3574";
+const cvUrl = "/CV.pdf?v=ddeddd446c2b";
 const education = [
   {
     "title": "University of Wisconsin–Madison",
@@ -51,7 +51,7 @@ const researchExperience = [
         ]
       },
       {
-        "title": "SegJointGene: Joint Cell Segmentation and Spatial Gene Prioritization by Information Entropy Guided CNNs",
+        "title": "SegJointGene: Joint Cell Segmentation and Spatial Gene Prioritization by Information Entropy Guided Convolutional Neural Networks",
         "aside": "Bioinformatics 2026",
         "lines": [
           {
@@ -79,8 +79,8 @@ const researchExperience = [
     ]
   },
   {
-    "title": "Faithful Representations and Mechanistic Interpretability",
-    "category": "faithful-representations-and-mechanistic-interpretability",
+    "title": "Mechanistic Interpretability and Faithful Representations",
+    "category": "mechanistic-interpretability-and-faithful-representations",
     "items": [
       {
         "title": "Representation Redistribution in Sparse Autoencoders",
@@ -109,7 +109,7 @@ const researchExperience = [
         ]
       },
       {
-        "title": "Interpreting CNNs via Decision Trees",
+        "title": "Interpreting Convolutional Neural Networks via Decision Trees",
         "aside": "CVPR 2019",
         "lines": [
           {
@@ -124,8 +124,8 @@ const researchExperience = [
     ]
   },
   {
-    "title": "LLM Reasoning and Trustworthy AI",
-    "category": "llm-reasoning-and-trustworthy-ai",
+    "title": "Trustworthy AI and LLM Reasoning",
+    "category": "trustworthy-ai-and-llm-reasoning",
     "items": [
       {
         "title": "Behavioral Compositionality of Sparse Autoencoder Representations",
@@ -183,7 +183,7 @@ const publications = [
     "code": "https://github.com/AtheavenMa/Spectral-Spatial-Interpretation"
   },
   {
-    "title": "SegJointGene: Joint Cell Segmentation and Spatial Gene Prioritization by Information Entropy Guided CNNs",
+    "title": "SegJointGene: Joint Cell Segmentation and Spatial Gene Prioritization by Information Entropy Guided Convolutional Neural Networks",
     "authors": "Haotian Ma, Daifeng Wang",
     "venueFull": "Bioinformatics 2026",
     "category": "interpretable-ai-for-scientific-discovery",
@@ -209,7 +209,7 @@ const publications = [
     "title": "Representation Redistribution in Sparse Autoencoders",
     "authors": "Ziye Mei, Haotian Ma",
     "venueFull": "ICLR 2027 Submission",
-    "category": "faithful-representations-and-mechanistic-interpretability",
+    "category": "mechanistic-interpretability-and-faithful-representations",
     "year": 2027,
     "badge": "submitted",
     "venueBadge": "ICLR 2027 Submission",
@@ -221,7 +221,7 @@ const publications = [
     "title": "Quantification and Analysis of Layer-wise and Pixel-wise Information Discarding",
     "authors": "Haotian Ma*, Hao Zhang*, Fan Zhou, Yinqing Zhang, Quanshi Zhang",
     "venueFull": "ICML 2022 Spotlight",
-    "category": "faithful-representations-and-mechanistic-interpretability",
+    "category": "mechanistic-interpretability-and-faithful-representations",
     "year": 2022,
     "badge": "icml",
     "venueBadge": "ICML 2022 Spotlight",
@@ -230,10 +230,10 @@ const publications = [
     "code": "https://github.com/haotianSustc/deepinfo"
   },
   {
-    "title": "Interpreting CNNs via Decision Trees",
+    "title": "Interpreting Convolutional Neural Networks via Decision Trees",
     "authors": "Quanshi Zhang, Yu Yang, Haotian Ma, Ying Nian Wu",
     "venueFull": "CVPR 2019",
-    "category": "faithful-representations-and-mechanistic-interpretability",
+    "category": "mechanistic-interpretability-and-faithful-representations",
     "year": 2019,
     "badge": "cvpr",
     "venueBadge": "CVPR 2019",
@@ -244,7 +244,7 @@ const publications = [
     "title": "Behavioral Compositionality of Sparse Autoencoder Representations",
     "authors": "Haotian Ma, Ziye Mei, Frederic Sala",
     "venueFull": "ICLR 2027 Submission",
-    "category": "llm-reasoning-and-trustworthy-ai",
+    "category": "trustworthy-ai-and-llm-reasoning",
     "year": 2027,
     "badge": "submitted",
     "venueBadge": "ICLR 2027 Submission",
@@ -256,7 +256,7 @@ const publications = [
     "title": "SymSelect: Recovering Symmetry Alignment When Validity Depends on the Sample",
     "authors": "Haotian Ma, Ruqi Yang",
     "venueFull": "ICLR 2027 Submission",
-    "category": "llm-reasoning-and-trustworthy-ai",
+    "category": "trustworthy-ai-and-llm-reasoning",
     "year": 2027,
     "badge": "submitted",
     "venueBadge": "ICLR 2027 Submission",
@@ -267,7 +267,7 @@ const publications = [
     "title": "Interpretable Complex-Valued Neural Networks for Privacy Protection",
     "authors": "Liyao Xiang, Hao Zhang, Haotian Ma, Yifan Zhang, Jie Ren, Quanshi Zhang",
     "venueFull": "ICLR 2020",
-    "category": "llm-reasoning-and-trustworthy-ai",
+    "category": "trustworthy-ai-and-llm-reasoning",
     "year": 2020,
     "badge": "iclr",
     "venueBadge": "ICLR 2020",
@@ -280,7 +280,7 @@ const openSource = [
     "html": "<strong>Founder of <a href=\"https://github.com/OpenSAE\">OpenSAE</a>:</strong> Founded an open research initiative to make mechanistic interpretability more accessible, connecting reusable research infrastructure with reproducible experiments and collaborative AI research."
   },
   {
-    "html": "<strong>Owner of <a href=\"https://github.com/OpenSAE/EverResearch\">ResearchHarness</a>:</strong> Built a research framework that enables AI agents to understand, organize, and maintain complex research projects, allowing scientists to focus on discovery rather than managing code and experiments."
+    "html": "<strong>Owner of <a href=\"https://github.com/OpenSAE/EverResearch\">ResearchHarness</a>:</strong> Built a research framework that enables AI agents to understand, organize, and maintain complex research projects, saving researchers time spent managing code and experiments."
   },
   {
     "html": "<strong>Owner of <a href=\"https://github.com/OpenSAE/SAEBase\">SAEBase</a>:</strong> Built an open research platform that turns interpretability methods into reusable building blocks, enabling researchers and AI agents to investigate language model behavior and test new scientific ideas."
@@ -330,7 +330,7 @@ const workExperience = [
         "text": "Madison, WI"
       },
       {
-        "text": "Graduate Research Assistant. Developed symbolic labeling rules and evaluation pipelines for automated weak supervision."
+        "text": "Graduate Research Assistant. Developed symbolic labeling rules and evaluation pipelines for weak supervision."
       }
     ],
     "points": [

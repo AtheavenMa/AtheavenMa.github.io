@@ -16,6 +16,7 @@ HEADINGS = (
 )
 LABELS = re.compile(r"\[(paper|code|demo)\]")
 VENUE = re.compile(r"^(.+?)\s+((?:19|20)\d{2})(?:\s+(.*))?$")
+VENUE_DATE = re.compile(r"^(?:19|20)\d{2}(?:\s+.*)?$")
 ROLE = re.compile(r"^(.*?)(?:,\s*UW–Madison)?:\s*(.+)$")
 AWARD_END = re.compile(r"\b(?:19|20)\d{2}$")
 SUPPLEMENTAL_PAPERS = {
@@ -86,18 +87,37 @@ def column(line):
     return re.split(r"\s{2,}", line.strip(), maxsplit=1)
 
 
+def paper_blocks(lines):
+    # The earlier template puts the full venue on the right. The newer one
+    # puts the venue and date on separate lines on the left.
+    def venue_at(index):
+        if index >= len(lines):
+            return False
+        fields = column(lines[index])
+        return len(fields) == 2 and bool(VENUE_DATE.fullmatch(fields[0]))
+
+    starts = []
+    for index, line in enumerate(lines):
+        fields = column(line)
+        if len(fields) == 2 and (VENUE.fullmatch(fields[1]) or venue_at(index + 1)):
+            starts.append(index)
+    require(starts and starts[0] == 0, "Cannot identify the first paper in a research section")
+    for start, end in zip(starts, [*starts[1:], len(lines)]):
+        left, right = column(lines[start])
+        if venue_at(start + 1):
+            date, continuation = column(lines[start + 1])
+            yield right, f"{left} {date}", [continuation, *lines[start + 2:end]]
+        else:
+            yield left, right, lines[start + 1:end]
+
+
 def publications_from(lines, links):
     groups, papers = [], []
     for group in grouped_lines(lines, lambda line: line == line.lstrip()):
         title, *entries = group
         category = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
         items = []
-        def starts_paper(line):
-            fields = column(line)
-            return len(fields) == 2 and bool(VENUE.fullmatch(fields[1]))
-
-        for heading, *body in grouped_lines(entries, starts_paper):
-            first, venue = column(heading)
+        for first, venue, body in paper_blocks(entries):
             match = VENUE.fullmatch(venue)
             require(match, f"Cannot identify the venue for {first}")
             authors_at = next((i for i, line in enumerate(body) if "Haotian Ma" in line), -1)
