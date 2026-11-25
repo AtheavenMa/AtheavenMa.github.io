@@ -3,7 +3,7 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/AtheavenMa", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf?v=4efd2d217f43", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=db7815418d59", icon: "cv" },
 ];
 
 const news = [
@@ -27,7 +27,7 @@ const news = [
 
 const openSource = [
   { html: '<strong>Founder of <a href="https://github.com/OpenSAE">OpenSAE</a>:</strong> Founded an open research initiative to make mechanistic interpretability more accessible, connecting reusable research infrastructure with reproducible experiments and collaborative AI research.' },
-  { html: '<strong>Owner of <a href="https://github.com/OpenSAE/ResearchHarness">ResearchHarness</a>:</strong> Built a research framework that enables AI agents to understand, organize, and maintain complex research projects, allowing scientists to focus on discovery rather than managing code and experiments.' },
+  { html: '<strong>Owner of <a href="https://github.com/OpenSAE/EverResearch">EverResearch</a>:</strong> Built a research framework that enables AI agents to understand, organize, and maintain complex research projects, allowing scientists to focus on discovery rather than managing code and experiments.' },
   { html: '<strong>Owner of <a href="https://github.com/OpenSAE/SAEBase">SAEBase</a>:</strong> Built an open research platform that turns interpretability methods into reusable building blocks, enabling researchers and AI agents to investigate language model behavior and test new scientific ideas.' },
   { html: '<strong>Owner of <a href="https://github.com/AtheavenMa/ExtractStructure">ExtractStructure</a>:</strong> Developed an AI tool that transforms complex papers and codebases into interactive maps, enabling researchers to explore knowledge, understand relationships, and critically examine AI-generated interpretations.' },
 ];
