@@ -3,7 +3,7 @@ const socials = [
   { label: "Google Scholar", tip: "Scholar", href: "https://scholar.google.com/citations?user=UMm3StwAAAAJ", icon: "scholar" },
   { label: "GitHub", tip: "GitHub", href: "https://github.com/AtheavenMa", icon: "github" },
   { label: "LinkedIn", tip: "LinkedIn", href: "https://www.linkedin.com/in/Atheaven-Ma", icon: "linkedin" },
-  { label: "CV", tip: "CV", href: "/CV.pdf?v=db7815418d59", icon: "cv" },
+  { label: "CV", tip: "CV", href: "/CV.pdf?v=099272501be8", icon: "cv" },
 ];
 
 const news = [
@@ -33,11 +33,11 @@ const openSource = [
 ];
 
 const skills = [
-  { html: "<strong>LLMs &amp; Agent Systems:</strong> LLM Evaluation, LLM Inference, Prompt Engineering, Synthetic Data Generation, Multi-Agent Orchestration, Large-Scale Agent Experimentation, Evaluation Harnesses, vLLM" },
-  { html: "<strong>Machine Learning &amp; Interpretability:</strong> Mechanistic Interpretability, Sparse Autoencoders, Representation Analysis, Representation Interventions, LLM Steering, Feature Attribution, Multimodal Learning, Transformers" },
-  { html: "<strong>GPU, HPC &amp; Performance Engineering:</strong> CUDA/GPU, GPU Parallelism, Parallel Experiment Execution, Performance Optimization, Slurm/HPC, Linux, Bash, Docker" },
-  { html: "<strong>Statistical &amp; Scientific Computing:</strong> Statistical Inference, Hierarchical Bayesian Modeling, Low-Rank Modeling, Image Segmentation, Spatial Omics, Spatial Transcriptomics, Spatial Proteomics" },
-  { html: "<strong>Programming &amp; Tools:</strong> Python, C++, R, SQL, PyTorch, TensorFlow, scikit-learn, Git" },
+  { html: "<strong>AI Agents &amp; Collaborative AI:</strong> Harness Engineering, Agent Skills, Multi-Agent Orchestration, Context Engineering, Prompt Engineering, Tool Use, Agent Evaluation, Human-AI Collaboration, Agentic Workflows" },
+  { html: "<strong>AI Research Infrastructure:</strong> Software Architecture, Experiment Automation, Evaluation Frameworks, Reproducible Research, Open-Source Development, Configuration Management, Data Pipelines, Experiment Tracking" },
+  { html: "<strong>LLMs &amp; Mechanistic Interpretability:</strong> Sparse Autoencoders, Representation Analysis, Activation Patching, Feature Attribution, LLM Steering, Systematic Reasoning, LLM Evaluation, AI Safety" },
+  { html: "<strong>GPU &amp; High-Performance Computing:</strong> CUDA, vLLM, LLM Inference, Batched Inference, GPU Computing, Parallel Computing, Performance Optimization, Slurm, HPC, Linux, Docker" },
+  { html: "<strong>Machine Learning &amp; Programming:</strong> Deep Learning, Multimodal Learning, Transformers, Representation Learning, Statistical Inference, Scientific Computing, Python, C++, R, SQL, PyTorch, TensorFlow, Git" },
 ];
 
 const awards = [
