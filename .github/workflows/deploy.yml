@@ -8,6 +8,7 @@ on:
     paths:
       - "assets/**"
       - "CV.pdf"
+      - "bin/sync_cv.py"
       - "ssi-playground/**"
       - "favicon.ico"
       - "favicon.svg"
@@ -40,6 +41,7 @@ on:
     paths:
       - "assets/**"
       - "CV.pdf"
+      - "bin/sync_cv.py"
       - "ssi-playground/**"
       - "favicon.ico"
       - "favicon.svg"
@@ -111,6 +113,8 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y imagemagick
           pip3 install --upgrade nbconvert
+          pip3 install pypdf==7.1.1
+          python3 bin/sync_cv.py
           export JEKYLL_ENV=production
           bundle exec jekyll build
       - name: Purge unused CSS 🧹

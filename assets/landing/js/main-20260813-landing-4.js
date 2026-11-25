@@ -83,9 +83,8 @@ function renderContent() {
       const article = document.createElement("article");
       article.className = "pub-card reveal";
       article.dataset.year = p.year;
-      article.dataset.tags = (p.tags || []).join(" ");
       article.dataset.category = p.category || "";
-      article.dataset.search = deburr([p.title, p.authors, p.venueFull, p.venueBadge, p.year].join(" "));
+      article.dataset.search = deburr([p.title, p.authors, p.venueFull, p.description, p.year].join(" "));
       const paperUrl = p.pdf || p.paper || p.url || "";
       const title = paperUrl ? `<a href="${paperUrl}" target="_blank" rel="noopener noreferrer">${p.title}</a>` : p.title;
       const availableLinks = [
@@ -103,7 +102,7 @@ function renderContent() {
         `<div class="pub-venue-badge venue-${p.badge}">${p.venueBadge}</div>` +
         `<div class="pub-body"><h3 class="pub-title">${title}</h3>` +
         `<p class="pub-authors">${highlightMe(p.authors)}</p>` +
-        `<p class="pub-venue">${p.venueFull}</p>${links}</div>`;
+        `<p class="pub-venue">${p.venueFull}</p><p>${p.description}</p>${links}</div>`;
       pubList.appendChild(article);
     });
   }
@@ -206,16 +205,22 @@ newsToggle?.addEventListener("click", () => {
 
 const pubFilters = document.getElementById("pubFilters");
 const pubSearch = document.getElementById("pubSearch");
-let activeFilter = pubFilters?.querySelector(".filter-btn.active")?.dataset.filter || "selected";
+if (pubFilters && pubSearch) {
+  researchExperience.forEach(({ title, category }) => {
+    const button = document.createElement("button");
+    button.className = "filter-btn";
+    button.dataset.filter = category;
+    button.innerHTML = title;
+    pubFilters.insertBefore(button, pubSearch);
+  });
+}
+let activeFilter = "all";
 function applyPubFilters() {
   const q = deburr(pubSearch?.value || "");
   let shown = 0;
   document.querySelectorAll(".pub-card").forEach((card) => {
-    const tags = (card.dataset.tags || "").split(" ").filter(Boolean);
     const category = card.dataset.category || "";
-    const matchesFilter =
-      activeFilter === "all" ||
-      (activeFilter === "selected" ? tags.includes("selected") : category === activeFilter);
+    const matchesFilter = activeFilter === "all" || category === activeFilter;
     const matchesSearch = !q || card.dataset.search.includes(q);
     const visible = matchesFilter && matchesSearch;
     card.hidden = !visible;

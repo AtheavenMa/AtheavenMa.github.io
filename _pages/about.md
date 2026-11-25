@@ -121,13 +121,8 @@ search_exclude: true
     <section class="section section-alt" id="papers">
       <div class="container">
         <h2 class="section-title reveal">Papers</h2>
-        <p class="section-note reveal">Selected lists the papers in Research. All includes the rest.</p>
         <div class="pub-filters reveal" id="pubFilters">
-          <button class="filter-btn active" data-filter="selected">Selected</button>
-          <button class="filter-btn" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="mech">Faithful Representations and Mechanistic Interpretability</button>
-          <button class="filter-btn" data-filter="discovery">Interpretable AI for Scientific Discovery</button>
-          <button class="filter-btn" data-filter="reasoning">LLM Reasoning and Trustworthy AI</button>
+          <button class="filter-btn active" data-filter="all">All</button>
           <input type="search" id="pubSearch" class="pub-search" placeholder="Search title, venue, author..." aria-label="Search papers" />
         </div>
         <div class="pub-list" id="pubList"></div>
@@ -228,7 +223,8 @@ search_exclude: true
   <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg class="btt-ring" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20"/></svg><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg></button>
   <div class="toast" id="toast">Copied to clipboard</div>
 
-  <script src="/assets/landing/js/data.js?v=834351b8bca4"></script>
+  <script src="/assets/landing/js/cv-data.js?v={{ site.time | date: '%s' }}"></script>
+  <script src="/assets/landing/js/data.js?v={{ site.time | date: '%s' }}"></script>
   <script>
     (() => {
       const people = [
@@ -275,6 +271,6 @@ search_exclude: true
       );
     })();
   </script>
-  <script src="/assets/landing/js/main-20260813-landing-4.js?v=4efd2d217f43"></script>
+  <script src="/assets/landing/js/main-20260813-landing-4.js?v={{ site.time | date: '%s' }}"></script>
 </body>
 </html>
